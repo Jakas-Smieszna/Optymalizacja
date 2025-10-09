@@ -27,9 +27,6 @@ target_include_directories(Optymalizacja PUBLIC
 	${PROJECT_SOURCE_DIR}
 )
 
-set_target_properties(Optymalizacja PROPERTIES
-	CXX_STANDARD 20
-)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET Optymalizacja PROPERTY CXX_STANDARD 20)
