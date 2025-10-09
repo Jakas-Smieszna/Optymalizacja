@@ -1,6 +1,8 @@
 //Ten plik nie powinien byæ edytowany
 
-#pragma once
+#ifndef _H_OPT_ALG
+#define _H_OPT_ALG
+
 
 #include"solution.h"
 
@@ -25,3 +27,5 @@ solution golden(matrix(*ff)(matrix, matrix, matrix), double a, double b, double 
 solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, int Nmax, matrix ud1 = NAN, matrix ud2 = NAN); // throw (string);
 
 solution EA(matrix(*ff)(matrix, matrix, matrix), int N, matrix lb, matrix ub, int mi, int lambda, matrix sigma0, double epsilon, int Nmax, matrix ud1 = NAN, matrix ud2 = NAN); // throw (string);
+
+#endif // !_H_OPT_ALG

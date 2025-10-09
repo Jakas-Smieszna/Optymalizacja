@@ -1,6 +1,8 @@
 //Ten plik nie powinien byæ edytowany
 
-#pragma once
+#ifndef _H_MATRIX
+#define _H_MATRIX
+
 
 #include<iostream>
 #include<string>
@@ -64,3 +66,5 @@ matrix get_row(const matrix&, int); // throw (string);
 ostream& operator<<(ostream&, const matrix&);
 istream& operator>>(istream&, matrix&); // throw (string);
 
+
+#endif
