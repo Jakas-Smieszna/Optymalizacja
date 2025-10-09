@@ -1,0 +1,1 @@
+# ITE_Optymalizacja_25_26_JakasSmieszna
