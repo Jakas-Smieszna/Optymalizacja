@@ -1,4 +1,4 @@
-//Ten plik nie powinien byæ edytowany
+//Ten plik nie powinien byc edytowany
 
 #ifndef _H_ODE_SOLVER
 #define _H_ODE_SOLVER

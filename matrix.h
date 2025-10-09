@@ -1,15 +1,15 @@
-//Ten plik nie powinien byæ edytowany
+//Ten plik nie powinien byc edytowany
 
 #ifndef _H_MATRIX
 #define _H_MATRIX
 
 
-#include<iostream>
-#include<string>
-#include<sstream>
-#include<fstream>
-#include<random>
-#include<chrono>
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <fstream>
+#include <random>
+#include <chrono>
 using namespace std;
 
 #define SEP_SYMBOL ','

@@ -1,10 +1,10 @@
-//Ten plik nie powinien byæ edytowany
+//Ten plik nie powinien byc edytowany
 
 #ifndef _H_OPT_ALG
 #define _H_OPT_ALG
 
 
-#include"solution.h"
+#include "solution.h"
 
 solution MC(matrix(*ff)(matrix, matrix, matrix), int N, matrix lb, matrix ub, double epsilon, int Nmax, matrix ud1 = NAN, matrix ud2 = NAN);
 

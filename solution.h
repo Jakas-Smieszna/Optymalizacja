@@ -1,10 +1,10 @@
-//Ten plik nie powinien byæ edytowany
+//Ten plik nie powinien byc edytowany
 
 #ifndef _H_SOLUTION
 #define _H_SOLUTION	
 
 
-#include"ode_solver.h"
+#include "ode_solver.h"
 
 class solution
 {
