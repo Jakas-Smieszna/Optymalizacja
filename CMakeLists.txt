@@ -20,8 +20,13 @@ set(PROJ_FILES
 	user_funs.cpp
 )
 
+
 # Add source to this project's executable.
 add_executable (Optymalizacja ${PROJ_FILES})
+
+target_include_directories(Optymalizacja PUBLIC
+	${CMAKE_SOURCE_DIR}
+)
 
 set_target_properties(Optymalizacja PROPERTIES
 	CXX_STANDARD 20
