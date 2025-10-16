@@ -1,15 +1,14 @@
-//Ten plik nie powinien byc edytowany
+//Ten plik nie powinien byæ edytowany
 
-#ifndef _H_MATRIX
-#define _H_MATRIX
+#pragma once
 
-
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <fstream>
-#include <random>
-#include <chrono>
+#define _USE_MATH_DEFINES
+#include<iostream>
+#include<string>
+#include<sstream>
+#include<fstream>
+#include<random>
+#include<chrono>
 using namespace std;
 
 #define SEP_SYMBOL ','
@@ -66,5 +65,3 @@ matrix get_row(const matrix&, int); // throw (string);
 ostream& operator<<(ostream&, const matrix&);
 istream& operator>>(istream&, matrix&); // throw (string);
 
-
-#endif

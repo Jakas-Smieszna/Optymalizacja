@@ -1,4 +1,6 @@
-#include "user_funs.h"
+#include"user_funs.h"
+
+//LAB0
 
 matrix ff0T(matrix x, matrix ud1, matrix ud2)				// funkcja celu dla przypadku testowego
 {
@@ -32,4 +34,14 @@ matrix df0(double t, matrix Y, matrix ud1, matrix ud2)
 	dY(0) = Y(1);																// pochodna z po³o¿enia to prêdkoœæ
 	dY(1) = ((t <= ud2(1)) * ud2(0) - m * g * l * sin(Y(0)) - b * Y(1)) / I;	// pochodna z prêdkoœci to przyspieszenie
 	return dY;
+}
+
+// LAB 1
+
+matrix ff1T(matrix x, matrix ud1, matrix ud2)
+{
+	matrix y;
+	y = -1.0 * std::cos(0.1 * x(0)) * std::exp(-1.0 * std::pow(0.1 * x(0) - 2.0 * M_PI, 2.0)) + 0.002 * std::pow(0.1 * x(0), 2.0);
+	return y;
+
 }

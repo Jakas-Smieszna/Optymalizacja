@@ -1,11 +1,8 @@
-//Ten plik nie powinien byc edytowany
+//Ten plik nie powinien byæ edytowany
 
-#ifndef _H_ODE_SOLVER
-#define _H_ODE_SOLVER
+#pragma once
 
 #include"matrix.h"
 #include"user_funs.h"
 
 matrix* solve_ode(matrix(*)(double, matrix, matrix, matrix), double, double, double, matrix, matrix = NAN, matrix = NAN); // throw (string);
-
-#endif

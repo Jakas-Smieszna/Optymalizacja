@@ -22,7 +22,7 @@ int main()
 {
 	try
 	{
-		lab0();
+		lab1();
 	}
 	catch (string EX_INFO)
 	{
@@ -68,6 +68,49 @@ void lab0()
 
 void lab1()
 {
+	srand(time(NULL));
+	//Funkcja testowa
+	double alfa = 1.5;										//wspolczynnik ekspansji
+	double krok_d = 1.0;									//krok/odleglosc do ekspansji
+	double gamma = 1e-2;									//kolejna dokladnosc
+	double epsilon = 1e-2;									// dok³adnoœæ
+	int Nmax = 10000;										// maksymalna liczba wywo³añ funkcji celu
+	matrix lb(1, 1, -100), ub(1, 1, 100),					// dolne oraz górne ograniczenie
+		ps(1, 1, rand()%201 - 100);							// punkt startowy
+	solution opt;											// rozwi¹zanie optymalne znalezione przez algorytm
+	
+	for (int i = 0; i < 5; i++) {							//JG:mozna wybrac liczbe powtorzen
+		
+		ps(0) = rand() % 201 - 100;
+		double* obszar = expansion(*ff1T, ps(0), krok_d, alfa, Nmax, lb, ub);
+		
+		cout << "\nKrok d = " << krok_d << "\tWspolczynnik ekspansji alfa = " << alfa << ".\n";
+		cout << "Punkt startowy = " << ps(0) << "\tUzyskany przedzial = [" << obszar[0] << ", " << obszar[1] << "].\n";
+		int pamiec_fcalls = solution::f_calls;				//JG:pozwala przywrocic liczbe po ekspansji, gdy zostanie wycyszczona.
+		cout << "EKSPANSJA: fcalls = " << solution::f_calls << ".\n\n";
+
+		cout << "LAGRANGE:\n";
+		opt = lag(ff1T, obszar[0], obszar[1], epsilon, gamma, Nmax, lb, ub);				// wywo³anie procedury optymalizacji
+		cout << opt << endl << endl;							// wypisanie wyniku
+		solution::clear_calls();
+		solution::f_calls = pamiec_fcalls;
+
+		cout << "FIBBONACI:\n";
+		opt = fib(ff1T, obszar[0], obszar[1], epsilon, lb, ub);								// wywo³anie procedury optymalizacji
+		delete[] obszar;
+		cout << opt << endl << endl;							// wypisanie wyniku
+		solution::clear_calls();
+	}
+
+	//Zapis symulacji do pliku csv
+	//matrix Y0 = matrix(2, 1),								// Y0 zawiera warunki pocz¹tkowe
+	//	MT = matrix(2, new double[2] { m2d(opt.x), 0.5 });	// MT zawiera moment si³y dzia³aj¹cy na wahad³o oraz czas dzia³ania
+	//matrix* Y = solve_ode(df0, 0, 0.1, 10, Y0, NAN, MT);	// rozwi¹zujemy równanie ró¿niczkowe
+	//ofstream Sout("testy_lab1.csv");						// definiujemy strumieñ do pliku .csv
+	//Sout << hcat(Y[0], Y[1]);								// zapisyjemy wyniki w pliku
+	//Sout.close();											// zamykamy strumieñ
+	//Y[0].~matrix();											// usuwamy z pamiêci rozwi¹zanie RR
+	//Y[1].~matrix();
 
 }
 

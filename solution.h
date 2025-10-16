@@ -1,10 +1,8 @@
-//Ten plik nie powinien byc edytowany
+//Ten plik nie powinien byæ edytowany
 
-#ifndef _H_SOLUTION
-#define _H_SOLUTION	
+#pragma once
 
-
-#include "ode_solver.h"
+#include"ode_solver.h"
 
 class solution
 {
@@ -31,5 +29,3 @@ public:
 
 int get_dim(const solution&); // throw (string);
 ostream& operator<<(ostream&, const solution&);
-
-#endif // !_H_SOLUTION
