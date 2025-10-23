@@ -145,48 +145,94 @@ void lab1()
 
 	//-----PROBLEM RZECZYWISTY-------------------------------------------------------
 
-
 	kont = '1';
-	while (kont == '1') {
-		// To było do testowania
-		  //std::cout << ff1R(matrix(50)) << std::endl;
+	Sout.open("problem_przebieg_lab1.csv", std::ios::out);
 
-		Sout.open("problem_przebieg_lab1.csv", std::ios::out);
+	// NOWY NAGŁÓWEK z wymaganymi kolumnami
+	if (Sout.good() == true) {
+		Sout << "Metoda\tDA*\ty*\tLiczba_wywolan_funkcji_celu\n";
+	}
+
+	auto zapiszSymulacje = [](matrix* Y, const string& nazwa_pliku) {
+		ofstream plik(nazwa_pliku);
+		if (plik.good()) {
+			plik << "Czas[s]\tVA[m3]\tVB[m3]\tTB[C]\n";
+			int n = get_len(Y[0]);
+			for (int i = 0; i < n; i++) {
+				plik << Y[0](i) << "\t"
+					<< Y[1](i, 0) << "\t"
+					<< Y[1](i, 1) << "\t"
+					<< Y[1](i, 2) << "\n";
+			}
+			cout << "Zapisano symulacje: " << nazwa_pliku << " (" << n << " punktow czasowych)\n";
+		}
+		plik.close();
+		Y[0].~matrix();
+		Y[1].~matrix();
+		};
+
+	while (kont == '1') {
 		lb = matrix(1, 1, 1);
 		ub = matrix(1, 1, 100);
 		ps = matrix(1, 1, rand() % 101);
-		for (int i = 0; i < 1; i++) {							//JG:mozna wybrac liczbe powtorzen
 
-			// Tu wcześniej nie używaliśmy wyżej zdefiniowanych ub, lb
-			//ps(0) = rand() % static_cast<int>(ub(0, 1) - lb(0, 1));
-			//ps(0) = rand() % static_cast<int>(ub(0) - lb(0));
+		for (int i = 0; i < 1; i++) {
 			ps(0) = rand() % 101;
 			double* obszar = expansion(*ff1R, ps(0), krok_d, alfa, Nmax, lb, ub);
 
 			cout << "\nKrok d = " << krok_d << "\tWspolczynnik ekspansji alfa = " << alfa << ".\n";
 			cout << "Punkt startowy = " << ps(0) << "\tUzyskany przedzial = [" << obszar[0] << ", " << obszar[1] << "].\n";
-			int pamiec_fcalls = solution::f_calls;
+			int fcalls_ekspansja = solution::f_calls;
 			cout << "EKSPANSJA: fcalls = " << solution::f_calls << ".\n\n";
-			if (Sout.good() == true) Sout << ps(0) << "\t" << obszar[0] << "\t" << obszar[1] << "\t" << solution::f_calls << "\t";
 			solution::clear_calls();
 
 			cout << "LAGRANGE:\n";
-			opt = lag(ff1R, obszar[0], obszar[1], epsilon, gamma, Nmax, lb, ub);				// wywo�anie procedury optymalizacji
-			cout << opt << endl << endl;														// wypisanie wyniku
-			if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\t" << solution::f_calls << "\tlokalne\n";
+			solution opt_lag = lag(ff1R, obszar[0], obszar[1], epsilon, gamma, Nmax, lb, ub);
+			cout << opt_lag << endl << endl;
+
+			int fcalls_lagrange = solution::f_calls;
+
+			if (Sout.good() == true) {
+				Sout << "Lagrange\t" << opt_lag.x(0) << "\t" << opt_lag.y(0) << "\t" << fcalls_lagrange << "\n";
+			}
 			solution::clear_calls();
 
 			cout << "FIBBONACI:\n";
-			opt = fib(ff1R, obszar[0], obszar[1], epsilon, lb, ub);								// wywo�anie procedury optymalizacji
-			delete[] obszar;
-			cout << opt << endl << endl;														// wypisanie wyniku
-			if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\t" << solution::f_calls << "\tlokalne\n";
+			solution opt_fib = fib(ff1R, obszar[0], obszar[1], epsilon, lb, ub);
+			cout << opt_fib << endl << endl;
+
+			int fcalls_fibonacci = solution::f_calls;
+
+			if (Sout.good() == true) {
+				Sout << "Fibonacci\t" << opt_fib.x(0) << "\t" << opt_fib.y(0) << "\t" << fcalls_fibonacci << "\n";
+			}
 			solution::clear_calls();
+
+			cout << "\n=== ZAPIS PEŁNYCH SYMULACJI ===\n";
+
+			// Warunki początkowe
+			matrix Y0 = matrix(3, new double[3] {5, 1, 20});
+
+			// SYMULACJA DLA LAGRANGE'A
+			cout << "Symulacja dla Lagrange'a (DA = " << opt_lag.x(0) << ")...\n";
+			matrix DA_lag = matrix(1, 1, opt_lag.x(0));
+			matrix* Y_lag = solve_ode(df1, 0, 1, 2000, Y0, DA_lag, NAN);
+			zapiszSymulacje(Y_lag, "symulacja_Lagrange_DA_" + to_string((int)opt_lag.x(0)) + ".csv");
+
+			// SYMULACJA DLA FIBONACCI'EGO
+			cout << "Symulacja dla Fibonacci'ego (DA = " << opt_fib.x(0) << ")...\n";
+			matrix DA_fib = matrix(1, 1, opt_fib.x(0));
+			matrix* Y_fib = solve_ode(df1, 0, 1, 2000, Y0, DA_fib, NAN);
+			zapiszSymulacje(Y_fib, "symulacja_Fibonacci_DA_" + to_string((int)opt_fib.x(0)) + ".csv");
+
+
+
+			delete[] obszar;
 		}
 
 		cin >> kont;
-
 	}
+
 	Sout.close();
 
 
