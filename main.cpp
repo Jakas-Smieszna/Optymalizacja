@@ -8,6 +8,12 @@ Akademia G�rniczo-Hutnicza
 Data ostatniej modyfikacji: 30.09.2025
 *********************************************/
 
+
+
+//Pliki z wynikami typu csv znajdują się w folderze out, przykładowo dla debugowania x64:
+//Optymalizacja\out\build\x64-debug\nazwa_pliku.csv
+//Wykonanie zadania: MF, JG, MG, AG
+
 #include"opt_alg.h"
 
 void lab0();
@@ -75,14 +81,76 @@ void lab1()
 	double gamma = 1e-2;									//kolejna dokladnosc
 	double epsilon = 1e-2;									// dok�adno��
 	int Nmax = 10000;										// maksymalna liczba wywo�a� funkcji celu
-	matrix lb(1, 1, 1), ub(1, 1, 100),					// dolne oraz g�rne ograniczenie
-		ps(1, 1, rand()%101);							// punkt startowy
+	matrix lb(1, 1, 1), ub(1, 1, 100),						// dolne oraz g�rne ograniczenie
+		ps(1, 1, rand() % 201 - 100);						// punkt startowy
 	solution opt;											// rozwi�zanie optymalne znalezione przez algorytm
+
+	//-----FUNKCJA TESTOWA-----------------------------------------------------------
+
+	char kont = '1';
+	fstream Sout;
+	Sout.open("testy_lab1.csv", std::ios::out);
+	while (kont == '1') {
+		for (int i = 0; i < 1; i++) {							//JG:mozna wybrac liczbe powtorzen
+
+			ps(0) = rand() % 201 - 100;
+			double* obszar = expansion(*ff1T, ps(0), krok_d, alfa, Nmax, lb, ub);
+
+			cout << "\nKrok d = " << krok_d << "\tWspolczynnik ekspansji alfa = " << alfa << ".\n";
+			cout << "Punkt startowy = " << ps(0) << "\tUzyskany przedzial = [" << obszar[0] << ", " << obszar[1] << "].\n";			//JG:pozwala przywrocic liczbe po ekspansji, gdy zostanie wycyszczona.
+			cout << "EKSPANSJA: fcalls = " << solution::f_calls << ".\n\n";
+			if (Sout.good() == true) Sout << ps(0) << "\t" << obszar[0] << "\t" << obszar[1] << "\t" << solution::f_calls << "\t";
+			solution::clear_calls();
+
+			cout << "FIBBONACI:\n";
+			opt = fib(ff1T, obszar[0], obszar[1], epsilon, lb, ub);								// wywołanie procedury optymalizacji
+			cout << opt << endl << endl;														// wypisanie wyniku
+			if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\t" << solution::f_calls << "\tlokalne\t";
+			solution::clear_calls();
+
+			cout << "LAGRANGE:\n";
+			opt = lag(ff1T, obszar[0], obszar[1], epsilon, gamma, Nmax, lb, ub);				// wywołanie procedury optymalizacji
+			delete[] obszar;
+			cout << opt << endl << endl;														// wypisanie wyniku
+			if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\t" << solution::f_calls << "\tlokalne\n";
+			solution::clear_calls();
+
+		}
+
+		cin >> kont;
+
+	}
+
+	if (Sout.good() == true) Sout << "\nBEZ EKSPANSJI:\n\n";
+	kont = '1';
+	while (kont == '1') {
+
+		cout << "\nBEZ EKSPANSJI:\n";
+		cout << "FIBBONACI:\n";
+		opt = fib(ff1T, -100.0, 100.0, epsilon, lb, ub);											// wywołanie procedury optymalizacji
+		cout << opt << endl << endl;																// wypisanie wyniku
+		if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\t" << solution::f_calls << "\tlokalne\t";
+		solution::clear_calls();
+
+		cout << "LAGRANGE:\n";
+		opt = lag(ff1T, -100.0, 100.0, epsilon, gamma, Nmax, lb, ub);								// wywołanie procedury optymalizacji
+		cout << opt << endl << endl;																// wypisanie wyniku
+		if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\n" << solution::f_calls << "\tlokalne\n";
+		solution::clear_calls();
+
+		cin >> kont;
+
+	}
+	Sout.close();
+
+	//-----PROBLEM RZECZYWISTY-------------------------------------------------------
 
   // To było do testowania
 	//std::cout << ff1R(matrix(50)) << std::endl;
-	
-	for (int i = 6; i < 5; i++) {							//JG:mozna wybrac liczbe powtorzen
+
+	Sout.open("problem_przebieg_lab1.csv", std::ios::out);
+	ps = matrix(1, 1, rand() % 101);
+	for (int i = 0; i < 5; i++) {							//JG:mozna wybrac liczbe powtorzen
 		
     // Tu wcześniej nie używaliśmy wyżej zdefiniowanych ub, lb
 		ps(0) = rand() % static_cast<int>(ub(0, 1) - lb(0, 1));
@@ -92,19 +160,23 @@ void lab1()
 		cout << "Punkt startowy = " << ps(0) << "\tUzyskany przedzial = [" << obszar[0] << ", " << obszar[1] << "].\n";
 		int pamiec_fcalls = solution::f_calls;
 		cout << "EKSPANSJA: fcalls = " << solution::f_calls << ".\n\n";
+		if (Sout.good() == true) Sout << ps(0) << "\t" << obszar[0] << "\t" << obszar[1] << "\t" << solution::f_calls << "\t";
+		solution::clear_calls();
 
 		cout << "LAGRANGE:\n";
 		opt = lag(ff1R, obszar[0], obszar[1], epsilon, gamma, Nmax, lb, ub);				// wywo�anie procedury optymalizacji
-		cout << opt << endl << endl;							// wypisanie wyniku
+		cout << opt << endl << endl;														// wypisanie wyniku
+		if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\t" << solution::f_calls << "\tlokalne\n";
 		solution::clear_calls();
-		solution::f_calls = pamiec_fcalls;
 
 		cout << "FIBBONACI:\n";
 		opt = fib(ff1R, obszar[0], obszar[1], epsilon, lb, ub);								// wywo�anie procedury optymalizacji
 		delete[] obszar;
-		cout << opt << endl << endl;							// wypisanie wyniku
+		cout << opt << endl << endl;														// wypisanie wyniku
+		if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\t" << solution::f_calls << "\tlokalne\n";
 		solution::clear_calls();
 	}
+	Sout.close();
 
 	//Zapis symulacji do pliku csv
 	//matrix Y0 = matrix(2, 1),								// Y0 zawiera warunki pocz�tkowe

@@ -36,6 +36,8 @@ matrix df0(double t, matrix Y, matrix ud1, matrix ud2)
 	return dY;
 }
 
+//LAB1
+
 matrix ff1R(matrix x, matrix ud1, matrix ud2)
 {
 	matrix y;
@@ -89,7 +91,6 @@ matrix df1(double t, matrix Y, matrix ud1, matrix ud2) {
 	dY(2) = (FBin/VB)*(TBin-TB) + (FAout/VB)*(TA0 - TB);
 	return dY;
 }
-
 
 matrix ff1T(matrix x, matrix ud1, matrix ud2)
 {

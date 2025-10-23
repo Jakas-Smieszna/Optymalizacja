@@ -42,9 +42,52 @@ double* expansion(matrix(*ff)(matrix, matrix, matrix), double x0, double d, doub
 	try
 	{
 		double* p = new double[2] { 0, 0 };
-		//Tu wpisz kod funkcji
 
+		int i = 0;
+		double x1 = x0 + d;
+		double x0i, x1i, x2i;
+		solution::f_calls += 2;
+		if (ff(matrix(x0), ud1, ud2) == ff(matrix(x1), ud1, ud2)) {
+			p[0] = x0;
+			p[1] = x1;
+			return p;
+		}
+		solution::f_calls += 2;
+		if (ff(matrix(x0), ud1, ud2) < ff(matrix(x1), ud1, ud2)) {
+			d = -1.0 * d;
+			x1 = x0 + d;
+			solution::f_calls += 2;
+			if (ff(matrix(x0), ud1, ud2) <= ff(matrix(x1), ud1, ud2)) {
+				p[0] = x1;
+				p[1] = x0 - d;
+				return p;
+			}
+		}
+		{
+			x0i = x0, x1i = x0, x2i = x1;
+			do
+			{
+				if (solution::f_calls > Nmax) {
+					throw std::runtime_error("Przekroczono maksymalna liczba poszukiwan przedzialu - niepowodzenie.");
+				}
+				i = i + 1;
+				x0i = x1i;
+				x1i = x2i;
+				x2i = x0 + pow(alpha, i) * d;
+				solution::f_calls += 2;
+			} while (!(ff(matrix(x1i), ud1, ud2) <= ff(matrix(x2i), ud1, ud2)));
+			if (d > 0) {
+				p[0] = x0i;
+				p[1] = x2i;
+				return p;
+			}
+		}
+		if (ud1 < x2i) p[0] = x2i;
+		else p[0] = ud1(0);
+		if (x0i < ud2(0)) p[1] = x0i;
+		else p[1] = ud2(0);
 		return p;
+
 	}
 	catch (string ex_info)
 	{
@@ -52,12 +95,52 @@ double* expansion(matrix(*ff)(matrix, matrix, matrix), double x0, double d, doub
 	}
 }
 
+double phi(int x)
+{
+	int first = 0, second = 1, sum = 0;
+
+	if ((x == 1) || (x == 2)) { return 1; }
+	for (int i = 2; i <= x; ++i)
+	{
+		sum = first + second;
+		first = second;
+		second = sum;
+	}
+
+	return (double)sum;
+}
+
 solution fib(matrix(*ff)(matrix, matrix, matrix), double a, double b, double epsilon, matrix ud1, matrix ud2)
 {
 	try
 	{
+		//std::cout << a << std::endl;
+		int k = 1;
+		while (phi(k) <= (b - a) / epsilon) { ++k; }
+		//std::cout << k << " - " << phi(k) << " k-1: " << phi(k - 1) << " | " << (b - a) / epsilon << std::endl;
 		solution Xopt;
-		//Tu wpisz kod funkcji
+		double c = b - (phi(k - 1) / phi(k)) * (b - a);
+		double d = a + b - c;
+		//std::cout << a << " | " << b << " | " << c << " | " << d << std::endl;
+		for (int i = 0; i < k - 3; i++) {
+			Xopt.x = c;
+			matrix ff_from_c = Xopt.fit_fun(ff, ud1, ud2);
+			Xopt.x = d;
+			matrix ff_from_d = Xopt.fit_fun(ff, ud1, ud2);
+			if (ff(c, ud1, ud2) < ff(d, ud1, ud2)) {
+				b = d;
+			}
+			else {
+				a = c;
+			}
+			//std::cout << a << " | " << b << " | " << c << " | " << d << std::endl;
+			c = b - (phi(k - i - 2) / phi(k - i - 1)) * (b - a);
+			d = a + b - c;
+		}
+
+		Xopt.x = c;
+		Xopt.fit_fun(ff, ud1, ud2);
+
 
 		return Xopt;
 	}
@@ -73,9 +156,87 @@ solution lag(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 	try
 	{
 		solution Xopt;
-		//Tu wpisz kod funkcji
 
+		int i = 0;
+		double l, m;
+		matrix ai(2, 1, a);
+		matrix bi(2, 1, b);
+		matrix ci(2, 1, (a + b) / 2.0);
+		matrix di(2, 1, 0.0);
+		do
+		{
+			Xopt.f_calls = Xopt.f_calls + 3;
+			l = ff(ai(0), ud1, ud2)(0) * (pow(bi(0), 2) - pow(ci(0), 2))
+				+ ff(bi(0), ud1, ud2)(0) * (pow(ci(0), 2) - pow(ai(0), 2))
+				+ ff(ci(0), ud1, ud2)(0) * (pow(ai(0), 2) - pow(bi(0), 2));
+			Xopt.f_calls = Xopt.f_calls + 3;
+			m = ff(ai(0), ud1, ud2)(0) * (bi(0) - ci(0))
+				+ ff(bi(0), ud1, ud2)(0) * (ci(0) - ai(0))
+				+ ff(ci(0), ud1, ud2)(0) * (ai(0) - bi(0));
+
+			if (m <= 0) {
+				throw std::runtime_error("Niepoprawne wyniki podczas obliczen - zle dane/blad w kodzie.");
+			}
+
+			di(1) = 0.5 * l / m;
+			if (ai(0) < di(1) && di(1) < ci(0)) {
+
+				Xopt.f_calls = Xopt.f_calls + 2;
+				if (ff(di(1), ud1, ud2) < ff(ci(0), ud1, ud2)) {
+					ai(1) = ai(0);
+					ci(1) = di(1);
+					bi(1) = ci(0);
+				}
+				else {
+					ai(1) = di(1);
+					ci(1) = ci(0);
+					bi(1) = bi(0);
+				}
+
+			}
+			else {
+
+				if (ci(0) < di(1) && di(1) < bi(0)) {
+
+					Xopt.f_calls = Xopt.f_calls + 2;
+					solution::f_calls += 2;
+					if (ff(di(1), ud1, ud2) < ff(ci(0), ud1, ud2)) {
+						ai(1) = ci(0);
+						ci(1) = di(1);
+						bi(1) = bi(0);
+					}
+					else {
+						ai(1) = ai(1);
+						ci(1) = ci(0);
+						bi(1) = di(0);
+					}
+
+				}
+				else {
+					throw std::runtime_error("Niepoprawne wyniki podczas obliczen - zle dane/blad w kodzie.");
+				}
+
+			}
+			//std::cout << ai(0) << " | " << bi(0) << std::endl;
+
+			i = i + 1;
+			ai(0) = ai(1);
+			bi(0) = bi(1);
+			ci(0) = ci(1);
+			di(0) = di(1);
+
+			if (Xopt.f_calls > Nmax) {
+				Xopt.flag = 0;
+				throw std::runtime_error("Przekroczono limit wywolan funkcji.");
+			}
+
+
+
+		} while (!(bi(0) - ai(0) < epsilon || abs(di(1) - di(0)) < gamma));
+		Xopt.x(0) = di(1);
+		Xopt.fit_fun(ff, ud1, ud2);
 		return Xopt;
+
 	}
 	catch (string ex_info)
 	{
