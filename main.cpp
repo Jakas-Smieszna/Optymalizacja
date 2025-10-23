@@ -158,8 +158,8 @@ void lab1()
 		for (int i = 0; i < 1; i++) {							//JG:mozna wybrac liczbe powtorzen
 
 			// Tu wcześniej nie używaliśmy wyżej zdefiniowanych ub, lb
-			ps(0) = rand() % static_cast<int>(ub(0, 1) - lb(0, 1));
-			//ps(0) = rand() % static_cast<int>(ub(0) - lb(0));
+			//ps(0) = rand() % static_cast<int>(ub(0, 1) - lb(0, 1));
+			ps(0) = rand() % static_cast<int>(ub(0) - lb(0));
 			double* obszar = expansion(*ff1R, ps(0), krok_d, alfa, Nmax, lb, ub);
 
 			cout << "\nKrok d = " << krok_d << "\tWspolczynnik ekspansji alfa = " << alfa << ".\n";
@@ -182,8 +182,13 @@ void lab1()
 			if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\t" << solution::f_calls << "\tlokalne\n";
 			solution::clear_calls();
 		}
-		Sout.close();
+
+		cin >> kont;
+
 	}
+	Sout.close();
+
+
 	//Zapis symulacji do pliku csv
 	//matrix Y0 = matrix(2, 1),								// Y0 zawiera warunki pocz�tkowe
 	//	MT = matrix(2, new double[2] { m2d(opt.x), 0.5 });	// MT zawiera moment si�y dzia�aj�cy na wahad�o oraz czas dzia�ania
