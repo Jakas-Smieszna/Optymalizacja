@@ -159,7 +159,8 @@ void lab1()
 
 			// Tu wcześniej nie używaliśmy wyżej zdefiniowanych ub, lb
 			//ps(0) = rand() % static_cast<int>(ub(0, 1) - lb(0, 1));
-			ps(0) = rand() % static_cast<int>(ub(0) - lb(0));
+			//ps(0) = rand() % static_cast<int>(ub(0) - lb(0));
+			ps(0) = rand() % 101;
 			double* obszar = expansion(*ff1R, ps(0), krok_d, alfa, Nmax, lb, ub);
 
 			cout << "\nKrok d = " << krok_d << "\tWspolczynnik ekspansji alfa = " << alfa << ".\n";
