@@ -278,8 +278,54 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 	try
 	{
 		solution Xopt;
-		//Tu wpisz kod funkcji
+		int i = 0;
+		int n = get_len(x0);
+		matrix d = ident_mat(n);
+		matrix lambda(n, 1, 0.0);
+		matrix p(get_len(x0), 1, 0.0);
+		matrix xb = x0;
+		matrix s = s0;
 
+		do {
+			for (int j = 0; j < n; j++)
+			{
+				if (ff(xb + s(j) * get_col(d, j), ud1, ud2)(0) < ff(xb, ud1, ud2)(0))
+				{
+					xb = xb + (s(j) * get_col(d, j));
+					lambda(j) = lambda(j) + s(j);
+					s(j) = alpha * s(j);
+				}
+				else
+				{
+					s(j) = -beta * s(j);
+					p(j) = p(j) + 1;
+				}
+			}
+			i++;
+			for (int j = 0; j <= n; j++)
+			{
+				if (j == n)
+				{
+					lambda = matrix(n, 1, 0.0);
+					p = matrix(n, 1, 0.0);
+					s = s0;
+					break;
+				}
+				if (lambda(j) == 0 || p(j) == 0)
+				{
+					break;
+				}
+			}
+			if (solution::f_calls > Nmax)
+			{
+				Xopt.flag = 0;
+				break;
+			}
+		} while (norm(s) > epsilon);
+
+
+		Xopt.x = xb;
+		Xopt.fit_fun(ff, ud1, ud2);
 		return Xopt;
 	}
 	catch (string ex_info)
