@@ -199,7 +199,6 @@ solution lag(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 				if (ci(0) < di(1) && di(1) < bi(0)) {
 
 					Xopt.f_calls = Xopt.f_calls + 2;
-					solution::f_calls += 2;
 					if (ff(di(1), ud1, ud2) < ff(ci(0), ud1, ud2)) {
 						ai(1) = ci(0);
 						ci(1) = di(1);
@@ -249,7 +248,43 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 	try
 	{
 		solution Xopt;
-		//Tu wpisz kod funkcji
+
+		do {
+			solution XB = x0;
+			Xopt = HJ_trial(ff, XB, s, ud1, ud2);
+			XB.fit_fun(ff, ud1, ud2);
+			Xopt.fit_fun(ff, ud1, ud2);
+			//if (((ff)(Xopt.x, ud1, ud2))(0) - ((ff)(xb, ud1, ud2))(0) < TOL) {
+			if (Xopt.y - XB.y < TOL){
+
+				do {
+
+					solution XB_ = XB;
+					XB = Xopt;
+					Xopt.x = 2 * XB.x - XB_.x;
+					Xopt = HJ_trial(ff, Xopt, s, ud1, ud2);
+					XB.fit_fun(ff, ud1, ud2);
+					Xopt.fit_fun(ff, ud1, ud2);
+					if (solution::f_calls > Nmax){
+						Xopt.flag = 0;
+						throw std::runtime_error("Przekroczono limit wywolan funkcji.");
+					}
+
+				} while (!(Xopt.y - XB.y > -TOL));
+				//while (!(((ff)(Xopt.x, ud1, ud2))(0) - ((ff)(xb, ud1, ud2))(0) > -TOL));
+				Xopt = XB;
+
+			}
+			else {
+				s = alpha * s;
+			}
+
+			if (solution::f_calls > Nmax) {
+				Xopt.flag = 0;
+				throw std::runtime_error("Przekroczono limit wywolan funkcji.");
+			}
+
+		} while (!(s < epsilon));
 
 		return Xopt;
 	}
@@ -263,8 +298,34 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 {
 	try
 	{
-		//Tu wpisz kod funkcji
 
+		int XD = 2;//Wymiar przestrzeni
+		matrix* e = new matrix[XD];
+		for (int i = 0; i < XD; i++) {
+			e[i] = matrix(XD, 1, 0.0);
+			e[i](i, i) = 1.0;
+		}
+		for (int j = 0; j < XD; j++) {
+
+			XB.fit_fun(ff, ud1, ud2);
+			solution::f_calls += 1;
+			if ((*ff)(XB.x + e[j] * s, ud1, ud2) - XB.y < TOL) {
+				
+				XB.x = XB.x + s * e[j];
+
+			}
+			else {
+
+				if ((*ff)(XB.x - e[j] * s, ud1, ud2) - XB.y < TOL) {
+
+					XB.x = XB.x - s * e[j];
+
+				}
+
+			}
+
+		}
+		delete[] e;
 		return XB;
 	}
 	catch (string ex_info)

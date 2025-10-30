@@ -3,6 +3,8 @@
 #ifndef _H_OPT_ALG
 #define _H_OPT_ALG
 
+#define TOL 1e-12
+
 
 #include "solution.h"
 

@@ -99,4 +99,13 @@ matrix ff1T(matrix x, matrix ud1, matrix ud2)
 	return y;
 }
 
+// LAB 2 (K2)
+
+matrix ff2T(matrix x, matrix ud1, matrix ud2)
+{
+	matrix y;
+	y = pow(x(0), 2.0) + pow(x(1), 2.0) - cos(2.5 * M_PI * x(0)) - cos(2.5 * M_PI * x(1)) + 2;
+	return y;
+}
+
 
