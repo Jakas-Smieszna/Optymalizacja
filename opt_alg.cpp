@@ -248,9 +248,14 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 	try
 	{
 		solution Xopt;
+		if (alpha - 1.0 > -TOL || alpha < TOL) {
+			Xopt.flag = 0;
+			throw("Nieprawidlowe dane.");
+		}
 
 		do {
-			solution XB = x0;
+			solution XB;
+			XB.x = x0;
 			Xopt = HJ_trial(ff, XB, s, ud1, ud2);
 			XB.fit_fun(ff, ud1, ud2);
 			Xopt.fit_fun(ff, ud1, ud2);
@@ -277,6 +282,7 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 			}
 			else {
 				s = alpha * s;
+				std::cout << "Kork: " << s << "\n";
 			}
 
 			if (solution::f_calls > Nmax) {
@@ -303,7 +309,7 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 		matrix* e = new matrix[XD];
 		for (int i = 0; i < XD; i++) {
 			e[i] = matrix(XD, 1, 0.0);
-			e[i](i, i) = 1.0;
+			e[i](i) = 1.0;
 		}
 		for (int j = 0; j < XD; j++) {
 
@@ -316,6 +322,7 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 			}
 			else {
 
+				solution::f_calls += 1;
 				if ((*ff)(XB.x - e[j] * s, ud1, ud2) - XB.y < TOL) {
 
 					XB.x = XB.x - s * e[j];

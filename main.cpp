@@ -28,7 +28,7 @@ int main()
 {
 	try
 	{
-		lab1();
+		lab2();
 	}
 	catch (string EX_INFO)
 	{
@@ -250,6 +250,63 @@ void lab1()
 
 void lab2()
 {
+
+	srand(time(NULL));
+	//Funkcja testowa
+	double alfa = 0.1;										//wspolczynnik ekspansji (0.0 do 1.0)
+	double krok_s = 1.0;									//krok
+	double beta = 1e-6;										//kolejna dokladnosc
+	double epsilon = 1e-2;									// dokladnosc
+	int Nmax = 10000;										// maksymalna liczba wywolan funkcji celu
+	matrix lb(2, 1, -1.0), ub(2, 1, 1.0),					// dolne oraz g�rne ograniczenie
+		ps(2, 1, double(rand() % 20001 - 10000)/10000.0);	// punkt startowy
+	solution opt;											// rozwiazanie optymalne znalezione przez algorytm
+	solution::clear_calls();
+
+	//-----FUNKCJA TESTOWA-----------------------------------------------------------
+
+	char kont = '1';
+	fstream Sout;
+	Sout.open("testy_lab2.csv", std::ios::out);
+	while (kont == '1') {
+		for (int i = 0; i < 1; i++) {							//JG:mozna wybrac liczbe powtorzen
+
+			ps(0) = double(rand() % 20001 - 10000) / 10000.0;
+			ps(1) = double(rand() % 20001 - 10000) / 10000.0;
+			cout << "Punkt startowy = [" << ps(0) << ", " << ps(1) << "].\n";
+
+			cout << "HOOK-JEEVES:\n";
+			opt = HJ(ff2T, ps, krok_s, alfa, epsilon, Nmax, lb, ub);							// wywołanie procedury optymalizacji
+			cout << opt << endl << endl;														// wypisanie wyniku
+			//if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\t" << solution::f_calls << "\tlokalne\t";
+			solution::clear_calls();
+
+			cout << "ROSENBROCK:\n";
+			opt = Rosen(ff2T, ps, matrix(2, 1, krok_s), alfa, beta, epsilon, Nmax, lb, ub);						// wywołanie procedury optymalizacji
+			cout << opt << endl << endl;														// wypisanie wyniku
+			//if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\t" << solution::f_calls << "\tlokalne\n";
+			solution::clear_calls();
+
+		}
+
+		cin >> kont;
+
+	}
+	Sout.close();
+
+	//-----PROBLEM RZECZYWISTY-------------------------------------------------------
+
+
+
+	//Zapis symulacji do pliku csv
+	//matrix Y0 = matrix(2, 1),								// Y0 zawiera warunki pocz�tkowe
+	//	MT = matrix(2, new double[2] { m2d(opt.x), 0.5 });	// MT zawiera moment si�y dzia�aj�cy na wahad�o oraz czas dzia�ania
+	//matrix* Y = solve_ode(df0, 0, 0.1, 10, Y0, NAN, MT);	// rozwi�zujemy r�wnanie r�niczkowe
+	//ofstream Sout("testy_lab1.csv");						// definiujemy strumie� do pliku .csv
+	//Sout << hcat(Y[0], Y[1]);								// zapisyjemy wyniki w pliku
+	//Sout.close();											// zamykamy strumie�
+	//Y[0].~matrix();											// usuwamy z pami�ci rozwi�zanie RR
+	//Y[1].~matrix();
 
 }
 
