@@ -253,8 +253,8 @@ void lab2()
 
 	srand(time(NULL));
 	//Funkcja testowa
-	double alfa = 0.1;										//wspolczynnik ekspansji (0.0 do 1.0)
-	double krok_s = 1.0;									//krok
+	double alfa = 0.5;										//wspolczynnik ekspansji (0.0 do 1.0)
+	double krok_s = 0.0001;									//krok
 	double beta = 1e-6;										//kolejna dokladnosc
 	double epsilon = 1e-2;									// dokladnosc
 	int Nmax = 10000;										// maksymalna liczba wywolan funkcji celu

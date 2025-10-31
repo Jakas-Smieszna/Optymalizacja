@@ -248,6 +248,7 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 	try
 	{
 		solution Xopt;
+		Xopt.x = x0;
 		if (alpha - 1.0 > -TOL || alpha < TOL) {
 			Xopt.flag = 0;
 			throw("Nieprawidlowe dane.");
@@ -255,7 +256,7 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 
 		do {
 			solution XB;
-			XB.x = x0;
+			XB.x = Xopt.x;
 			Xopt = HJ_trial(ff, XB, s, ud1, ud2);
 			XB.fit_fun(ff, ud1, ud2);
 			Xopt.fit_fun(ff, ud1, ud2);
@@ -266,7 +267,13 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 
 					solution XB_ = XB;
 					XB = Xopt;
-					Xopt.x = 2 * XB.x - XB_.x;
+					//std::cout << "Xx: " << Xopt.x << "\n";
+					//std::cout << "XBx: " << XB.x << "\n";
+					//std::cout << "XB_x: " << XB_.x << "\n";
+					for (int i = 0; i < get_len(Xopt.x); i++) {
+						Xopt.x(i) = 2 * XB.x(i) - XB_.x(i);
+					}
+					//std::cout << "Xx: " << Xopt.x << "\n";
 					Xopt = HJ_trial(ff, Xopt, s, ud1, ud2);
 					XB.fit_fun(ff, ud1, ud2);
 					Xopt.fit_fun(ff, ud1, ud2);
@@ -282,7 +289,7 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 			}
 			else {
 				s = alpha * s;
-				std::cout << "Kork: " << s << "\n";
+				//std::cout << "Krok: " << s << "\n";
 			}
 
 			if (solution::f_calls > Nmax) {
@@ -305,7 +312,7 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 	try
 	{
 
-		int XD = 2;//Wymiar przestrzeni
+		int XD = get_len(XB.x);//Wymiar przestrzeni
 		matrix* e = new matrix[XD];
 		for (int i = 0; i < XD; i++) {
 			e[i] = matrix(XD, 1, 0.0);
@@ -317,7 +324,9 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 			solution::f_calls += 1;
 			if ((*ff)(XB.x + e[j] * s, ud1, ud2) - XB.y < TOL) {
 				
+				//std::cout << "XBx: " << XB.x << "\n";
 				XB.x = XB.x + s * e[j];
+				//std::cout << "XBx ++: " << XB.x << "\n";
 
 			}
 			else {
@@ -325,7 +334,9 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 				solution::f_calls += 1;
 				if ((*ff)(XB.x - e[j] * s, ud1, ud2) - XB.y < TOL) {
 
+					//std::cout << "XBx: " << XB.x << "\n";
 					XB.x = XB.x - s * e[j];
+					//std::cout << "XBx --: " << XB.x << "\n";
 
 				}
 
