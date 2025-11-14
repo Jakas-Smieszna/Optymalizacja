@@ -279,6 +279,7 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 					Xopt.fit_fun(ff, ud1, ud2);
 					if (solution::f_calls > Nmax){
 						Xopt.flag = 0;
+						std::cout << Xopt;
 						throw std::runtime_error("Przekroczono limit wywolan funkcji.");
 					}
 
@@ -359,18 +360,21 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 		solution Xopt;
 		int i = 0;
 		int n = get_len(x0);
-		matrix d = ident_mat(n);
+		matrix d(n, 1, 0.0);
+		for (int i = 0; i < n; i++) {
+			d(i) = exp(i);
+		}
 		matrix lambda(n, 1, 0.0);
-		matrix p(get_len(x0), 1, 0.0);
+		matrix p(n, 1, 0.0);
 		matrix xb = x0;
 		matrix s = s0;
 
 		do {
 			for (int j = 0; j < n; j++)
 			{
-				if (ff(xb + s(j) * get_col(d, j), ud1, ud2)(0) < ff(xb, ud1, ud2)(0))
+				if (ff(xb + s(j) * d(j), ud1, ud2)(0) < ff(xb, ud1, ud2)(0))
 				{
-					xb = xb + (s(j) * get_col(d, j));
+					xb = xb + (s(j) * d(j));
 					lambda(j) = lambda(j) + s(j);
 					s(j) = alpha * s(j);
 				}
@@ -381,10 +385,18 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 				}
 			}
 			i++;
+			Xopt.x = xb;
 			for (int j = 0; j <= n; j++)
 			{
 				if (j == n)
 				{
+					for (int x = 0; x < n; x++) {
+						matrix D(n, 1, 0.0);
+						for (int g = 0; g < n; g++) {
+							D(g) = d(g);
+						}
+
+					}
 					lambda = matrix(n, 1, 0.0);
 					p = matrix(n, 1, 0.0);
 					s = s0;
