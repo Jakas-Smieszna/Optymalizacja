@@ -42,6 +42,7 @@ double* expansion(matrix(*ff)(matrix, matrix, matrix), double x0, double d, doub
 	try
 	{
 		double* p = new double[2] { 0, 0 };
+<<<<<<< HEAD
 
 		int i = 0;
 		double x1 = x0 + d;
@@ -88,6 +89,11 @@ double* expansion(matrix(*ff)(matrix, matrix, matrix), double x0, double d, doub
 		else p[1] = ud2(0);
 		return p;
 
+=======
+		//Tu wpisz kod funkcji
+
+		return p;
+>>>>>>> origin
 	}
 	catch (string ex_info)
 	{
@@ -95,6 +101,7 @@ double* expansion(matrix(*ff)(matrix, matrix, matrix), double x0, double d, doub
 	}
 }
 
+<<<<<<< HEAD
 double phi(int x)
 {
 	int first = 0, second = 1, sum = 0;
@@ -110,10 +117,13 @@ double phi(int x)
 	return (double)sum;
 }
 
+=======
+>>>>>>> origin
 solution fib(matrix(*ff)(matrix, matrix, matrix), double a, double b, double epsilon, matrix ud1, matrix ud2)
 {
 	try
 	{
+<<<<<<< HEAD
 		//std::cout << a << std::endl;
 		int k = 1;
 		while (phi(k) <= (b - a) / epsilon) { ++k; }
@@ -141,6 +151,10 @@ solution fib(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 		Xopt.x = c;
 		Xopt.fit_fun(ff, ud1, ud2);
 
+=======
+		solution Xopt;
+		//Tu wpisz kod funkcji
+>>>>>>> origin
 
 		return Xopt;
 	}
@@ -156,6 +170,7 @@ solution lag(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 	try
 	{
 		solution Xopt;
+<<<<<<< HEAD
 
 		int i = 0;
 		double l, m;
@@ -236,6 +251,11 @@ solution lag(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 		Xopt.fit_fun(ff, ud1, ud2);
 		return Xopt;
 
+=======
+		//Tu wpisz kod funkcji
+
+		return Xopt;
+>>>>>>> origin
 	}
 	catch (string ex_info)
 	{
@@ -243,13 +263,18 @@ solution lag(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 	}
 }
 
+<<<<<<< HEAD
 solution HJ(matrix(*ff)(matrix, matrix, matrix), 
 matrix x0, double s, double alpha, double epsilon, 
 int Nmax, matrix ud1, matrix ud2)
+=======
+solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alpha, double epsilon, int Nmax, matrix ud1, matrix ud2)
+>>>>>>> origin
 {
 	try
 	{
 		solution Xopt;
+<<<<<<< HEAD
 		Xopt.x = x0;
 		if (alpha - 1.0 > -TOL || alpha < TOL) {
 			Xopt.flag = 0;
@@ -300,6 +325,9 @@ int Nmax, matrix ud1, matrix ud2)
 			}
 
 		} while (!(s < epsilon));
+=======
+		//Tu wpisz kod funkcji
+>>>>>>> origin
 
 		return Xopt;
 	}
@@ -313,6 +341,7 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 {
 	try
 	{
+<<<<<<< HEAD
 
 		int XD = get_len(XB.x);//Wymiar przestrzeni
 		matrix* e = new matrix[XD];
@@ -346,6 +375,10 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 
 		}
 		delete[] e;
+=======
+		//Tu wpisz kod funkcji
+
+>>>>>>> origin
 		return XB;
 	}
 	catch (string ex_info)
@@ -359,6 +392,7 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 	try
 	{
 		solution Xopt;
+<<<<<<< HEAD
 		int i = 0;
 		int n = get_len(x0);
 		matrix d = ident_mat(n);
@@ -407,6 +441,10 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 
 		Xopt.x = xb;
 		Xopt.fit_fun(ff, ud1, ud2);
+=======
+		//Tu wpisz kod funkcji
+
+>>>>>>> origin
 		return Xopt;
 	}
 	catch (string ex_info)
