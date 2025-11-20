@@ -387,7 +387,8 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 		d = ident_mat(n);
 		matrix lambda(n, 1, 0.0);
 		matrix p(n, 1, 0.0);
-		matrix xb = x0;
+		solution xb = x0;
+		xb.fit_fun(ff, ud1, ud2);
 		matrix s = s0;
 		double max__s_ = 0.0;
 
@@ -395,17 +396,17 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 
 			for (int j = 0; j < n; j++)
 			{
-				solution::f_calls += 2;
-				matrix xpom = xb + s(j) * d(j);
+				solution xpom = xb.x + s(j) * d[j];
+				xpom.fit_fun(ff, ud1, ud2);
 				bool zawarty = true;
 				//Sprawdzzenie czy potencjalny x nalezy do dziedziny funkcji
 				for (int g = 0; zawarty && g < n; g++) {
-					if (xpom(g) - ud1(j) < TOL) zawarty = false;
-					if (xpom(g) - ud2(j) > -TOL) zawarty = false;
+					if (xpom.x(g) - ud1(j) < TOL) zawarty = false;
+					if (xpom.x(g) - ud2(j) > -TOL) zawarty = false;
 				}
-				if (zawarty && ff(xb + s(j) * d(j), ud1, ud2)(0) < ff(xb, ud1, ud2)(0))
+				if (zawarty && xpom.y - xb.y < -TOL)
 				{
-					xb = xb + (s(j) * d(j));
+					xb = xpom;
 					lambda(j) = lambda(j) + s(j);
 					s(j) = alpha * s(j);
 				}
@@ -416,7 +417,7 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 				}
 			}
 			i++;
-			Xopt.x = xb;
+			Xopt = xb;
 			bool warunek = 1;
 			for (int j = 0; warunek && j < n; j++) {
 				if (abs(lambda(j)) < TOL) warunek = 0;
@@ -432,7 +433,6 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 						for (int i = 0; i < n; i++) {
 							if (j >= i) {
 								Q(j, i) = lambda(j);
-								if (!(Q[i](j) == lambda(j))) std::cout <<"BURAK!";
 							}
 							else break;
 						}
@@ -475,8 +475,7 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 				if (abs(s(j)) > max__s_) max__s_ = abs(s(j));
 			}
 
-		} while (max__s_ > epsilon);
-		//while (norm(s) > epsilon);
+		} while (max__s_ - epsilon > -TOL);
 
 		Xopt.flag = 1;
 
