@@ -13,8 +13,11 @@ Data ostatniej modyfikacji: 30.09.2025
 //Optymalizacja\out\build\x64-debug\nazwa_pliku.csv
 //Wykonanie zadania: MF, JG, MG, AG
 
+
+#define _USE_MATH_DEFINES
 #include"opt_alg.h"
 #include <cmath>
+
 
 void lab0();
 void lab1();
@@ -27,7 +30,7 @@ void lab6();
 int main()
 {
 	try
-  {
+	{
 		lab2(); 
 	}
 	catch (string EX_INFO)
