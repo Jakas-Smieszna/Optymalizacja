@@ -384,20 +384,26 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 		int i = 0;
 		int n = get_len(x0);
 		matrix d(n, n, 0.0);
-		for (int i = 0; i < n; i++) {
-			d(i,i) = exp(i + 1);
-		}
+		d = ident_mat(n);
 		matrix lambda(n, 1, 0.0);
 		matrix p(n, 1, 0.0);
 		matrix xb = x0;
 		matrix s = s0;
+		double max__s_ = 0.0;
 
 		do {
 
 			for (int j = 0; j < n; j++)
 			{
 				solution::f_calls += 2;
-				if (ff(xb + s(j) * d(j), ud1, ud2)(0) < ff(xb, ud1, ud2)(0))
+				matrix xpom = xb + s(j) * d(j);
+				bool zawarty = true;
+				//Sprawdzzenie czy potencjalny x nalezy do dziedziny funkcji
+				for (int g = 0; zawarty && g < n; g++) {
+					if (xpom(g) - ud1(j) < TOL) zawarty = false;
+					if (xpom(g) - ud2(j) > -TOL) zawarty = false;
+				}
+				if (zawarty && ff(xb + s(j) * d(j), ud1, ud2)(0) < ff(xb, ud1, ud2)(0))
 				{
 					xb = xb + (s(j) * d(j));
 					lambda(j) = lambda(j) + s(j);
@@ -411,7 +417,6 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 			}
 			i++;
 			Xopt.x = xb;
-			//NOWA WERSJA
 			bool warunek = 1;
 			for (int j = 0; warunek && j < n; j++) {
 				if (abs(lambda(j)) < TOL) warunek = 0;
@@ -427,12 +432,13 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 						for (int i = 0; i < n; i++) {
 							if (j >= i) {
 								Q(j, i) = lambda(j);
+								if (!(Q[i](j) == lambda(j))) std::cout <<"BURAK!";
 							}
 							else break;
 						}
 					}
-					matrix D = ident_mat(n);
-					Q = D * Q;
+					//matrix D = ident_mat(n);
+					Q = d * Q;
 
 					matrix v = Q[0];
 					d[0] = v / norm(v);
@@ -464,7 +470,13 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 				throw ToManyCalls("Koniec iteracji.\nLiczba wywolan = " + to_string(solution::f_calls) + "\nLimit wywyolan = " + to_string(Nmax));
 			}
 
-		} while (norm(s) > epsilon);
+			max__s_ = abs(s(0));
+			for (int j = 1; j < n; j++) {
+				if (abs(s(j)) > max__s_) max__s_ = abs(s(j));
+			}
+
+		} while (max__s_ > epsilon);
+		//while (norm(s) > epsilon);
 
 		Xopt.flag = 1;
 

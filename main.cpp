@@ -287,7 +287,7 @@ void lab2()
 	  	if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\t" << solution::f_calls << "\tlokalne\t";
 	  	solution::clear_calls();
 
-  		alfa = 3.0;
+  		alfa = 1.5;
 
 		  cout << "ROSENBROCK:\n";
 		  opt = Rosen(ff2T, ps, matrix(2, 1, krok_s), alfa, beta, epsilon, Nmax, lb, ub);		// wywołanie procedury optymalizacji
