@@ -256,8 +256,8 @@ void lab2()
   
 	srand(time(NULL));
 	//Funkcja testowa
-	double alfa = 0.0;										//wspolczynnik ekspansji (0.0 do 1.0)
-	double krok_s = 0.5;									//krok
+	double alfa = 0.0;										// wspolczynnik ekspansji (0.0 do 1.0 dla HJ i > 1 dla R - zmiana w petli, nie tutaj)
+	double krok_s = 0.5;									// krok
 	double beta = 0.5;										// wspolczynnik kontrakcji
 	double epsilon = 1e-8;									// dokladnosc
 	int Nmax = 10000;										// maksymalna liczba wywolan funkcji celu
@@ -290,7 +290,7 @@ void lab2()
   		alfa = 1.5;
 
 		  cout << "ROSENBROCK:\n";
-		  opt = Rosen(ff2T, ps, matrix(2, 1, krok_s), alfa, beta, epsilon, Nmax, lb, ub);		// wywołanie procedury optymalizacji
+		  opt = Rosen(ff2T, ps, matrix(2, 1, krok_s), alfa, beta, epsilon, Nmax, lb, ub);	// wywołanie procedury optymalizacji
 		  cout << opt << endl << endl;														// wypisanie wyniku
 		  if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\t" << solution::f_calls << "\tlokalne\n";
 		  solution::clear_calls();
