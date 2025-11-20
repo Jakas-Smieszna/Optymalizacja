@@ -264,41 +264,29 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 			XB.fit_fun(ff, ud1, ud2);
 			Xopt = HJ_trial(ff, XB, s, ud1, ud2);
 			Xopt.fit_fun(ff, ud1, ud2);
-			//if (((ff)(Xopt.x, ud1, ud2))(0) - ((ff)(xb, ud1, ud2))(0) < TOL) {
-			//std::cout << "Delta: " << Xopt.y - XB.y << "\n";
 			if (Xopt.y - XB.y < -TOL){
 
 				do {
 
 					solution XB_ = XB;
 					XB = Xopt;
-					//std::cout << "Xx: " << Xopt.x << "\n";
-					//std::cout << "XBx: " << XB.x << "\n";
-					//std::cout << "XB_x: " << XB_.x << "\n";
 					for (int i = 0; i < get_len(Xopt.x); i++) {
 						Xopt.x(i) = 2 * XB.x(i) - XB_.x(i);
 					}
-					//std::cout << "Xx: " << Xopt.x << "\n";
 					Xopt = HJ_trial(ff, Xopt, s, ud1, ud2);
-					//std::cout << "Xx: " << Xopt.x << "\n";
-					//std::cout << "XBx: " << XB.x << "\n";
-					//std::cout << "Delta: " << Xopt.y - XB.y << "\n";
 					XB.fit_fun(ff, ud1, ud2);
 					Xopt.fit_fun(ff, ud1, ud2);
 					if (solution::f_calls > Nmax){
 						Xopt.flag = 0;
-						//std::cout << Xopt;
 						throw ToManyCalls("Etap roboczy.\nLiczba wywolan = " + to_string(solution::f_calls) + "\nLimit wywyolan = " + to_string(Nmax));
 					}
 
 				} while (!(Xopt.y - XB.y > -TOL));
-				//while (!(((ff)(Xopt.x, ud1, ud2))(0) - ((ff)(xb, ud1, ud2))(0) > -TOL));
 				Xopt = XB;
 
 			}
 			else {
 				s = alpha * s;
-				//std::cout << "Krok: " << s << "\n";
 			}
 
 			if (solution::f_calls > Nmax) {
@@ -319,7 +307,6 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 		throw ("WYJATEK - Hook-Jeeves:\n" + ex_info);
 	}
 
-	//std::cout << "Krok s na koniec algorytmu = " << s << "\n";
 	Xopt.fit_fun(ff, ud1, ud2);
 	return Xopt;
 
@@ -344,9 +331,7 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 				&& XB.x(j) + s - ud2(j) < TOL 
 				&& (*ff)(XB.x + e[j] * s, ud1, ud2) - XB.y < -TOL) {
 				
-				//std::cout << "XBx: " << XB.x << "\n";
 				XB.x = XB.x + s * e[j];
-				//std::cout << "XBx ++: " << XB.x << "\n";
 
 			}
 			else {
@@ -356,9 +341,7 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 					&& XB.x(j) - s - ud2(j) < TOL
 					&& (*ff)(XB.x - e[j] * s, ud1, ud2) - XB.y < -TOL) {
 
-					//std::cout << "XBx: " << XB.x << "\n";
 					XB.x = XB.x - s * e[j];
-					//std::cout << "XBx --: " << XB.x << "\n";
 
 				}
 
@@ -483,7 +466,6 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 
 		} while (norm(s) > epsilon);
 
-		//Xopt.x = xb;
 		Xopt.flag = 1;
 
 	}
