@@ -253,10 +253,10 @@ void lab2()
 
 	srand(time(NULL));
 	//Funkcja testowa
-	double alfa = 0.5;										//wspolczynnik ekspansji (0.0 do 1.0)
-	double krok_s = 0.001;									//krok
-	double beta = 1e-6;										//kolejna dokladnosc
-	double epsilon = 1e-2;									// dokladnosc
+	double alfa = 0.0;										//wspolczynnik ekspansji (0.0 do 1.0)
+	double krok_s = 0.5;									//krok
+	double beta = 0.5;										// wspolczynnik kontrakcji
+	double epsilon = 1e-8;									// dokladnosc
 	int Nmax = 10000;										// maksymalna liczba wywolan funkcji celu
 	matrix lb(2, 1, -1.0), ub(2, 1, 1.0),					// dolne oraz g�rne ograniczenie
 		ps(2, 1, double(rand() % 20001 - 10000)/10000.0);	// punkt startowy
@@ -274,6 +274,9 @@ void lab2()
 			ps(0) = double(rand() % 20001 - 10000) / 10000.0;
 			ps(1) = double(rand() % 20001 - 10000) / 10000.0;
 			cout << "Punkt startowy = [" << ps(0) << ", " << ps(1) << "].\n";
+			cout << "Krok startowy = " << krok_s << ".\n\n";
+
+			alfa = 0.5;
 
 			cout << "HOOK-JEEVES:\n";
 			opt = HJ(ff2T, ps, krok_s, alfa, epsilon, Nmax, lb, ub);							// wywołanie procedury optymalizacji
@@ -281,7 +284,7 @@ void lab2()
 			if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\t" << solution::f_calls << "\tlokalne\t";
 			solution::clear_calls();
 
-			alfa = 1.5;
+			alfa = 3.0;
 
 			cout << "ROSENBROCK:\n";
 			opt = Rosen(ff2T, ps, matrix(2, 1, krok_s), alfa, beta, epsilon, Nmax, lb, ub);		// wywołanie procedury optymalizacji
