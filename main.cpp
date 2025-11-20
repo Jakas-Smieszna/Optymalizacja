@@ -1,5 +1,4 @@
 /*********************************************
-<<<<<<< HEAD
 Kod stanowi uzupeï¿½nienie materiaï¿½ï¿½w do ï¿½wiczeï¿½
 w ramach przedmiotu metody optymalizacji.
 Kod udostï¿½pniony na licencji CC BY-SA 3.0
@@ -10,25 +9,12 @@ Data ostatniej modyfikacji: 30.09.2025
 *********************************************/
 
 
-
 //Pliki z wynikami typu csv znajdujÄ… siÄ™ w folderze out, przykÅ‚adowo dla debugowania x64:
 //Optymalizacja\out\build\x64-debug\nazwa_pliku.csv
 //Wykonanie zadania: MF, JG, MG, AG
 
 #include"opt_alg.h"
 #include <cmath>
-=======
-Kod stanowi uzupe³nienie materia³ów do æwiczeñ
-w ramach przedmiotu metody optymalizacji.
-Kod udostêpniony na licencji CC BY-SA 3.0
-Autor: dr in¿. £ukasz Sztangret
-Katedra Informatyki Stosowanej i Modelowania
-Akademia Górniczo-Hutnicza
-Data ostatniej modyfikacji: 30.09.2025
-*********************************************/
-
-#include"opt_alg.h"
->>>>>>> origin
 
 void lab0();
 void lab1();
@@ -41,12 +27,8 @@ void lab6();
 int main()
 {
 	try
-	{
-<<<<<<< HEAD
-		lab2();
-=======
-		lab0();
->>>>>>> origin
+  {
+		lab2(); 
 	}
 	catch (string EX_INFO)
 	{
@@ -59,7 +41,6 @@ int main()
 void lab0()
 {
 	//Funkcja testowa
-<<<<<<< HEAD
 	double epsilon = 1e-2;									// dokï¿½adnoï¿½ï¿½
 	int Nmax = 10000;										// maksymalna liczba wywoï¿½aï¿½ funkcji celu
 	matrix lb(2, 1, -5), ub(2, 1, 5),						// dolne oraz gï¿½rne ograniczenie
@@ -88,42 +69,11 @@ void lab0()
 	Sout << hcat(Y[0], Y[1]);								// zapisyjemy wyniki w pliku
 	Sout.close();											// zamykamy strumieï¿½
 	Y[0].~matrix();											// usuwamy z pamiï¿½ci rozwiï¿½zanie RR
-=======
-	double epsilon = 1e-2;									// dok³adnoœæ
-	int Nmax = 10000;										// maksymalna liczba wywo³añ funkcji celu
-	matrix lb(2, 1, -5), ub(2, 1, 5),						// dolne oraz górne ograniczenie
-		a(2, 1);											// dok³adne rozwi¹zanie optymalne
-	solution opt;											// rozwi¹zanie optymalne znalezione przez algorytm
-	a(0) = -1;
-	a(1) = 2;
-	opt = MC(ff0T, 2, lb, ub, epsilon, Nmax, a);			// wywo³anie procedury optymalizacji
-	cout << opt << endl << endl;							// wypisanie wyniku
-	solution::clear_calls();								// wyzerowanie liczników
-
-	//Wahadlo
-	Nmax = 1000;											// dok³adnoœæ
-	epsilon = 1e-2;											// maksymalna liczba wywo³añ funkcji celu
-	lb = 0, ub = 5;											// dolne oraz górne ograniczenie
-	double teta_opt = 1;									// maksymalne wychylenie wahad³a
-	opt = MC(ff0R, 1, lb, ub, epsilon, Nmax, teta_opt);		// wywo³anie procedury optymalizacji
-	cout << opt << endl << endl;							// wypisanie wyniku
-	solution::clear_calls();								// wyzerowanie liczników
-
-	//Zapis symulacji do pliku csv
-	matrix Y0 = matrix(2, 1),								// Y0 zawiera warunki pocz¹tkowe
-		MT = matrix(2, new double[2] { m2d(opt.x), 0.5 });	// MT zawiera moment si³y dzia³aj¹cy na wahad³o oraz czas dzia³ania
-	matrix* Y = solve_ode(df0, 0, 0.1, 10, Y0, NAN, MT);	// rozwi¹zujemy równanie ró¿niczkowe
-	ofstream Sout("symulacja_lab0.csv");					// definiujemy strumieñ do pliku .csv
-	Sout << hcat(Y[0], Y[1]);								// zapisyjemy wyniki w pliku
-	Sout.close();											// zamykamy strumieñ
-	Y[0].~matrix();											// usuwamy z pamiêci rozwi¹zanie RR
->>>>>>> origin
 	Y[1].~matrix();
 }
 
 void lab1()
 {
-<<<<<<< HEAD
 	srand(time(NULL));
 	//Funkcja testowa
 	double alfa = 1.5;										//wspolczynnik ekspansji
@@ -295,21 +245,18 @@ void lab1()
 	//Sout.close();											// zamykamy strumieï¿½
 	//Y[0].~matrix();											// usuwamy z pamiï¿½ci rozwiï¿½zanie RR
 	//Y[1].~matrix();
-=======
->>>>>>> origin
 
 }
 
 void lab2()
 {
-
-<<<<<<< HEAD
+  
 	srand(time(NULL));
 	//Funkcja testowa
-	double alfa = 0.5;										//wspolczynnik ekspansji (0.0 do 1.0)
-	double krok_s = 0.0001;									//krok
-	double beta = 1e-6;										//kolejna dokladnosc
-	double epsilon = 1e-2;									// dokladnosc
+	double alfa = 0.0;										//wspolczynnik ekspansji (0.0 do 1.0)
+	double krok_s = 0.5;									//krok
+	double beta = 0.5;										// wspolczynnik kontrakcji
+	double epsilon = 1e-8;									// dokladnosc
 	int Nmax = 10000;										// maksymalna liczba wywolan funkcji celu
 	matrix lb(2, 1, -1.0), ub(2, 1, 1.0),					// dolne oraz gï¿½rne ograniczenie
 		ps(2, 1, double(rand() % 20001 - 10000)/10000.0);	// punkt startowy
@@ -318,47 +265,42 @@ void lab2()
 
 	//-----FUNKCJA TESTOWA-----------------------------------------------------------
 
-	//cout << "HOOK-JEEVES:\n";
-	/*
-	opt = HJ(ff2R,
-	x_start, krok_s, alfa,
-	epsilon, Nmax, Yref, k);	// wywoÅ‚anie procedury optymalizacji
-	*/
+  char kont = '1';
+  fstream Sout;
+  Sout.open("testy_lab2.csv", std::ios::out);
+  while (kont == '1') {
+	  for (int i = 0; i < 1; i++) {							//JG:mozna wybrac liczbe powtorzen
 
+  		ps(0) = double(rand() % 20001 - 10000) / 10000.0;
+  		ps(1) = double(rand() % 20001 - 10000) / 10000.0;
+  		cout << "Punkt startowy = [" << ps(0) << ", " << ps(1) << "].\n";
+  		cout << "Krok startowy = " << krok_s << ".\n\n";
 
-	/*
-	char kont = '1';
-	fstream Sout;
-	Sout.open("testy_lab2.csv", std::ios::out);
-	while (kont != '1') {
-		for (int i = 0; i < 1; i++) {							//JG:mozna wybrac liczbe powtorzen
+	  	alfa = 0.5;
 
-			ps(0) = double(rand() % 20001 - 10000) / 10000.0;
-			ps(1) = double(rand() % 20001 - 10000) / 10000.0;
-			cout << "Punkt startowy = [" << ps(0) << ", " << ps(1) << "].\n";
+	  	cout << "HOOK-JEEVES:\n";
+	  	opt = HJ(ff2T, ps, krok_s, alfa, epsilon, Nmax, lb, ub);							// wywoÅ‚anie procedury optymalizacji
+	  	cout << opt << endl << endl;														// wypisanie wyniku
+	  	if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\t" << solution::f_calls << "\tlokalne\t";
+	  	solution::clear_calls();
 
-			cout << "HOOK-JEEVES:\n";
-			opt = HJ(ff2T, ps, krok_s, alfa, epsilon, Nmax, lb, ub);							// wywoÅ‚anie procedury optymalizacji
-			cout << opt << endl << endl;														// wypisanie wyniku
-			//if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\t" << solution::f_calls << "\tlokalne\t";
-			solution::clear_calls();
+  		alfa = 3.0;
 
-			cout << "ROSENBROCK:\n";
-			opt = Rosen(ff2T, ps, matrix(2, 1, krok_s), alfa, beta, epsilon, Nmax, lb, ub);						// wywoÅ‚anie procedury optymalizacji
-			cout << opt << endl << endl;														// wypisanie wyniku
-			//if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\t" << solution::f_calls << "\tlokalne\n";
-			solution::clear_calls();
+		  cout << "ROSENBROCK:\n";
+		  opt = Rosen(ff2T, ps, matrix(2, 1, krok_s), alfa, beta, epsilon, Nmax, lb, ub);		// wywoÅ‚anie procedury optymalizacji
+		  cout << opt << endl << endl;														// wypisanie wyniku
+		  if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\t" << solution::f_calls << "\tlokalne\n";
+		  solution::clear_calls();
 
-		}
+  	}
 
-		cin >> kont;
+  	cin >> kont;
 
-	}
-	Sout.close();
-	*/
+  }
+  Sout.close();
 
-	//-----PROBLEM RZECZYWISTY-------------------------------------------------------
-	//
+  //-----PROBLEM RZECZYWISTY-------------------------------------------------------
+
 	matrix Yref(2, new double[2] {
 	    M_PI, // Alpha ref
 		0 // Omega ref
@@ -373,8 +315,6 @@ void lab2()
 	ps = matrix(2, 1, double(rand() % 200001)/10000.0);
 	// reszta: jutro, prawdopodobnie!
 
-
-
 	//Zapis symulacji do pliku csv
 	//matrix Y0 = matrix(2, 1),								// Y0 zawiera warunki poczï¿½tkowe
 	//	MT = matrix(2, new double[2] { m2d(opt.x), 0.5 });	// MT zawiera moment siï¿½y dziaï¿½ajï¿½cy na wahadï¿½o oraz czas dziaï¿½ania
@@ -385,8 +325,6 @@ void lab2()
 	//Y[0].~matrix();											// usuwamy z pamiï¿½ci rozwiï¿½zanie RR
 	//Y[1].~matrix();
 
-=======
->>>>>>> origin
 }
 
 void lab3()

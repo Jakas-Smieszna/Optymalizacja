@@ -1,31 +1,32 @@
 #include "opt_alg.h"
+#include "exceptions.h"
 
 solution MC(matrix(*ff)(matrix, matrix, matrix), int N, matrix lb, matrix ub, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
-	// Zmienne wejúciowe:
-	// ff - wskaünik do funkcji celu
+	// Zmienne wej≈õciowe:
+	// ff - wska≈∫nik do funkcji celu
 	// N - liczba zmiennych funkcji celu
-	// lb, ub - dolne i gÛrne ograniczenie
-	// epslion - zak≥πdana dok≥adnoúÊ rozwiπzania
-	// Nmax - maksymalna liczba wywo≥aÒ funkcji celu
+	// lb, ub - dolne i g√≥rne ograniczenie
+	// epslion - zak≈ÇƒÖdana dok≈Çadno≈õƒá rozwiƒÖzania
+	// Nmax - maksymalna liczba wywo≈Ça≈Ñ funkcji celu
 	// ud1, ud2 - user data
 	try
 	{
 		solution Xopt;
 		while (true)
 		{
-			Xopt = rand_mat(N);									// losujemy macierz Nx1 stosujπc rozk≥ad jednostajny na przedziale [0,1]
+			Xopt = rand_mat(N);									// losujemy macierz Nx1 stosujƒÖc rozk≈Çad jednostajny na przedziale [0,1]
 			for (int i = 0; i < N; ++i)
-				Xopt.x(i) = (ub(i) - lb(i)) * Xopt.x(i) + lb(i);// przeskalowywujemy rozwiπzanie do przedzia≥u [lb, ub]
-			Xopt.fit_fun(ff, ud1, ud2);							// obliczmy wartoúÊ funkcji celu
+				Xopt.x(i) = (ub(i) - lb(i)) * Xopt.x(i) + lb(i);// przeskalowywujemy rozwiƒÖzanie do przedzia≈Çu [lb, ub]
+			Xopt.fit_fun(ff, ud1, ud2);							// obliczmy warto≈õƒá funkcji celu
 			if (Xopt.y < epsilon)								// sprawdzmy 1. kryterium stopu
 			{
-				Xopt.flag = 1;									// flaga = 1 ozancza znalezienie rozwiπzanie z zadanπ dok≥adnoúciπ
+				Xopt.flag = 1;									// flaga = 1 ozancza znalezienie rozwiƒÖzanie z zadanƒÖ dok≈Çadno≈õciƒÖ
 				break;
 			}
 			if (solution::f_calls > Nmax)						// sprawdzmy 2. kryterium stopu
 			{
-				Xopt.flag = 0;									// flaga = 0 ozancza przekroczenie maksymalne liczby wywo≥aÒ funkcji celu
+				Xopt.flag = 0;									// flaga = 0 ozancza przekroczenie maksymalne liczby wywo≈Ça≈Ñ funkcji celu
 				break;
 			}
 		}
@@ -42,7 +43,6 @@ double* expansion(matrix(*ff)(matrix, matrix, matrix), double x0, double d, doub
 	try
 	{
 		double* p = new double[2] { 0, 0 };
-<<<<<<< HEAD
 
 		int i = 0;
 		double x1 = x0 + d;
@@ -89,11 +89,6 @@ double* expansion(matrix(*ff)(matrix, matrix, matrix), double x0, double d, doub
 		else p[1] = ud2(0);
 		return p;
 
-=======
-		//Tu wpisz kod funkcji
-
-		return p;
->>>>>>> origin
 	}
 	catch (string ex_info)
 	{
@@ -101,7 +96,6 @@ double* expansion(matrix(*ff)(matrix, matrix, matrix), double x0, double d, doub
 	}
 }
 
-<<<<<<< HEAD
 double phi(int x)
 {
 	int first = 0, second = 1, sum = 0;
@@ -117,13 +111,10 @@ double phi(int x)
 	return (double)sum;
 }
 
-=======
->>>>>>> origin
 solution fib(matrix(*ff)(matrix, matrix, matrix), double a, double b, double epsilon, matrix ud1, matrix ud2)
 {
 	try
 	{
-<<<<<<< HEAD
 		//std::cout << a << std::endl;
 		int k = 1;
 		while (phi(k) <= (b - a) / epsilon) { ++k; }
@@ -151,10 +142,6 @@ solution fib(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 		Xopt.x = c;
 		Xopt.fit_fun(ff, ud1, ud2);
 
-=======
-		solution Xopt;
-		//Tu wpisz kod funkcji
->>>>>>> origin
 
 		return Xopt;
 	}
@@ -170,7 +157,6 @@ solution lag(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 	try
 	{
 		solution Xopt;
-<<<<<<< HEAD
 
 		int i = 0;
 		double l, m;
@@ -190,7 +176,7 @@ solution lag(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 				+ ff(ci(0), ud1, ud2)(0) * (ai(0) - bi(0));
 
 			if (m <= 0) {
-				throw std::runtime_error("Niepoprawne wyniki podczas obliczen - zle dane/blad w kodzie.");
+				throw std::invalid_argument("Niepoprawne wyniki podczas obliczen - zle dane/blad w kodzie.");
 			}
 
 			di(1) = 0.5 * l / m;
@@ -227,7 +213,7 @@ solution lag(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 
 				}
 				else {
-					throw std::runtime_error("Niepoprawne wyniki podczas obliczen - zle dane/blad w kodzie.");
+					throw std::invalid_argument("Niepoprawne wyniki podczas obliczen - zle dane/blad w kodzie.");
 				}
 
 			}
@@ -251,11 +237,6 @@ solution lag(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 		Xopt.fit_fun(ff, ud1, ud2);
 		return Xopt;
 
-=======
-		//Tu wpisz kod funkcji
-
-		return Xopt;
->>>>>>> origin
 	}
 	catch (string ex_info)
 	{
@@ -263,85 +244,78 @@ solution lag(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 	}
 }
 
-<<<<<<< HEAD
-solution HJ(matrix(*ff)(matrix, matrix, matrix), 
-matrix x0, double s, double alpha, double epsilon, 
-int Nmax, matrix ud1, matrix ud2)
-=======
 solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alpha, double epsilon, int Nmax, matrix ud1, matrix ud2)
->>>>>>> origin
 {
+
+	solution Xopt;
+
 	try
 	{
-		solution Xopt;
-<<<<<<< HEAD
+
 		Xopt.x = x0;
 		if (alpha - 1.0 > -TOL || alpha < TOL) {
 			Xopt.flag = 0;
-			throw("Nieprawidlowe dane.");
+			throw BadArguments("Wspolczynnik ekspansi poza przedzialem (0, 1).");
 		}
 
 		do {
 			solution XB;
 			XB.x = Xopt.x;
-			Xopt = HJ_trial(ff, XB, s, ud1, ud2);
 			XB.fit_fun(ff, ud1, ud2);
+			Xopt = HJ_trial(ff, XB, s, ud1, ud2);
 			Xopt.fit_fun(ff, ud1, ud2);
-			//if (((ff)(Xopt.x, ud1, ud2))(0) - ((ff)(xb, ud1, ud2))(0) < TOL) {
-			if (Xopt.y - XB.y < TOL){
+			if (Xopt.y - XB.y < -TOL){
 
 				do {
 
 					solution XB_ = XB;
 					XB = Xopt;
-					//std::cout << "Xx: " << Xopt.x << "\n";
-					//std::cout << "XBx: " << XB.x << "\n";
-					//std::cout << "XB_x: " << XB_.x << "\n";
 					for (int i = 0; i < get_len(Xopt.x); i++) {
 						Xopt.x(i) = 2 * XB.x(i) - XB_.x(i);
 					}
-					//std::cout << "Xx: " << Xopt.x << "\n";
 					Xopt = HJ_trial(ff, Xopt, s, ud1, ud2);
 					XB.fit_fun(ff, ud1, ud2);
 					Xopt.fit_fun(ff, ud1, ud2);
 					if (solution::f_calls > Nmax){
 						Xopt.flag = 0;
-						throw std::runtime_error("Przekroczono limit wywolan funkcji.");
+						throw ToManyCalls("Etap roboczy.\nLiczba wywolan = " + to_string(solution::f_calls) + "\nLimit wywyolan = " + to_string(Nmax));
 					}
 
 				} while (!(Xopt.y - XB.y > -TOL));
-				//while (!(((ff)(Xopt.x, ud1, ud2))(0) - ((ff)(xb, ud1, ud2))(0) > -TOL));
 				Xopt = XB;
 
 			}
 			else {
 				s = alpha * s;
-				//std::cout << "Krok: " << s << "\n";
 			}
 
 			if (solution::f_calls > Nmax) {
 				Xopt.flag = 0;
-				throw std::runtime_error("Przekroczono limit wywolan funkcji.");
+				throw ToManyCalls("Koniec iteracji algorytmu.\nLiczba wywolan = " + to_string(solution::f_calls) + "\nLimit wywyolan = " + to_string(Nmax));
 			}
 
 		} while (!(s < epsilon));
-=======
-		//Tu wpisz kod funkcji
->>>>>>> origin
+		Xopt.flag = 1;
 
-		return Xopt;
+	}
+	catch (const std::exception& ex)
+	{
+		std::cerr << "PRZECHWYCONO WYJATEK - Hook-Jeeves: " << ex.what() << "\n";
 	}
 	catch (string ex_info)
 	{
-		throw ("solution HJ(...):\n" + ex_info);
+		throw ("WYJATEK - Hook-Jeeves:\n" + ex_info);
 	}
+
+	Xopt.fit_fun(ff, ud1, ud2);
+	return Xopt;
+
 }
 
 solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, matrix ud1, matrix ud2)
 {
 	try
 	{
-<<<<<<< HEAD
 
 		int XD = get_len(XB.x);//Wymiar przestrzeni
 		matrix* e = new matrix[XD];
@@ -353,21 +327,21 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 
 			XB.fit_fun(ff, ud1, ud2);
 			solution::f_calls += 1;
-			if ((*ff)(XB.x + e[j] * s, ud1, ud2) - XB.y < TOL) {
+			if (XB.x(j) + s - ud1(j) > -TOL 
+				&& XB.x(j) + s - ud2(j) < TOL 
+				&& (*ff)(XB.x + e[j] * s, ud1, ud2) - XB.y < -TOL) {
 				
-				//std::cout << "XBx: " << XB.x << "\n";
 				XB.x = XB.x + s * e[j];
-				//std::cout << "XBx ++: " << XB.x << "\n";
 
 			}
 			else {
 
 				solution::f_calls += 1;
-				if ((*ff)(XB.x - e[j] * s, ud1, ud2) - XB.y < TOL) {
+				if (XB.x(j) - s - ud1(j) > -TOL
+					&& XB.x(j) - s - ud2(j) < TOL
+					&& (*ff)(XB.x - e[j] * s, ud1, ud2) - XB.y < -TOL) {
 
-					//std::cout << "XBx: " << XB.x << "\n";
 					XB.x = XB.x - s * e[j];
-					//std::cout << "XBx --: " << XB.x << "\n";
 
 				}
 
@@ -375,38 +349,57 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 
 		}
 		delete[] e;
-=======
-		//Tu wpisz kod funkcji
-
->>>>>>> origin
-		return XB;
+		
+	}
+	catch (const std::exception& ex)
+	{
+		std::cerr << "PRZECHWYCONO WYJATEK - Hook-Jeeves - etap probny: " << ex.what() << "\n";
 	}
 	catch (string ex_info)
 	{
-		throw ("solution HJ_trial(...):\n" + ex_info);
+		throw ("WYJATEK - Hook-Jeeves - etap probny:\n" + ex_info);
 	}
+
+	return XB;
+
 }
 
 solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double alpha, double beta, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
+
+	solution Xopt;
+
 	try
 	{
-		solution Xopt;
-<<<<<<< HEAD
+
+		if (alpha - 1.0 < TOL) {
+			Xopt.flag = 0;
+			throw BadArguments("Wspolczynnik ekspansi mniejszy lub rowny 1.");
+		}
+		if (beta - 1.0 > -TOL || beta < TOL) {
+			Xopt.flag = 0;
+			throw BadArguments("Wspolczynnik korekcji poza przedzialem (0, 1).");
+		}
+
 		int i = 0;
 		int n = get_len(x0);
-		matrix d = ident_mat(n);
+		matrix d(n, n, 0.0);
+		for (int i = 0; i < n; i++) {
+			d(i,i) = exp(i + 1);
+		}
 		matrix lambda(n, 1, 0.0);
-		matrix p(get_len(x0), 1, 0.0);
+		matrix p(n, 1, 0.0);
 		matrix xb = x0;
 		matrix s = s0;
 
 		do {
+
 			for (int j = 0; j < n; j++)
 			{
-				if (ff(xb + s(j) * get_col(d, j), ud1, ud2)(0) < ff(xb, ud1, ud2)(0))
+				solution::f_calls += 2;
+				if (ff(xb + s(j) * d(j), ud1, ud2)(0) < ff(xb, ud1, ud2)(0))
 				{
-					xb = xb + (s(j) * get_col(d, j));
+					xb = xb + (s(j) * d(j));
 					lambda(j) = lambda(j) + s(j);
 					s(j) = alpha * s(j);
 				}
@@ -417,40 +410,77 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 				}
 			}
 			i++;
-			for (int j = 0; j <= n; j++)
-			{
-				if (j == n)
+			Xopt.x = xb;
+			//NOWA WERSJA
+			bool warunek = 1;
+			for (int j = 0; warunek && j < n; j++) {
+				if (abs(lambda(j)) < TOL) warunek = 0;
+				if (abs(p(j)) < TOL) warunek = 0;
+			}
+			if (warunek) {
+
+				//LICZENIE dj(i+1):
 				{
+
+					matrix Q(n, n, 0.0);
+					for (int j = 0; j < n; j++) {
+						for (int i = 0; i < n; i++) {
+							if (j >= i) {
+								Q(j, i) = lambda(j);
+							}
+							else break;
+						}
+					}
+					matrix D = ident_mat(n);
+					Q = D * Q;
+
+					matrix v = Q[0];
+					d[0] = v / norm(v);
+
+					for (int j = 1; j < n; j++) {
+
+						matrix pom = Q[j];
+						for (int k = 0; k < j; k++) {
+
+							pom = pom - ((trans(Q) * d[k])() * d[k]);
+
+						}
+						v = pom;
+						d[j] = v / norm(v);
+
+					}
+					
 					lambda = matrix(n, 1, 0.0);
 					p = matrix(n, 1, 0.0);
 					s = s0;
-					break;
+
 				}
-				if (lambda(j) == 0 || p(j) == 0)
-				{
-					break;
-				}
+				//KONIEC LICZENIA dj(i+1)
+
 			}
 			if (solution::f_calls > Nmax)
 			{
 				Xopt.flag = 0;
-				break;
+				throw ToManyCalls("Koniec iteracji.\nLiczba wywolan = " + to_string(solution::f_calls) + "\nLimit wywyolan = " + to_string(Nmax));
 			}
+
 		} while (norm(s) > epsilon);
 
+		Xopt.flag = 1;
 
-		Xopt.x = xb;
-		Xopt.fit_fun(ff, ud1, ud2);
-=======
-		//Tu wpisz kod funkcji
-
->>>>>>> origin
-		return Xopt;
+	}
+	catch (const std::exception& ex)
+	{
+		std::cerr << "PRZECHWYCONO WYJATEK - Rosen: " << ex.what() << "\n";
 	}
 	catch (string ex_info)
 	{
-		throw ("solution Rosen(...):\n" + ex_info);
+		throw ("WYJATEK - ROSEN:\n" + ex_info);
 	}
+
+	Xopt.fit_fun(ff, ud1, ud2);
+	return Xopt;
+
 }
 
 solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc, double epsilon, int Nmax, matrix ud1, matrix ud2)

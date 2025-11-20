@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #include"user_funs.h"
 
 //LAB0
@@ -7,20 +6,11 @@ matrix ff0T(matrix x, matrix ud1, matrix ud2)				// funkcja celu dla przypadku t
 {
 	matrix y;												// y zawiera wartoï¿½ï¿½ funkcji celu
 	y = pow(x(0) - ud1(0), 2) + pow(x(1) - ud1(1), 2);		// ud1 zawiera wspï¿½rzï¿½dne szukanego optimum
-=======
-#include "user_funs.h"
-
-matrix ff0T(matrix x, matrix ud1, matrix ud2)				// funkcja celu dla przypadku testowego
-{
-	matrix y;												// y zawiera wartoœæ funkcji celu
-	y = pow(x(0) - ud1(0), 2) + pow(x(1) - ud1(1), 2);		// ud1 zawiera wspó³rzêdne szukanego optimum
->>>>>>> origin
 	return y;
 }
 
 matrix ff0R(matrix x, matrix ud1, matrix ud2)				// funkcja celu dla problemu rzeczywistego
 {
-<<<<<<< HEAD
 	matrix y;												// y zawiera wartoï¿½ï¿½ funkcji celu
 	matrix Y0 = matrix(2, 1),								// Y0 zawiera warunki poczï¿½tkowe
 		MT = matrix(2, new double[2] { m2d(x), 0.5 });		// MT zawiera moment siï¿½y dziaï¿½ajï¿½cy na wahadï¿½o oraz czas dziaï¿½ania
@@ -32,19 +22,6 @@ matrix ff0R(matrix x, matrix ud1, matrix ud2)				// funkcja celu dla problemu rz
 			teta_max = Y[1](i, 0);
 	y = abs(teta_max - m2d(ud1));							// wartoï¿½ï¿½ funkcji celu (ud1 to zaï¿½oï¿½one maksymalne wychylenie)
 	Y[0].~matrix();											// usuwamy z pamiï¿½ci rozwiï¿½zanie RR
-=======
-	matrix y;												// y zawiera wartoœæ funkcji celu
-	matrix Y0 = matrix(2, 1),								// Y0 zawiera warunki pocz¹tkowe
-		MT = matrix(2, new double[2] { m2d(x), 0.5 });		// MT zawiera moment si³y dzia³aj¹cy na wahad³o oraz czas dzia³ania
-	matrix* Y = solve_ode(df0, 0, 0.1, 10, Y0, ud1, MT);	// rozwi¹zujemy równanie ró¿niczkowe
-	int n = get_len(Y[0]);									// d³ugoœæ rozwi¹zania
-	double teta_max = Y[1](0, 0);							// szukamy maksymalnego wychylenia wahad³a
-	for (int i = 1; i < n; ++i)
-		if (teta_max < Y[1](i, 0))
-			teta_max = Y[1](i, 0);
-	y = abs(teta_max - m2d(ud1));							// wartoœæ funkcji celu (ud1 to za³o¿one maksymalne wychylenie)
-	Y[0].~matrix();											// usuwamy z pamiêci rozwi¹zanie RR
->>>>>>> origin
 	Y[1].~matrix();
 	return y;
 }
@@ -54,7 +31,6 @@ matrix df0(double t, matrix Y, matrix ud1, matrix ud2)
 	matrix dY(2, 1);										// definiujemy wektor pochodnych szukanych funkcji
 	double m = 1, l = 0.5, b = 0.5, g = 9.81;				// definiujemy parametry modelu
 	double I = m * pow(l, 2);
-<<<<<<< HEAD
 	dY(0) = Y(1);																// pochodna z poï¿½oï¿½enia to prï¿½dkoï¿½ï¿½
 	dY(1) = ((t <= ud2(1)) * ud2(0) - m * g * l * sin(Y(0)) - b * Y(1)) / I;	// pochodna z prï¿½dkoï¿½ci to przyspieszenie
 	return dY;
@@ -65,14 +41,14 @@ matrix df0(double t, matrix Y, matrix ud1, matrix ud2)
 matrix ff1R(matrix x, matrix ud1, matrix ud2)
 {
 	matrix y;
-
+  
 	double VA0 = 5; // m^3
 	double VB0 = 1; // m^3
 	double TB0 = 20; // centigrade
 	// Y0 zawiera warunku poczatkowe
 	matrix Y0 = matrix(3, new double[3] {VA0, VB0, TB0});
 	matrix* Y = solve_ode(df1, 0, 1, 2000, Y0, x, ud2);
-
+  
 	int n = get_len(Y[0]);
 	double teta_max = Y[1](0, 2);
 	for (int i = 1; i < n; ++i)
@@ -90,9 +66,9 @@ matrix ff1R(matrix x, matrix ud1, matrix ud2)
 
 matrix df1(double t, matrix Y, matrix ud1, matrix ud2) {
 	// Wektor pochodnych funkcji po czasie; dVA/dt, dVB/dt, dTB/dt
-
+  
 	double DA = m2d(ud1)/(100*100);
-
+  
 	double PA = 2; // m^2
 	double TA0 = 95; // centigrade
 	double PB = 1; // m^2
@@ -102,7 +78,7 @@ matrix df1(double t, matrix Y, matrix ud1, matrix ud2) {
 	double a = 0.98; // wsp. lepkosci cieczy
 	double b = 0.63; // wsp. zwezenia strumienia cieczy
 	double g = 9.81; // m/s^2, przyspieszenie ziemskie
-
+  
 	double& VA = Y(0);
 	double& VB = Y(1);
 	double& TB = Y(2);
@@ -116,7 +92,6 @@ matrix df1(double t, matrix Y, matrix ud1, matrix ud2) {
 	return dY;
 }
 
-
 matrix ff1T(matrix x, matrix ud1, matrix ud2)
 {
 	matrix y;
@@ -124,10 +99,13 @@ matrix ff1T(matrix x, matrix ud1, matrix ud2)
 	return y;
 }
 
+// LAB 2 (K2)
+
 matrix ff2T(matrix x, matrix ud1, matrix ud2) {
 	matrix y;
-	y = x(0)*x(0) + x(1)*x(1) - std::cos(2.5 * M_PI * x(0)) - std::cos(2.5 * M_PI * x(0)) + 2;
-	return y;
+	//y = x(0)*x(0) + x(1)*x(1) - std::cos(2.5 * M_PI * x(0)) - std::cos(2.5 * M_PI * x(0)) + 2;
+	y = pow(x(0), 2.0) + pow(x(1), 2.0) - cos(2.5 * M_PI * x(0)) - cos(2.5 * M_PI * x(1)) + 2;
+  return y;
 }
 // od 0s do 100s co 0.1s
 
@@ -193,9 +171,4 @@ matrix ff2R(matrix x, matrix ud1, matrix ud2)
 	Y[1].~matrix();
 	return y;
 }
-=======
-	dY(0) = Y(1);																// pochodna z po³o¿enia to prêdkoœæ
-	dY(1) = ((t <= ud2(1)) * ud2(0) - m * g * l * sin(Y(0)) - b * Y(1)) / I;	// pochodna z prêdkoœci to przyspieszenie
-	return dY;
-}
->>>>>>> origin
+
