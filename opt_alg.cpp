@@ -389,6 +389,7 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 		matrix p(n, 1, 0.0);
 		matrix xb = x0;
 		matrix s = s0;
+		double max__s_ = 0.0;
 
 		do {
 
@@ -399,8 +400,8 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 				bool zawarty = true;
 				//Sprawdzzenie czy potencjalny x nalezy do dziedziny funkcji
 				for (int g = 0; zawarty && g < n; g++) {
-					if (xpom(j) - ud1(j) < TOL) zawarty = false;
-					if (xpom(j) - ud2(j) > -TOL) zawarty = false;
+					if (xpom(g) - ud1(j) < TOL) zawarty = false;
+					if (xpom(g) - ud2(j) > -TOL) zawarty = false;
 				}
 				if (zawarty && ff(xb + s(j) * d(j), ud1, ud2)(0) < ff(xb, ud1, ud2)(0))
 				{
@@ -436,8 +437,8 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 							else break;
 						}
 					}
-					matrix D = ident_mat(n);
-					Q = D * Q;
+					//matrix D = ident_mat(n);
+					Q = d * Q;
 
 					matrix v = Q[0];
 					d[0] = v / norm(v);
@@ -469,7 +470,13 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 				throw ToManyCalls("Koniec iteracji.\nLiczba wywolan = " + to_string(solution::f_calls) + "\nLimit wywyolan = " + to_string(Nmax));
 			}
 
-		} while (norm(s) > epsilon);
+			max__s_ = abs(s(0));
+			for (int j = 1; j < n; j++) {
+				if (abs(s(j)) > max__s_) max__s_ = abs(s(j));
+			}
+
+		} while (max__s_ > epsilon);
+		//while (norm(s) > epsilon);
 
 		Xopt.flag = 1;
 
