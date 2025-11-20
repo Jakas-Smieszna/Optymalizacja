@@ -9,12 +9,12 @@ Data ostatniej modyfikacji: 30.09.2025
 *********************************************/
 
 
-
 //Pliki z wynikami typu csv znajdują się w folderze out, przykładowo dla debugowania x64:
 //Optymalizacja\out\build\x64-debug\nazwa_pliku.csv
 //Wykonanie zadania: MF, JG, MG, AG
 
 #include"opt_alg.h"
+#include <cmath>
 
 void lab0();
 void lab1();
@@ -27,8 +27,8 @@ void lab6();
 int main()
 {
 	try
-	{
-		lab2();
+  {
+		lab2(); 
 	}
 	catch (string EX_INFO)
 	{
@@ -250,7 +250,7 @@ void lab1()
 
 void lab2()
 {
-
+  
 	srand(time(NULL));
 	//Funkcja testowa
 	double alfa = 0.0;										//wspolczynnik ekspansji (0.0 do 1.0)
@@ -265,43 +265,55 @@ void lab2()
 
 	//-----FUNKCJA TESTOWA-----------------------------------------------------------
 
-	char kont = '1';
-	fstream Sout;
-	Sout.open("testy_lab2.csv", std::ios::out);
-	while (kont == '1') {
-		for (int i = 0; i < 1; i++) {							//JG:mozna wybrac liczbe powtorzen
+  char kont = '1';
+  fstream Sout;
+  Sout.open("testy_lab2.csv", std::ios::out);
+  while (kont == '1') {
+	  for (int i = 0; i < 1; i++) {							//JG:mozna wybrac liczbe powtorzen
 
-			ps(0) = double(rand() % 20001 - 10000) / 10000.0;
-			ps(1) = double(rand() % 20001 - 10000) / 10000.0;
-			cout << "Punkt startowy = [" << ps(0) << ", " << ps(1) << "].\n";
-			cout << "Krok startowy = " << krok_s << ".\n\n";
+  		ps(0) = double(rand() % 20001 - 10000) / 10000.0;
+  		ps(1) = double(rand() % 20001 - 10000) / 10000.0;
+  		cout << "Punkt startowy = [" << ps(0) << ", " << ps(1) << "].\n";
+  		cout << "Krok startowy = " << krok_s << ".\n\n";
 
-			alfa = 0.5;
+	  	alfa = 0.5;
 
-			cout << "HOOK-JEEVES:\n";
-			opt = HJ(ff2T, ps, krok_s, alfa, epsilon, Nmax, lb, ub);							// wywołanie procedury optymalizacji
-			cout << opt << endl << endl;														// wypisanie wyniku
-			if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\t" << solution::f_calls << "\tlokalne\t";
-			solution::clear_calls();
+	  	cout << "HOOK-JEEVES:\n";
+	  	opt = HJ(ff2T, ps, krok_s, alfa, epsilon, Nmax, lb, ub);							// wywołanie procedury optymalizacji
+	  	cout << opt << endl << endl;														// wypisanie wyniku
+	  	if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\t" << solution::f_calls << "\tlokalne\t";
+	  	solution::clear_calls();
 
-			alfa = 3.0;
+  		alfa = 3.0;
 
-			cout << "ROSENBROCK:\n";
-			opt = Rosen(ff2T, ps, matrix(2, 1, krok_s), alfa, beta, epsilon, Nmax, lb, ub);		// wywołanie procedury optymalizacji
-			cout << opt << endl << endl;														// wypisanie wyniku
-			if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\t" << solution::f_calls << "\tlokalne\n";
-			solution::clear_calls();
+		  cout << "ROSENBROCK:\n";
+		  opt = Rosen(ff2T, ps, matrix(2, 1, krok_s), alfa, beta, epsilon, Nmax, lb, ub);		// wywołanie procedury optymalizacji
+		  cout << opt << endl << endl;														// wypisanie wyniku
+		  if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\t" << solution::f_calls << "\tlokalne\n";
+		  solution::clear_calls();
 
-		}
+  	}
 
-		cin >> kont;
+  	cin >> kont;
 
-	}
-	Sout.close();
+  }
+  Sout.close();
 
-	//-----PROBLEM RZECZYWISTY-------------------------------------------------------
+  //-----PROBLEM RZECZYWISTY-------------------------------------------------------
 
-
+	matrix Yref(2, new double[2] {
+	    M_PI, // Alpha ref
+		0 // Omega ref
+	}); // ud1
+	matrix k(2, new double[2] {
+    	5, // k1
+    	5 // k2
+	});
+	cout << ff2R(k, Yref) << endl << endl;
+	lb = matrix(2, 1, 0.0);
+	ub = matrix(2, 1, 20.0),
+	ps = matrix(2, 1, double(rand() % 200001)/10000.0);
+	// reszta: jutro, prawdopodobnie!
 
 	//Zapis symulacji do pliku csv
 	//matrix Y0 = matrix(2, 1),								// Y0 zawiera warunki pocz�tkowe

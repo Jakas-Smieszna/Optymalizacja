@@ -2,7 +2,9 @@
 
 #include "ode_solver.h"
 
-matrix* solve_ode(matrix(*diff)(double, matrix, matrix, matrix), double t0, double dt, double tend, matrix Y0, matrix ud1, matrix ud2)
+matrix* solve_ode(matrix(*diff)(double, matrix, matrix, matrix), 
+double t0, double dt, double tend, 
+matrix Y0, matrix ud1, matrix ud2)
 {
 	try
 	{

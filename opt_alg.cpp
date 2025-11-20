@@ -3,30 +3,30 @@
 
 solution MC(matrix(*ff)(matrix, matrix, matrix), int N, matrix lb, matrix ub, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
-	// Zmienne wejúciowe:
-	// ff - wskaünik do funkcji celu
+	// Zmienne wej≈õciowe:
+	// ff - wska≈∫nik do funkcji celu
 	// N - liczba zmiennych funkcji celu
-	// lb, ub - dolne i gÛrne ograniczenie
-	// epslion - zak≥πdana dok≥adnoúÊ rozwiπzania
-	// Nmax - maksymalna liczba wywo≥aÒ funkcji celu
+	// lb, ub - dolne i g√≥rne ograniczenie
+	// epslion - zak≈ÇƒÖdana dok≈Çadno≈õƒá rozwiƒÖzania
+	// Nmax - maksymalna liczba wywo≈Ça≈Ñ funkcji celu
 	// ud1, ud2 - user data
 	try
 	{
 		solution Xopt;
 		while (true)
 		{
-			Xopt = rand_mat(N);									// losujemy macierz Nx1 stosujπc rozk≥ad jednostajny na przedziale [0,1]
+			Xopt = rand_mat(N);									// losujemy macierz Nx1 stosujƒÖc rozk≈Çad jednostajny na przedziale [0,1]
 			for (int i = 0; i < N; ++i)
-				Xopt.x(i) = (ub(i) - lb(i)) * Xopt.x(i) + lb(i);// przeskalowywujemy rozwiπzanie do przedzia≥u [lb, ub]
-			Xopt.fit_fun(ff, ud1, ud2);							// obliczmy wartoúÊ funkcji celu
+				Xopt.x(i) = (ub(i) - lb(i)) * Xopt.x(i) + lb(i);// przeskalowywujemy rozwiƒÖzanie do przedzia≈Çu [lb, ub]
+			Xopt.fit_fun(ff, ud1, ud2);							// obliczmy warto≈õƒá funkcji celu
 			if (Xopt.y < epsilon)								// sprawdzmy 1. kryterium stopu
 			{
-				Xopt.flag = 1;									// flaga = 1 ozancza znalezienie rozwiπzanie z zadanπ dok≥adnoúciπ
+				Xopt.flag = 1;									// flaga = 1 ozancza znalezienie rozwiƒÖzanie z zadanƒÖ dok≈Çadno≈õciƒÖ
 				break;
 			}
 			if (solution::f_calls > Nmax)						// sprawdzmy 2. kryterium stopu
 			{
-				Xopt.flag = 0;									// flaga = 0 ozancza przekroczenie maksymalne liczby wywo≥aÒ funkcji celu
+				Xopt.flag = 0;									// flaga = 0 ozancza przekroczenie maksymalne liczby wywo≈Ça≈Ñ funkcji celu
 				break;
 			}
 		}
