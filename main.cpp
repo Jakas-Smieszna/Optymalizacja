@@ -31,7 +31,7 @@ int main()
 {
 	try
 	{
-		lab2(); 
+		lab2();
 	}
 	catch (string EX_INFO)
 	{
@@ -80,7 +80,7 @@ void lab1()
 	srand(time(NULL));
 	//Funkcja testowa
 	double alfa = 1.5;										//wspolczynnik ekspansji
-	double krok_d = 1.0;									//krok/odleglosc do ekspansji
+	double krok_d = 0.002;									//krok/odleglosc do ekspansji
 	double gamma = 1e-2;									//kolejna dokladnosc
 	double epsilon = 1e-2;									// dok�adno��
 	int Nmax = 10000;										// maksymalna liczba wywo�a� funkcji celu
@@ -253,11 +253,11 @@ void lab1()
 
 void lab2()
 {
-  
+
 	srand(time(NULL));
 	//Funkcja testowa
 	double alfa = 0.0;										// wspolczynnik ekspansji (0.0 do 1.0 dla HJ i > 1 dla R - zmiana w petli, nie tutaj)
-	double krok_s = 0.5;									// krok
+	double krok_s = 1.5;									// krok
 	double beta = 0.5;										// wspolczynnik kontrakcji
 	double epsilon = 1e-8;									// dokladnosc
 	int Nmax = 10000;										// maksymalna liczba wywolan funkcji celu
@@ -282,18 +282,33 @@ void lab2()
 	  	alfa = 0.5;
 
 	  	cout << "HOOK-JEEVES:\n";
+		if (Sout.good() == true) Sout << ps(0) << "\t" << ps(1) << '\t';
 	  	opt = HJ(ff2T, ps, krok_s, alfa, epsilon, Nmax, lb, ub);							// wywołanie procedury optymalizacji
-	  	cout << opt << endl << endl;														// wypisanie wyniku
-	  	if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\t" << solution::f_calls << "\tlokalne\t";
+	  	cout << opt << endl << endl;
+
+	  	if (Sout.good() == true) {
+			Sout << opt.x(0) << "\t" << opt.x(1) << '\t' << opt.y(0)
+			<< "\t" << solution::f_calls;
+			if(fabs(opt.x(0)) < 10*epsilon && fabs(opt.x(1)) < 10*epsilon) {
+			Sout << "\tTAK\t";
+			} else Sout << "\tNIE\t";
+		}
+
 	  	solution::clear_calls();
 
   		alfa = 1.5;
 
-		  cout << "ROSENBROCK:\n";
-		  opt = Rosen(ff2T, ps, matrix(2, 1, krok_s), alfa, beta, epsilon, Nmax, lb, ub);	// wywołanie procedury optymalizacji
-		  cout << opt << endl << endl;														// wypisanie wyniku
-		  if (Sout.good() == true) Sout << opt.x(0) << "\t" << opt.y(0) << "\t" << solution::f_calls << "\tlokalne\n";
-		  solution::clear_calls();
+        cout << "ROSENBROCK:\n";
+	    opt = Rosen(ff2T, ps, matrix(2, 1, krok_s), alfa, beta, epsilon, Nmax, lb, ub);	// wywołanie procedury optymalizacji
+	    cout << opt << endl << endl;
+	  	if (Sout.good() == true) {
+			Sout << opt.x(0) << "\t" << opt.x(1) << '\t' << opt.y(0)
+			<< "\t" << solution::f_calls;
+			if(fabs(opt.x(0)) < 10*epsilon && fabs(opt.x(1)) < 10*epsilon) {
+			Sout << "\tTAK\n";
+			} else Sout << "\tNIE\n";
+		}
+		solution::clear_calls();
 
   	}
 
@@ -316,7 +331,89 @@ void lab2()
 	lb = matrix(2, 1, 0.0);
 	ub = matrix(2, 1, 20.0),
 	ps = matrix(2, 1, double(rand() % 200001)/10000.0);
-	// reszta: jutro, prawdopodobnie!
+	krok_s = 0.01;
+	kont = '1';
+    Sout.open("real_lab2.csv", std::ios::out);
+    while (kont == '1') {
+        for (int i = 0; i < 1; i++) {							//JG:mozna wybrac liczbe powtorzen
+      		ps(0) = double(rand() % 200001)/10000.0;
+      		ps(1) = double(rand() % 200001)/10000.0;
+      		cout << "Punkt startowy = [" << ps(0) << ", " << ps(1) << "].\n";
+      		cout << "Krok startowy = " << krok_s << ".\n\n";
+
+           	alfa = 0.5;
+
+           	cout << "HOOK-JEEVES:\n";
+           	if (Sout.good() == true) Sout << ps(0) << "\t" << ps(1) << '\t';
+           	opt = HJ(ff2R, ps, krok_s, alfa, epsilon, Nmax, Yref, ub);							// wywołanie procedury optymalizacji
+           	cout << opt << endl << endl;
+
+           	if (Sout.good() == true) {
+          		Sout << opt.x(0) << "\t" << opt.x(1) << '\t' << opt.y(0)
+          		<< "\t" << solution::f_calls << '\t';
+           	}
+
+       	solution::clear_calls();
+
+          		alfa = 1.5;
+
+                cout << "ROSENBROCK:\n";
+            opt = Rosen(ff2R, ps, matrix(2, 1, krok_s), alfa, beta, epsilon, Nmax, Yref, ub);	// wywołanie procedury optymalizacji
+            cout << opt << endl << endl;
+       	if (Sout.good() == true) {
+      		Sout << opt.x(0) << "\t" << opt.x(1) << '\t' << opt.y(0)
+      		<< "\t" << solution::f_calls << '\n';
+       	}
+       	solution::clear_calls();
+
+   	}
+
+   	cin >> kont;
+
+    }
+  Sout.close();
+
+ 	auto zapiszSymulacje = [](matrix* Y, const string& nazwa_pliku) {
+		ofstream plik(nazwa_pliku);
+		if (plik.good()) {
+			plik << "Czas[s]\tAlfa[rad]\tomega[rad/s]\n";
+			int n = get_len(Y[0]);
+			for (int i = 0; i < n; i++) {
+				plik << Y[0](i) << "\t"
+					<< Y[1](i, 0) << "\t"
+					<< Y[1](i, 1) << "\n";
+			}
+			cout << "Zapisano symulacje: " << nazwa_pliku << " (" << n << " punktow czasowych)\n";
+		}
+		plik.close();
+		Y[0].~matrix();
+		Y[1].~matrix();
+		};
+
+		solution::clear_calls();
+
+		cout << "\n=== ZAPIS PEŁNYCH SYMULACJI ===\n";
+
+		// Warunki początkowe
+		matrix k_HJ = matrix(2, new double[2] {2.8664, 10.3436});
+		matrix k_Rosen = matrix(2, new double[2] {3.14159, 11.3324});
+
+		double Alfa0 = 0;
+		double Omega0 = 0;
+		// Y0 zawiera warunku poczatkowe
+		matrix Y0 = matrix(2, new double[2] {Alfa0, Omega0});
+		// matrix Yref = matrix(2, new double[2] {AlfaRef, OmegaRef});
+		// Yref - wyżej w pliku
+
+		// SYMULACJA DLA HJ'A
+		cout << "Symulacja dla HJ'a...\n";
+		matrix* Y_HJ = solve_ode(df2, 0, 0.1, 100, Y0, Yref, k_HJ);
+		zapiszSymulacje(Y_HJ, "symulacja_HJ.csv");
+
+		// SYMULACJA DLA ROSENA
+		cout << "Symulacja dla Rosenbrocka...\n";
+		matrix* Y_Rosen = solve_ode(df2, 0, 0.1, 100, Y0, Yref, k_HJ);
+		zapiszSymulacje(Y_Rosen, "symulacja_Rosen.csv");
 
 	//Zapis symulacji do pliku csv
 	//matrix Y0 = matrix(2, 1),								// Y0 zawiera warunki pocz�tkowe
