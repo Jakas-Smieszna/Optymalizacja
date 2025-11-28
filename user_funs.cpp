@@ -152,7 +152,7 @@ matrix ff2R(matrix x, matrix ud1, matrix ud2)
 	// Y0 zawiera warunku poczatkowe
 	matrix Y0 = matrix(2, new double[2] {Alfa0, Omega0});
 	matrix Yref  = matrix(2, new double[2] {AlfaRef, OmegaRef});
-	matrix* Y = solve_ode(df2, 0, 0.1, 100, Y0, Yref, x);
+	matrix* Y = solve_ode(df3, 0, 0.1, 100, Y0, Yref, x);
 
 	//x = ud2;
 
@@ -172,3 +172,86 @@ matrix ff2R(matrix x, matrix ud1, matrix ud2)
 	return y;
 }
 
+//LAB4
+
+matrix ff3T(matrix x, matrix ud1, matrix ud2)
+{
+	if (fabs(sqrt(pow(x(0) / M_PI, 2) + pow(x(1) / M_PI, 2))) < 1e-12)
+	{
+		return 1.0;
+	}
+	matrix y;
+	y = (sin(M_PI * sqrt(pow(x(0) / M_PI, 2) + pow(x(1) / M_PI, 2))) / (M_PI * sqrt(pow(x(0) / M_PI, 2) + pow(x(1) / M_PI, 2))));
+	return y;
+}
+
+matrix df3(double t, matrix Y, matrix ud1, matrix ud2) {
+
+	auto alphaT = Y(0);
+	auto omegaT = Y(1);
+
+	auto k1 = ud2(0);
+	auto k2 = ud2(1);
+
+	auto alphaRef = ud1(0);
+	auto omegaRef = ud1(1);
+
+
+	double l = 2;   // m
+	double m_r = 1; // kg
+	double m_c = 5; // kg
+
+	double b = 0.25; // Nms
+
+	const double one_third = 1.0 / 3.0;
+
+	double I = (one_third * m_r * pow(l, 2)) +
+		(m_c * pow(l, 2));
+
+	double M_t = k1 * (alphaRef - alphaT) + k2 * (omegaRef - omegaT);
+
+	matrix dY(2, 1);
+	dY(0) = omegaT;
+	dY(1) = (M_t - b * omegaT) / I;
+	return dY;
+}
+
+matrix ff3R(matrix x, matrix ud1, matrix ud2)
+{
+	matrix y = { 0 };
+	matrix x = matrix(2, 1, 0.0);
+	ud1 = matrix(2, 1, -10);
+	ud2 = matrix(2, 1, 10);
+	matrix t0de = matrix(3, 1, 0.0);
+	t0de(0) = 0.0;//t0
+	t0de(1) = 0.1;//delta
+	t0de(2) = 7.0;//tend
+
+	double masa = 0.6;//kg
+	double promien = 0.12;//m
+	double y0 = 100.0;//m
+	double C = 0.47;
+	double gestosc = 1.2;//kg/m^3
+	double S = M_PI * pow(promien, 2.0);
+	double g = 9.81;//m/s^2
+	matrix v = matrix(2, 1, 0.0);
+	
+	// Y0 zawiera warunku poczatkowe
+	matrix Y0 = matrix(2, 1, 0.0);
+	matrix* Y = solve_ode(df3, t0de(0), t0de(1), t0de(2), Y0, x, ud1);
+
+	int n = get_len(Y[0]);
+	for (int i = 0; i < n; i++) {
+		y = y +
+			10 * pow(Yref(0) - Y[1](i, 0), 2) +
+			pow(Yref(1) - Y[1](i, 1), 2) +
+			pow(
+				x(0) * (Yref(0) - Y[1](i, 0)) +
+				x(1) * (Yref(1) - Y[1](i, 1)), 2
+			);
+	}
+	y = y * 0.1;
+	Y[0].~matrix();
+	Y[1].~matrix();
+	return y;
+}
