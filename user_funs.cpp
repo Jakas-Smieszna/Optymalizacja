@@ -238,7 +238,8 @@ matrix ff3R(matrix x, matrix ud1, matrix ud2)
 	
 	// Y0 zawiera warunku poczatkowe
 	matrix Y0 = matrix(2, 1, 0.0);
-	matrix* Y = solve_ode(df3, t0de(0), t0de(1), t0de(2), Y0, x, ud1);
+	matrix Yref = matrix(2, 1, 0.0);
+	matrix* Y = solve_ode(df3, t0de(0), t0de(1), t0de(2), Y0, ud1, ud2);
 
 	int n = get_len(Y[0]);
 	for (int i = 0; i < n; i++) {
