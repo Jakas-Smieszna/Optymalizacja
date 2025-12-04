@@ -31,7 +31,7 @@ int main()
 {
 	try
 	{
-		lab2();
+		lab3();
 	}
 	catch (string EX_INFO)
 	{
@@ -429,6 +429,17 @@ void lab2()
 
 void lab3()
 {
+
+	// solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s,
+	//  double alpha, double beta, double gamma, double delta, double epsilon, int Nmax, matrix ud1, matrix ud2
+	double s = 0.5;
+	double alpha = 1, beta = 0.3, gamma = 1.2, delta = 0.5;
+	double epsilon = 1e-8;
+	matrix x0 = matrix(2, 1, 1.0);
+	std::cout << x0(0) << ", " << x0(1) << '\n';
+	std::cout << sym_NM(ff3T, x0, s, alpha, beta, gamma, delta, epsilon, 10000) << std::endl;
+
+
 
 }
 
