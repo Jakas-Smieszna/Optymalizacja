@@ -511,6 +511,83 @@ solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc
 solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alpha, double beta, double gamma, double delta, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 
+	try
+	{
+		solution Xopt;
+		matrix max_diff;
+
+		solution p[3];
+		p[0].x = x0;
+		p[1].x = x0 + matrix(2, new double[2] {0, s});
+		p[2].x = x0 + matrix(2, new double[2] {s, 0});
+		int min = 0; int max = 0;
+
+
+
+		do {
+			solution p_avg(matrix(2, 1, 0.0));
+			for (int i = 0; i < 3; i++) {
+				p[i].fit_fun(ff, ud1, ud2);
+				if (p[i].y < p[min].y) min = i;
+				if (p[i].y > p[max].y) max = i;
+			}
+			for (int i = 0; i < 3; i++) {
+				if (i == max) continue;
+				p_avg.x = p_avg.x + p[i].x;
+			}
+			p_avg.x = p_avg.x / 2;
+			solution p_odb;
+			p_odb.x = p_avg.x + alpha * (p_avg.x - p[max].x);
+			p_odb.fit_fun(ff, ud1, ud2);
+			if (p_odb.y < p[min].y) {
+				solution p_e(p_avg.x + gamma * (p_odb.x - p_avg.x));
+				p_e.fit_fun(ff, ud1, ud2);
+				if (p_e.y < p_odb.y) {
+					p[max] = p_e;
+				}
+				else {
+					p[max] = p_odb;
+				}
+			}
+			else {
+				if (p[min].y <= p_odb.y && p_odb.y < p[max].y) {
+					p[max] = p_odb;
+				}
+				else {
+					matrix p_z_X = p_avg.x + beta * (p[max].x - p_avg.x);
+					solution p_z(p_z_X);
+					p_z.fit_fun(ff, ud1, ud2);
+					if (p_z.y >= p[max].y) {
+						for (int i = 0; i < 3; i++) {
+							if (i == min) continue;
+							p[i].x = (delta * (p[i].x + p[min].x));
+						}
+					}
+					else {
+						p[max] = p_z;
+					}
+				}
+			}
+			for (int i = 0; i < 3; i++) {
+				if (i == min) continue;
+				matrix diff = std::sqrt(std::pow(p[min].x(0) - p[i].x(0), 2) + std::pow(p[min].x(1) - p[i].x(1), 2));
+
+				if (diff > max_diff) max_diff = diff;
+				std::cout << max_diff << '\n';
+			}
+			if (solution::f_calls > Nmax) break;
+		} while (max_diff > epsilon);
+
+
+		Xopt = p[min];
+
+		return Xopt;
+	}
+	catch (string ex_info)
+	{
+		throw ("solution sym_NM(...):\n" + ex_info);
+	}
+
 	//solution Xopt;
 
 	//try
