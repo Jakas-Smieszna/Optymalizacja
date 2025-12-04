@@ -327,10 +327,10 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 
 			XB.fit_fun(ff, ud1, ud2);
 			solution::f_calls += 1;
-			if (XB.x(j) + s - ud1(j) > -TOL 
-				&& XB.x(j) + s - ud2(j) < TOL 
+			if (XB.x(j) + s - ud1(j) > -TOL
+				&& XB.x(j) + s - ud2(j) < TOL
 				&& (*ff)(XB.x + e[j] * s, ud1, ud2) - XB.y < -TOL) {
-				
+
 				XB.x = XB.x + s * e[j];
 
 			}
@@ -349,7 +349,7 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 
 		}
 		delete[] e;
-		
+
 	}
 	catch (const std::exception& ex)
 	{
@@ -455,7 +455,7 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 						d[j] = v / norm(v);
 
 					}
-					
+
 					lambda = matrix(n, 1, 0.0);
 					p = matrix(n, 1, 0.0);
 					s = s0;
@@ -514,15 +514,12 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 	try
 	{
 		solution Xopt;
-		matrix max_diff;
 
 		solution p[3];
 		p[0].x = x0;
 		p[1].x = x0 + matrix(2, new double[2] {0, s});
 		p[2].x = x0 + matrix(2, new double[2] {s, 0});
 		int min = 0; int max = 0;
-
-
 
 		do {
 			solution p_avg(matrix(2, 1, 0.0));
@@ -540,43 +537,50 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 			p_odb.x = p_avg.x + alpha * (p_avg.x - p[max].x);
 			p_odb.fit_fun(ff, ud1, ud2);
 			if (p_odb.y < p[min].y) {
+			    printf("odbicie\n");
 				solution p_e(p_avg.x + gamma * (p_odb.x - p_avg.x));
 				p_e.fit_fun(ff, ud1, ud2);
 				if (p_e.y < p_odb.y) {
+				    printf("ekspansja\n");
 					p[max] = p_e;
 				}
 				else {
 					p[max] = p_odb;
 				}
 			}
-			else {
-				if (p[min].y <= p_odb.y && p_odb.y < p[max].y) {
+			else if (p[min].y <= p_odb.y && p_odb.y < p[max].y) {
 					p[max] = p_odb;
-				}
-				else {
+				} else {
+				    printf("kontrakcja\n");
 					matrix p_z_X = p_avg.x + beta * (p[max].x - p_avg.x);
 					solution p_z(p_z_X);
 					p_z.fit_fun(ff, ud1, ud2);
 					if (p_z.y >= p[max].y) {
+					    printf("redukcja\n");
 						for (int i = 0; i < 3; i++) {
 							if (i == min) continue;
 							p[i].x = (delta * (p[i].x + p[min].x));
+							p[i].fit_fun(ff, ud1, ud2);
 						}
-					}
-					else {
+					} else {
+					    printf("akceptacja kontrakcji\n");
 						p[max] = p_z;
 					}
 				}
-			}
+			double max_diff = 0;
 			for (int i = 0; i < 3; i++) {
 				if (i == min) continue;
-				matrix diff = std::sqrt(std::pow(p[min].x(0) - p[i].x(0), 2) + std::pow(p[min].x(1) - p[i].x(1), 2));
+				double diff = norm(p[min].x - p[i].x);
 
 				if (diff > max_diff) max_diff = diff;
-				std::cout << max_diff << '\n';
+				std::cout << max_diff << '\t' << diff << '\n';
 			}
 			if (solution::f_calls > Nmax) break;
-		} while (max_diff > epsilon);
+			std::cout << "p0: " << trans(p[0].x) << ": " << p[0].y << (min == 0 ? " min " : max == 0 ? " max " : " ") << norm(p[0].x - p[min].x) << '\n';
+			std::cout << "p1: " << trans(p[1].x) << ": " << p[1].y << (min == 1 ? " min " : max == 1 ? " max " : " ") << norm(p[1].x - p[min].x) <<  '\n';
+			std::cout << "p2: " << trans(p[2].x) << ": " << p[2].y << (min == 2 ? " min " : max == 2 ? " max " : " ") << norm(p[2].x - p[min].x) <<  '\n';
+			if(max_diff <= epsilon) break;
+		} while (true);
 
 
 		Xopt = p[min];
@@ -592,7 +596,7 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 
 	//try
 	//{
-	//	
+	//
 	//	if (abs(alpha - 1.0) > TOL) {
 	//		Xopt.flag = 0;
 	//		throw BadArguments("Wspolczynnik ekspansi rozny od 1.");
@@ -610,7 +614,7 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 	//		throw BadArguments("Wspolczynnik delta poza przedzialem (0, 1).");
 	//	}
 
-	//	
+	//
 	//	int n = get_len(x0);
 	//	matrix p(n, n + 1, 0.0);
 	//	matrix py(1, n + 1, 0.0);
@@ -654,7 +658,7 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 
 
 
-	//	
+	//
 	//}
 	//catch (const std::exception& ex)
 	//{

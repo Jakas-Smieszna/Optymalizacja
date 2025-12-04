@@ -41,14 +41,14 @@ matrix df0(double t, matrix Y, matrix ud1, matrix ud2)
 matrix ff1R(matrix x, matrix ud1, matrix ud2)
 {
 	matrix y;
-  
+
 	double VA0 = 5; // m^3
 	double VB0 = 1; // m^3
 	double TB0 = 20; // centigrade
 	// Y0 zawiera warunku poczatkowe
 	matrix Y0 = matrix(3, new double[3] {VA0, VB0, TB0});
 	matrix* Y = solve_ode(df1, 0, 1, 2000, Y0, x, ud2);
-  
+
 	int n = get_len(Y[0]);
 	double teta_max = Y[1](0, 2);
 	for (int i = 1; i < n; ++i)
@@ -66,9 +66,9 @@ matrix ff1R(matrix x, matrix ud1, matrix ud2)
 
 matrix df1(double t, matrix Y, matrix ud1, matrix ud2) {
 	// Wektor pochodnych funkcji po czasie; dVA/dt, dVB/dt, dTB/dt
-  
+
 	double DA = m2d(ud1)/(100*100);
-  
+
 	double PA = 2; // m^2
 	double TA0 = 95; // centigrade
 	double PB = 1; // m^2
@@ -78,7 +78,7 @@ matrix df1(double t, matrix Y, matrix ud1, matrix ud2) {
 	double a = 0.98; // wsp. lepkosci cieczy
 	double b = 0.63; // wsp. zwezenia strumienia cieczy
 	double g = 9.81; // m/s^2, przyspieszenie ziemskie
-  
+
 	double& VA = Y(0);
 	double& VB = Y(1);
 	double& TB = Y(2);
@@ -152,7 +152,7 @@ matrix ff2R(matrix x, matrix ud1, matrix ud2)
 	// Y0 zawiera warunku poczatkowe
 	matrix Y0 = matrix(2, new double[2] {Alfa0, Omega0});
 	matrix Yref  = matrix(2, new double[2] {AlfaRef, OmegaRef});
-	matrix* Y = solve_ode(df3, 0, 0.1, 100, Y0, Yref, x);
+	matrix* Y = solve_ode(df2, 0, 0.1, 100, Y0, Yref, x);
 
 	//x = ud2;
 
@@ -248,7 +248,7 @@ matrix ff3R(matrix x, matrix ud1, matrix ud2)
 	//double S = M_PI * pow(promien, 2.0);
 	//double g = 9.81;//m/s^2
 	//matrix v = matrix(2, 1, 0.0);
-	
+
 	// Y0 zawiera warunki poczatkowe
 	matrix Y0 = matrix(2, 1, 0.0);
 	//matrix Yref = matrix(2, 1, 0.0);
