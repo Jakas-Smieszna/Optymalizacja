@@ -210,8 +210,6 @@ matrix ff3R(matrix x, matrix ud1, matrix ud2)
 {
 	matrix y = { 0 };
 	//matrix x = matrix(2, 1, 0.0);//ostatecznie chyba Y0
-	ud1 = matrix(2, 1, -10.0);
-	ud2 = matrix(2, 1, 10.0);
 	matrix t0de = matrix(3, 1, 0.0);
 	t0de(0) = 0.0;//t0
 	t0de(1) = 0.1;//delta

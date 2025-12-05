@@ -575,7 +575,10 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 				if (diff > max_diff) max_diff = diff;
 				//std::cout << max_diff << '\t' << diff << '\n';
 			}
-			if (solution::f_calls > Nmax) break;
+			if (solution::f_calls > Nmax) { 
+				throw string("PRZEKROCZONO DOPUSZCZALNA LICZBE WYWOLAN.");
+				break; 
+			}
 			//std::cout << "p0: " << trans(p[0].x) << ": " << p[0].y << (min == 0 ? " min " : max == 0 ? " max " : " ") << norm(p[0].x - p[min].x) << '\n';
 			//std::cout << "p1: " << trans(p[1].x) << ": " << p[1].y << (min == 1 ? " min " : max == 1 ? " max " : " ") << norm(p[1].x - p[min].x) <<  '\n';
 			//std::cout << "p2: " << trans(p[2].x) << ": " << p[2].y << (min == 2 ? " min " : max == 2 ? " max " : " ") << norm(p[2].x - p[min].x) <<  '\n';
@@ -591,87 +594,6 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 	{
 		throw ("solution sym_NM(...):\n" + ex_info);
 	}
-
-	//solution Xopt;
-
-	//try
-	//{
-	//
-	//	if (abs(alpha - 1.0) > TOL) {
-	//		Xopt.flag = 0;
-	//		throw BadArguments("Wspolczynnik ekspansi rozny od 1.");
-	//	}
-	//	if (beta - 1.0 > -TOL || beta < TOL) {
-	//		Xopt.flag = 0;
-	//		throw BadArguments("Wspolczynnik beta poza przedzialem (0, 1).");
-	//	}
-	//	if (gamma - 1.0 < TOL) {
-	//		Xopt.flag = 0;
-	//		throw BadArguments("Wspolczynnik gamma mniejszy od 1.");
-	//	}
-	//	if (delta - 1.0 > -TOL || beta < TOL) {
-	//		Xopt.flag = 0;
-	//		throw BadArguments("Wspolczynnik delta poza przedzialem (0, 1).");
-	//	}
-
-	//
-	//	int n = get_len(x0);
-	//	matrix p(n, n + 1, 0.0);
-	//	matrix py(1, n + 1, 0.0);
-	//	//Przygotowanie pierwszego simpleksu
-	//	for (int i = 0; i < n; i++) {
-	//		p[i] = x0;
-	//	}
-	//	for (int i = 1; i < n + 1; i++) {
-	//		for (int j = 0; j < n; j++) {
-	//			p(j, i) = p(j, 0);
-	//			if (i - 1 == j) p(j, i) += s;
-	//		}
-	//	}
-	//	//
-	//	do {
-
-	//		solution::f_calls += 3;
-	//		for (int i = 0; i < n + 1; i++) {
-	//			py[i] = ff(p[i], ud1, ud2);
-	//		}
-	//		int p_min_n = 0;
-	//		int p_max_n = 0;
-	//		for (int i = 1; i < n + 1; i++) {
-	//			if (py[i] > py[p_max_n]) p_max_n = i;
-	//			if (py[i] < py[p_min_n]) p_min_n = i;
-	//		}
-	//		matrix p_(1, n, 0.0);
-	//		for (int i = 0; i < n + 1; i++) {
-	//			if (i != p_max_n) p_ += p[i];
-	//		}
-	//		p_ = p_ / double(n);
-	//		double podb = p_ + alpha * (p_ - py[p_max_n](0));
-
-	//		solution::f_calls += 2;
-	//		if(ff(matrix(1,1,podb), ud1, ud2);
-
-
-
-	//	} while ();
-
-
-
-
-	//
-	//}
-	//catch (const std::exception& ex)
-	//{
-	//	std::cerr << "PRZECHWYCONO WYJATEK - Rosen: " << ex.what() << "\n";
-	//}
-	//catch (string ex_info)
-	//{
-	//	throw ("WYJATEK - ROSEN:\n" + ex_info);
-	//}
-
-	//Xopt.fit_fun(ff, ud1, ud2);
-
-	//return Xopt;
 
 }
 

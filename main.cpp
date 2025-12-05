@@ -432,6 +432,7 @@ void lab3()
 
 	srand(time(NULL));
 	//Funkcja testowa
+	int Nmax = 10000;
 	double s = 0.5;
 	double alpha = 1, 
 		beta = 0.3, 
@@ -454,10 +455,10 @@ void lab3()
 		ps(1) = double(rand() % 60001) / 10000.0;
 		for (int i = 0; i < 1; i++) {
 
-			cout << "NELDARA-MEADA:\n";
+			cout << "NELDARA-MEADA - FUNKCJA TESTOWA:\n";
 			std::cout << "Punkt startowy = (" << ps(0) << ", " << ps(1) << ")\n";
 			if (Sout.good() == true) Sout << ps(0) << "\t" << ps(1) << '\t';
-			opt = sym_NM(ff3T, ps, s, alpha, beta, gamma, delta, epsilon, 10000);
+			opt = sym_NM(ff3T, ps, s, alpha, beta, gamma, delta, epsilon, Nmax);
 			cout << opt << endl << endl;
 			solution::clear_calls();
 
@@ -467,6 +468,40 @@ void lab3()
 
 	}
 	Sout.close();
+
+	//-----FUNKCJA RZECZYWISTA-----------------------------------------------------------
+	s = 0.5;
+	alpha = 1;
+	beta = 0.3;
+	gamma = 1.2;
+	delta = 0.5;
+	epsilon = 1e-8;
+	lb = matrix(2, 1, -10.0);
+	ub = matrix(2, 1, 10.0);
+
+	kont = '1';
+	Sout.open("rzeczywista_lab3.csv", std::ios::out);
+	while (kont == '1') {
+		//ps(0) = double(rand() % 200001 - 100000) / 10000.0;
+		//ps(1) = double(rand() % 200001 - 100000) / 10000.0;
+		ps(0) = 5.0;
+		ps(1) = 10.0;
+		for (int i = 0; i < 1; i++) {
+
+			cout << "NELDARA-MEADA - FUNKCJA RZECZYWISTA:\n";
+			std::cout << "Punkt startowy = (" << ps(0) << ", " << ps(1) << ")\n";
+			if (Sout.good() == true) Sout << ps(0) << "\t" << ps(1) << '\t';
+			opt = sym_NM(ff3R, ps, s, alpha, beta, gamma, delta, epsilon, Nmax, lb, ub);
+			cout << opt << endl << endl;
+			solution::clear_calls();
+
+		}
+
+		cin >> kont;
+
+	}
+	Sout.close();
+
 
 	// solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s,
 	//  double alpha, double beta, double gamma, double delta, double epsilon, int Nmax, matrix ud1, matrix ud2
