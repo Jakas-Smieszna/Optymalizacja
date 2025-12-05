@@ -222,23 +222,24 @@ matrix ff3R(matrix x, matrix ud1, matrix ud2) {
   int n = get_len(Y[0]);
   int i0 = 0, i50 = 0;
   for (int i = 0; i < n; i++) {
-    if (abs(Y[1](i, 2) - 50) < abs(Y[1](i50, 2) - 50)) {
+    if (fabs(Y[1](i, 2) - 50) < fabs(Y[1](i50, 2) - 50)) {
       i50 = i;
     }
-    if (abs(Y[1](i, 2)) < abs(Y[1](i0, 2))) {
+    if (fabs(Y[1](i, 2)) < fabs(Y[1](i0, 2))) {
       i0 = i;
       y = -Y[1](i0, 0);
     }
-    if (abs(x(0)) - 10 > 0) {
-      y = y + ud2(0) * pow(abs(x(0)) - 10, 2);
+    if (fabs(x(0)) - 10 > 0) {
+      y = y + ud2(0) * pow(fabs(x(0)) - 10, 2);
     }
-    if (abs(x(1)) - 10 > 0) {
-      y = y + ud2(0) * pow(abs(x(0)) - 10, 2);
+    if (fabs(x(1)) - 10 > 0) {
+      y = y + ud2(0) * pow(fabs(x(1)) - 10, 2);
     }
-    if (abs(Y[1](i50, 2) - 5) - 2 > 0) {
-      y = y + ud2(0) * pow(abs(x(0)) - 10, 2);
+    if (fabs(Y[1](i50, 2) - 5) - 2 > 0) {
+      y = y + ud2(0) * pow(fabs(Y[1](i50, 0) - 5) - 2, 2);
     }
   }
+  //std::cout << "x(i50): " << Y[1](i50, 0) << " y :" << Y[1](i50, 2) << '\n';
   // y = y * 0.1;
   Y[0].~matrix();
   Y[1].~matrix();
