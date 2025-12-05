@@ -511,9 +511,9 @@ matrix S_zewn(matrix x, boundF *constraints, int numConstraints, double a, matri
 matrix S_wewn(matrix x, boundF *constraints, int numConstraints, double a, matrix ud1, matrix ud2) {
     double sum = 0.0;
     for(int i = 0; i < numConstraints; i++) {
-        sum += 1.0 / (constraints[i](x, a));
+        sum -= (1.0 / (constraints[i](x, a)));
     }
-    return matrix(-1 * sum);
+    return matrix(sum);
 }
 
 matrix S_zewnT(matrix x, double a, matrix ud1 = 0, matrix ud2 = 0) {
@@ -543,27 +543,15 @@ solution pen(f_celu ff, matrix x0, double c, double dc, double epsilon, int Nmax
 		int i = 0;
 		double s = ud2(4);
 		double alpha = ud2(0), beta = ud2(1), gamma = ud2(2), delta = ud2(3);
-		double a = ud1(0);
-		int which_func = ud1(1);
 
 		do {
 		    i++;
-			switch(which_func) {
-			case 0:
-			default: /// tu sie dorobi pare
-			    Fst = [&](matrix xL, matrix ud1L, matrix ud2L) {return ff(xL, ud1L, ud2L) + c * S_zewnT(xL, a, ud1L, ud2L);};
-				break;
-			case 1:
-                Fst = [&](matrix xL, matrix ud1L, matrix ud2L) {return ff(xL, ud1L, ud2L) + c * S_wewnT(xL, a, ud1L, ud2L);};
-                break;
-			}
 			last_x = x;
-			x = sym_NM(F, x0, s, alpha, beta, gamma, delta, epsilon, Nmax).x;
+			x = sym_NM(ff, x0, s, alpha, beta, gamma, delta, epsilon, Nmax, ud1, c).x;
             Xopt.x = x;
-            Xopt.fit_fun(ff, ud1, ud2);
+            Xopt.fit_fun(ff, ud1, c);
 			c *= dc;
-
-			//if(solution::f_calls > Nmax) {std::cout << "cweloza\n";throw ("too many callls");}
+			if(solution::f_calls > Nmax) {throw ("too many callls");}
 		} while (norm(x - last_x) >= epsilon);
 
 		return Xopt;

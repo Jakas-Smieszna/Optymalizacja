@@ -18,5 +18,7 @@ typedef double(*boundF)(matrix, double);
 double g3T1(matrix, double);
 double g3T2(matrix, double);
 double g3T3(matrix, double);
+matrix df3(double, matrix, matrix = 0, matrix = 0);
 matrix ff3R(matrix, matrix = 0, matrix = 0);
-matrix df3(matrix, matrix = 0, matrix = 0);
+matrix ff3T_zewn(matrix, matrix = 0, matrix = 0);
+matrix ff3T_wewn(matrix, matrix = 0, matrix = 0);
