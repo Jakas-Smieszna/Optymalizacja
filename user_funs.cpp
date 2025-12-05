@@ -197,29 +197,7 @@ matrix df3(double t, matrix Y, matrix ud1, matrix ud2) {
 	double g = 9.81;//m/s^2
 	matrix v = matrix(2, 1, 0.0);
 
-	//Kopia z df2 jako szablon. Trzeba zrobic liczenie pochodnej na podstawie wzrorow jak sadze
-	//auto alphaT = Y(0);
-	//auto omegaT = Y(1);
-
-	//auto k1 = ud2(0);
-	//auto k2 = ud2(1);
-
-	//auto alphaRef = ud1(0);
-	//auto omegaRef = ud1(1);
-
-
-	//double l = 2;   // m
-	//double m_r = 1; // kg
-	//double m_c = 5; // kg
-
-	//double b = 0.25; // Nms
-
-	//const double one_third = 1.0 / 3.0;
-
-	//double I = (one_third * m_r * pow(l, 2)) +
-	//	(m_c * pow(l, 2));
-
-	//double M_t = k1 * (alphaRef - alphaT) + k2 * (omegaRef - omegaT);
+	
 
 	matrix dY(2, 1, 0.0);
 	//Uzupelnianie wyniku
@@ -239,41 +217,30 @@ matrix ff3R(matrix x, matrix ud1, matrix ud2)
 	t0de(1) = 0.1;//delta
 	t0de(2) = 7.0;//tend
 
-	//Raczej potrzebne tylko w df
-	//double masa = 0.6;//kg
-	//double promien = 0.12;//m
-	//double y0 = 100.0;//m
-	//double C = 0.47;
-	//double gestosc = 1.2;//kg/m^3
-	//double S = M_PI * pow(promien, 2.0);
-	//double g = 9.81;//m/s^2
-	//matrix v = matrix(2, 1, 0.0);
-
 	// Y0 zawiera warunki poczatkowe
 	matrix Y0 = matrix(2, 1, 0.0);
 	//matrix Yref = matrix(2, 1, 0.0);
 	matrix* Y = solve_ode(df3, t0de(0), t0de(1), t0de(2), Y0, ud1, ud2);
 
 	int n = get_len(Y[0]);
-	for (int i = 0; i < n; i++) {
-		//Trzeba policzyc wynik na podstawie idealnej wartosci funkcji celu - zanlezc zaleznosc w instrukcji
-		//Kopia z fr2
-		/*y = y +
-			10 * pow(Yref(0) - Y[1](i, 0), 2) +
-			pow(Yref(1) - Y[1](i, 1), 2) +
-			pow(
-				x(0) * (Yref(0) - Y[1](i, 0)) +
-				x(1) * (Yref(1) - Y[1](i, 1)), 2
-			);*/
-	}
-	//y = y * 0.1;
+	//for (int i = 0; i < n; i++) {
+	//	Trzeba policzyc wynik na podstawie idealnej wartosci funkcji celu - zanlezc zaleznosc w instrukcji
+	//	Kopia z fr2
+	//	/*y = y +
+	//		10 * pow(Yref(0) - Y[1](i, 0), 2) +
+	//		pow(Yref(1) - Y[1](i, 1), 2) +
+	//		pow(
+	//			x(0) * (Yref(0) - Y[1](i, 0)) +
+	//			x(1) * (Yref(1) - Y[1](i, 1)), 2
+	//		);*/
+	//}
 	Y[0].~matrix();
 	Y[1].~matrix();
 	return y;
 }
 
 
-matrix ff4R(matrix x, matrix ud1, matrix ud2)
+matrix ff4T(matrix x, matrix ud1, matrix ud2)
 {
 	return (1.0f / 6.0f) * pow(x(0), 6) - 1.05 * pow(x(0), 4) + 2.0f * pow(x(0), 2) + pow(x(1), 2) + x(0) * x(1);
 }
