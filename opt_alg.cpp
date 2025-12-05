@@ -498,7 +498,12 @@ solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc
 {
 	try {
 		solution Xopt;
-		//Tu wpisz kod funkcji
+
+		int i = 0;
+		matrix x_prev = x0;
+		double c_curr = c;
+
+
 
 		return Xopt;
 	}

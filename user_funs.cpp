@@ -172,3 +172,18 @@ matrix ff2R(matrix x, matrix ud1, matrix ud2)
 	return y;
 }
 
+matrix ff3T(matrix x, matrix ud1, matrix ud2)
+{
+	if (fabs(sqrt(pow(x(0) / M_PI, 2) + pow(x(1) / M_PI, 2))) < 1e-12)
+	{
+		return 1.0;
+	}
+	matrix y;
+	y = (sin(M_PI * sqrt(pow(x(0) / M_PI, 2) + pow(x(1) / M_PI, 2))) / (M_PI * sqrt(pow(x(0) / M_PI, 2) + pow(x(1) / M_PI, 2))));
+	return y;
+}
+
+matrix ff4R(matrix x, matrix ud1, matrix ud2)
+{
+	return (1.0f/6.0f) * pow(x(0), 6) - 1.05 * pow(x(0), 4) + 2.0f * pow(x(0), 2) + pow(x(1), 2) + x(0) * x(1);
+}
