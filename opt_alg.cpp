@@ -537,11 +537,11 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 			p_odb.x = p_avg.x + alpha * (p_avg.x - p[max].x);
 			p_odb.fit_fun(ff, ud1, ud2);
 			if (p_odb.y < p[min].y) {
-			    printf("odbicie\n");
+			    //printf("odbicie\n");
 				solution p_e(p_avg.x + gamma * (p_odb.x - p_avg.x));
 				p_e.fit_fun(ff, ud1, ud2);
 				if (p_e.y < p_odb.y) {
-				    printf("ekspansja\n");
+				    //printf("ekspansja\n");
 					p[max] = p_e;
 				}
 				else {
@@ -551,19 +551,19 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 			else if (p[min].y <= p_odb.y && p_odb.y < p[max].y) {
 					p[max] = p_odb;
 				} else {
-				    printf("kontrakcja\n");
+				    //printf("kontrakcja\n");
 					matrix p_z_X = p_avg.x + beta * (p[max].x - p_avg.x);
 					solution p_z(p_z_X);
 					p_z.fit_fun(ff, ud1, ud2);
 					if (p_z.y >= p[max].y) {
-					    printf("redukcja\n");
+					    //printf("redukcja\n");
 						for (int i = 0; i < 3; i++) {
 							if (i == min) continue;
 							p[i].x = (delta * (p[i].x + p[min].x));
 							p[i].fit_fun(ff, ud1, ud2);
 						}
 					} else {
-					    printf("akceptacja kontrakcji\n");
+					    //printf("akceptacja kontrakcji\n");
 						p[max] = p_z;
 					}
 				}
@@ -573,12 +573,12 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 				double diff = norm(p[min].x - p[i].x);
 
 				if (diff > max_diff) max_diff = diff;
-				std::cout << max_diff << '\t' << diff << '\n';
+				//std::cout << max_diff << '\t' << diff << '\n';
 			}
 			if (solution::f_calls > Nmax) break;
-			std::cout << "p0: " << trans(p[0].x) << ": " << p[0].y << (min == 0 ? " min " : max == 0 ? " max " : " ") << norm(p[0].x - p[min].x) << '\n';
-			std::cout << "p1: " << trans(p[1].x) << ": " << p[1].y << (min == 1 ? " min " : max == 1 ? " max " : " ") << norm(p[1].x - p[min].x) <<  '\n';
-			std::cout << "p2: " << trans(p[2].x) << ": " << p[2].y << (min == 2 ? " min " : max == 2 ? " max " : " ") << norm(p[2].x - p[min].x) <<  '\n';
+			//std::cout << "p0: " << trans(p[0].x) << ": " << p[0].y << (min == 0 ? " min " : max == 0 ? " max " : " ") << norm(p[0].x - p[min].x) << '\n';
+			//std::cout << "p1: " << trans(p[1].x) << ": " << p[1].y << (min == 1 ? " min " : max == 1 ? " max " : " ") << norm(p[1].x - p[min].x) <<  '\n';
+			//std::cout << "p2: " << trans(p[2].x) << ": " << p[2].y << (min == 2 ? " min " : max == 2 ? " max " : " ") << norm(p[2].x - p[min].x) <<  '\n';
 			if(max_diff <= epsilon) break;
 		} while (true);
 

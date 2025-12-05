@@ -430,14 +430,52 @@ void lab2()
 void lab3()
 {
 
+	srand(time(NULL));
+	//Funkcja testowa
+	double s = 0.5;
+	double alpha = 1, 
+		beta = 0.3, 
+		gamma = 1.2, 
+		delta = 0.5;
+	double epsilon = 1e-8;
+	//matrix x0 = matrix(2, 1, 1.0);
+	matrix lb(2, 1, -1.0), ub(2, 1, 1.0),					// dolne oraz g�rne ograniczenie
+		ps(2, 1, double(rand() % 60001) / 10000.0);			// punkt startowy
+	solution opt;											// rozwiazanie optymalne znalezione przez algorytm
+	solution::clear_calls();
+
+	//-----FUNKCJA TESTOWA-----------------------------------------------------------
+
+	char kont = '1';
+	fstream Sout;
+	Sout.open("testy_lab3.csv", std::ios::out);
+	while (kont == '1') {
+		ps(0) = double(rand() % 60001) / 10000.0;
+		ps(1) = double(rand() % 60001) / 10000.0;
+		for (int i = 0; i < 1; i++) {
+
+			cout << "NELDARA-MEADA:\n";
+			std::cout << "Punkt startowy = (" << ps(0) << ", " << ps(1) << ")\n";
+			if (Sout.good() == true) Sout << ps(0) << "\t" << ps(1) << '\t';
+			opt = sym_NM(ff3T, ps, s, alpha, beta, gamma, delta, epsilon, 10000);
+			cout << opt << endl << endl;
+			solution::clear_calls();
+
+		}
+
+		cin >> kont;
+
+	}
+	Sout.close();
+
 	// solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s,
 	//  double alpha, double beta, double gamma, double delta, double epsilon, int Nmax, matrix ud1, matrix ud2
-	double s = 0.5;
+	/*double s = 0.5;
 	double alpha = 1, beta = 0.3, gamma = 1.2, delta = 0.5;
 	double epsilon = 1e-8;
 	matrix x0 = matrix(2, 1, 1.0);
 	std::cout << x0(0) << ", " << x0(1) << '\n';
-	std::cout << sym_NM(ff3T, x0, s, alpha, beta, gamma, delta, epsilon, 10000) << std::endl;
+	std::cout << sym_NM(ff3T, x0, s, alpha, beta, gamma, delta, epsilon, 10000) << std::endl;*/
 
 
 

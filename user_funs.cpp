@@ -271,3 +271,9 @@ matrix ff3R(matrix x, matrix ud1, matrix ud2)
 	Y[1].~matrix();
 	return y;
 }
+
+
+matrix ff4R(matrix x, matrix ud1, matrix ud2)
+{
+	return (1.0f / 6.0f) * pow(x(0), 6) - 1.05 * pow(x(0), 4) + 2.0f * pow(x(0), 2) + pow(x(1), 2) + x(0) * x(1);
+}
