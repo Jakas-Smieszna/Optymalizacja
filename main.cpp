@@ -14,6 +14,7 @@ Data ostatniej modyfikacji: 30.09.2025
 //Wykonanie zadania: MF, JG, MG, AG
 
 
+#include "solution.h"
 #define _USE_MATH_DEFINES
 #include"opt_alg.h"
 #include <cmath>
@@ -312,6 +313,8 @@ void lab2()
 
   	}
 
+			char kont = '1';
+  fstream Sout;
   	cin >> kont;
 
   }
@@ -427,19 +430,48 @@ void lab2()
 
 }
 
+
 void lab3()
 {
-
-	// solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s,
-	//  double alpha, double beta, double gamma, double delta, double epsilon, int Nmax, matrix ud1, matrix ud2
+    srand(time(NULL));
 	double s = 0.5;
 	double alpha = 1, beta = 0.3, gamma = 1.2, delta = 0.5;
 	double epsilon = 1e-8;
-	matrix x0 = matrix(2, 1, 1.0);
-	std::cout << x0(0) << ", " << x0(1) << '\n';
-	std::cout << sym_NM(ff3T, x0, s, alpha, beta, gamma, delta, epsilon, 10000) << std::endl;
+	solution::clear_calls();
+	// std::cout << penSol << norm(penSol.x) << " g3:" << g3T3(x0, S_data(0)) << " | " << g3T2(penSol.x,0) << " | " << g3T1(penSol.x,0);
+	char kont = '1';
+    fstream Sout;
+	Sout.open("testy_lab3.csv", std::ios::out);
+	matrix S_data = matrix(2, new double[2]{5.0, 0});
+	matrix const_data = matrix(5, new double[5]{alpha, beta, gamma, delta, s});
+	matrix ps(2, new double[2]{1.0, 1.0});
+    while (kont == '1') {
+        for (int i = 0; i < 100; i++) {
+            ps(0) = double(rand() % 20001+10000) / 10000.0;
+            ps(1) = double(rand() % 20001+10000) / 10000.0;
 
+            S_data(1) = 0; // ustawianie na zewn. testową kare
+            std::cout << "x0: \n" << ps << '\n';
+            std::cout << "\nFUNKCJA TESTOWA METODA SYN_NM Z KARĄ - TESTOWA ZEWN.\n";
+           	if (Sout.good() == true) Sout << ps(0) << "\t" << ps(1) << '\t';
+            solution penSol = pen(ff3T, ps, 2, 2, epsilon, 1000000, S_data, const_data);
+            std::cout << penSol << norm(penSol.x) << '\n';
+           	if (Sout.good() == true) {
+                Sout << penSol.x(0) << "\t" << penSol.x(1) << '\t'
+                << norm(penSol.x) << '\t' << penSol.y(0)<< '\t' << solution::f_calls << '\t';}
+            solution::clear_calls();
+            std::cout << "\nFUNKCJA TESTOWA METODA SYN_NM Z KARĄ - TESTOWA WEWN.\n";
+            S_data(1) = 1; // ustawianie na wewn. testową kare
+            penSol = pen(ff3T, ps, 100, 20, epsilon, 1000000, S_data, const_data);
+            std::cout << penSol << norm(penSol.x) << '\n';
+           	if (Sout.good() == true) {
+                Sout << penSol.x(0) << "\t" << penSol.x(1) << '\t'
+                << norm(penSol.x) << '\t' << penSol.y(0) << '\t' << solution::f_calls << '\n';}
+        }
+        Sout.close();
 
+ 	cin >> kont;
+ }
 
 }
 

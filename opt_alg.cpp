@@ -1,7 +1,9 @@
 #include "opt_alg.h"
 #include "exceptions.h"
 
-solution MC(matrix(*ff)(matrix, matrix, matrix), int N, matrix lb, matrix ub, double epsilon, int Nmax, matrix ud1, matrix ud2)
+typedef matrix(*f_celu)(matrix, matrix, matrix);
+
+solution MC(f_celu ff, int N, matrix lb, matrix ub, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	// Zmienne wejściowe:
 	// ff - wskaźnik do funkcji celu
@@ -38,7 +40,7 @@ solution MC(matrix(*ff)(matrix, matrix, matrix), int N, matrix lb, matrix ub, do
 	}
 }
 
-double* expansion(matrix(*ff)(matrix, matrix, matrix), double x0, double d, double alpha, int Nmax, matrix ud1, matrix ud2)
+double* expansion(f_celu ff, double x0, double d, double alpha, int Nmax, matrix ud1, matrix ud2)
 {
 	try
 	{
@@ -111,7 +113,7 @@ double phi(int x)
 	return (double)sum;
 }
 
-solution fib(matrix(*ff)(matrix, matrix, matrix), double a, double b, double epsilon, matrix ud1, matrix ud2)
+solution fib(f_celu ff, double a, double b, double epsilon, matrix ud1, matrix ud2)
 {
 	try
 	{
@@ -152,7 +154,7 @@ solution fib(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 
 }
 
-solution lag(matrix(*ff)(matrix, matrix, matrix), double a, double b, double epsilon, double gamma, int Nmax, matrix ud1, matrix ud2)
+solution lag(f_celu ff, double a, double b, double epsilon, double gamma, int Nmax, matrix ud1, matrix ud2)
 {
 	try
 	{
@@ -244,7 +246,7 @@ solution lag(matrix(*ff)(matrix, matrix, matrix), double a, double b, double eps
 	}
 }
 
-solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alpha, double epsilon, int Nmax, matrix ud1, matrix ud2)
+solution HJ(f_celu ff, matrix x0, double s, double alpha, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 
 	solution Xopt;
@@ -312,7 +314,7 @@ solution HJ(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alp
 
 }
 
-solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, matrix ud1, matrix ud2)
+solution HJ_trial(f_celu ff, solution XB, double s, matrix ud1, matrix ud2)
 {
 	try
 	{
@@ -364,7 +366,7 @@ solution HJ_trial(matrix(*ff)(matrix, matrix, matrix), solution XB, double s, ma
 
 }
 
-solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double alpha, double beta, double epsilon, int Nmax, matrix ud1, matrix ud2)
+solution Rosen(f_celu ff, matrix x0, matrix s0, double alpha, double beta, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 
 	solution Xopt;
@@ -494,11 +496,75 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 
 }
 
-solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc, double epsilon, int Nmax, matrix ud1, matrix ud2)
+matrix S_zewn(matrix x, boundF *constraints, int numConstraints, double a, matrix ud1, matrix ud2) {
+    double sum = 0.0;
+    for(int i = 0; i < numConstraints; i++) {
+        sum += std::pow(
+            std::max(
+                0.0,
+                (double) constraints[i](x, a)),
+            2);
+    }
+    return matrix(sum);
+}
+
+matrix S_wewn(matrix x, boundF *constraints, int numConstraints, double a, matrix ud1, matrix ud2) {
+    double sum = 0.0;
+    for(int i = 0; i < numConstraints; i++) {
+        sum += 1.0 / (constraints[i](x, a));
+    }
+    return matrix(-1 * sum);
+}
+
+matrix S_zewnT(matrix x, double a, matrix ud1 = 0, matrix ud2 = 0) {
+    boundF constraints[] = {
+        g3T1, g3T2, g3T3
+    };
+    return S_zewn(x, constraints, 3, a, ud1, ud2);
+}
+matrix S_wewnT(matrix x, double a, matrix ud1 = 0, matrix ud2 = 0) {
+    boundF constraints[] = {
+        g3T1, g3T2, g3T3
+    };
+    return S_wewn(x, constraints, 3, a, ud1, ud2);
+}
+#include <functional>
+static std::function<matrix(matrix, matrix, matrix)> Fst;
+matrix F(matrix x, matrix ud1, matrix ud2) {
+    return Fst(x, ud1, ud2);
+}
+
+solution pen(f_celu ff, matrix x0, double c, double dc, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try {
 		solution Xopt;
-		//Tu wpisz kod funkcji
+		matrix last_x = x0;
+		matrix x = x0;
+		int i = 0;
+		double s = ud2(4);
+		double alpha = ud2(0), beta = ud2(1), gamma = ud2(2), delta = ud2(3);
+		double a = ud1(0);
+		int which_func = ud1(1);
+
+		do {
+		    i++;
+			switch(which_func) {
+			case 0:
+			default: /// tu sie dorobi pare
+			    Fst = [&](matrix xL, matrix ud1L, matrix ud2L) {return ff(xL, ud1L, ud2L) + c * S_zewnT(xL, a, ud1L, ud2L);};
+				break;
+			case 1:
+                Fst = [&](matrix xL, matrix ud1L, matrix ud2L) {return ff(xL, ud1L, ud2L) + c * S_wewnT(xL, a, ud1L, ud2L);};
+                break;
+			}
+			last_x = x;
+			x = sym_NM(F, x0, s, alpha, beta, gamma, delta, epsilon, Nmax).x;
+            Xopt.x = x;
+            Xopt.fit_fun(ff, ud1, ud2);
+			c *= dc;
+
+			//if(solution::f_calls > Nmax) {std::cout << "cweloza\n";throw ("too many callls");}
+		} while (norm(x - last_x) >= epsilon);
 
 		return Xopt;
 	}
@@ -508,7 +574,7 @@ solution pen(matrix(*ff)(matrix, matrix, matrix), matrix x0, double c, double dc
 	}
 }
 
-solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double alpha, double beta, double gamma, double delta, double epsilon, int Nmax, matrix ud1, matrix ud2)
+solution sym_NM(f_celu ff, matrix x0, double s, double alpha, double beta, double gamma, double delta, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 
 	try
@@ -537,11 +603,9 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 			p_odb.x = p_avg.x + alpha * (p_avg.x - p[max].x);
 			p_odb.fit_fun(ff, ud1, ud2);
 			if (p_odb.y < p[min].y) {
-			    printf("odbicie\n");
 				solution p_e(p_avg.x + gamma * (p_odb.x - p_avg.x));
 				p_e.fit_fun(ff, ud1, ud2);
 				if (p_e.y < p_odb.y) {
-				    printf("ekspansja\n");
 					p[max] = p_e;
 				}
 				else {
@@ -551,19 +615,16 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 			else if (p[min].y <= p_odb.y && p_odb.y < p[max].y) {
 					p[max] = p_odb;
 				} else {
-				    printf("kontrakcja\n");
 					matrix p_z_X = p_avg.x + beta * (p[max].x - p_avg.x);
 					solution p_z(p_z_X);
 					p_z.fit_fun(ff, ud1, ud2);
 					if (p_z.y >= p[max].y) {
-					    printf("redukcja\n");
 						for (int i = 0; i < 3; i++) {
 							if (i == min) continue;
 							p[i].x = (delta * (p[i].x + p[min].x));
 							p[i].fit_fun(ff, ud1, ud2);
 						}
 					} else {
-					    printf("akceptacja kontrakcji\n");
 						p[max] = p_z;
 					}
 				}
@@ -573,12 +634,8 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 				double diff = norm(p[min].x - p[i].x);
 
 				if (diff > max_diff) max_diff = diff;
-				std::cout << max_diff << '\t' << diff << '\n';
 			}
-			if (solution::f_calls > Nmax) break;
-			std::cout << "p0: " << trans(p[0].x) << ": " << p[0].y << (min == 0 ? " min " : max == 0 ? " max " : " ") << norm(p[0].x - p[min].x) << '\n';
-			std::cout << "p1: " << trans(p[1].x) << ": " << p[1].y << (min == 1 ? " min " : max == 1 ? " max " : " ") << norm(p[1].x - p[min].x) <<  '\n';
-			std::cout << "p2: " << trans(p[2].x) << ": " << p[2].y << (min == 2 ? " min " : max == 2 ? " max " : " ") << norm(p[2].x - p[min].x) <<  '\n';
+			if (solution::f_calls > Nmax) {throw ToManyCalls();};
 			if(max_diff <= epsilon) break;
 		} while (true);
 
@@ -675,7 +732,7 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 
 }
 
-solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
+solution SD(f_celu ff, matrix(*gf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try
 	{
@@ -690,7 +747,7 @@ solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 	}
 }
 
-solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
+solution CG(f_celu ff, matrix(*gf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try
 	{
@@ -705,7 +762,7 @@ solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 	}
 }
 
-solution Newton(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix),
+solution Newton(f_celu ff, matrix(*gf)(matrix, matrix, matrix),
 	matrix(*Hf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try
@@ -721,7 +778,7 @@ solution Newton(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix,
 	}
 }
 
-solution golden(matrix(*ff)(matrix, matrix, matrix), double a, double b, double epsilon, int Nmax, matrix ud1, matrix ud2)
+solution golden(f_celu ff, double a, double b, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try
 	{
@@ -736,7 +793,7 @@ solution golden(matrix(*ff)(matrix, matrix, matrix), double a, double b, double 
 	}
 }
 
-solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, int Nmax, matrix ud1, matrix ud2)
+solution Powell(f_celu ff, matrix x0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try
 	{
@@ -751,7 +808,7 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 	}
 }
 
-solution EA(matrix(*ff)(matrix, matrix, matrix), int N, matrix lb, matrix ub, int mi, int lambda, matrix sigma0, double epsilon, int Nmax, matrix ud1, matrix ud2)
+solution EA(f_celu ff, int N, matrix lb, matrix ub, int mi, int lambda, matrix sigma0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try
 	{

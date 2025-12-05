@@ -271,3 +271,13 @@ matrix ff3R(matrix x, matrix ud1, matrix ud2)
 	Y[1].~matrix();
 	return y;
 }
+
+double g3T1(matrix x, double a) {
+    return (-1 * x(0) + 1 <= 0);
+}
+double g3T2(matrix x, double a) {
+    return (-1 * x(1) + 1 <= 0);
+}
+double g3T3(matrix x, double a) {
+    return (std::sqrt(x(0)*x(0) + x(1)*x(1)) - a <= 0);
+}
