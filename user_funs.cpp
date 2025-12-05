@@ -41,14 +41,14 @@ matrix df0(double t, matrix Y, matrix ud1, matrix ud2)
 matrix ff1R(matrix x, matrix ud1, matrix ud2)
 {
 	matrix y;
-  
+
 	double VA0 = 5; // m^3
 	double VB0 = 1; // m^3
 	double TB0 = 20; // centigrade
 	// Y0 zawiera warunku poczatkowe
 	matrix Y0 = matrix(3, new double[3] {VA0, VB0, TB0});
 	matrix* Y = solve_ode(df1, 0, 1, 2000, Y0, x, ud2);
-  
+
 	int n = get_len(Y[0]);
 	double teta_max = Y[1](0, 2);
 	for (int i = 1; i < n; ++i)
@@ -66,9 +66,9 @@ matrix ff1R(matrix x, matrix ud1, matrix ud2)
 
 matrix df1(double t, matrix Y, matrix ud1, matrix ud2) {
 	// Wektor pochodnych funkcji po czasie; dVA/dt, dVB/dt, dTB/dt
-  
+
 	double DA = m2d(ud1)/(100*100);
-  
+
 	double PA = 2; // m^2
 	double TA0 = 95; // centigrade
 	double PB = 1; // m^2
@@ -78,7 +78,7 @@ matrix df1(double t, matrix Y, matrix ud1, matrix ud2) {
 	double a = 0.98; // wsp. lepkosci cieczy
 	double b = 0.63; // wsp. zwezenia strumienia cieczy
 	double g = 9.81; // m/s^2, przyspieszenie ziemskie
-  
+
 	double& VA = Y(0);
 	double& VB = Y(1);
 	double& TB = Y(2);
@@ -172,6 +172,8 @@ matrix ff2R(matrix x, matrix ud1, matrix ud2)
 	return y;
 }
 
+//LAB4
+
 matrix ff3T(matrix x, matrix ud1, matrix ud2)
 {
 	if (fabs(sqrt(pow(x(0) / M_PI, 2) + pow(x(1) / M_PI, 2))) < 1e-12)
@@ -183,7 +185,89 @@ matrix ff3T(matrix x, matrix ud1, matrix ud2)
 	return y;
 }
 
-matrix ff4R(matrix x, matrix ud1, matrix ud2)
+matrix df3(double t, matrix Y, matrix ud1, matrix ud2) {
+
+	//Dane
+	double masa = 0.6;//kg
+	double promien = 0.12;//m
+	double y0 = 100.0;//m
+	double C = 0.47;
+	double gestosc = 1.2;//kg/m^3
+	double S = M_PI * pow(promien, 2.0);
+	double g = 9.81;//m/s^2
+	matrix v = matrix(2, 1, 0.0);
+
+	//Kopia z df2 jako szablon. Trzeba zrobic liczenie pochodnej na podstawie wzrorow jak sadze
+	//auto alphaT = Y(0);
+	//auto omegaT = Y(1);
+
+	//auto k1 = ud2(0);
+	//auto k2 = ud2(1);
+
+	//auto alphaRef = ud1(0);
+	//auto omegaRef = ud1(1);
+
+
+	//double l = 2;   // m
+	//double m_r = 1; // kg
+	//double m_c = 5; // kg
+
+	//double b = 0.25; // Nms
+
+	//const double one_third = 1.0 / 3.0;
+
+	//double I = (one_third * m_r * pow(l, 2)) +
+	//	(m_c * pow(l, 2));
+
+	//double M_t = k1 * (alphaRef - alphaT) + k2 * (omegaRef - omegaT);
+
+	matrix dY(2, 1, 0.0);
+	//Uzupelnianie wyniku
+	//dY(0) = omega;
+	//dY(1) = (M_t - b * omegaT) / I;
+	return dY;
+}
+
+matrix ff3R(matrix x, matrix ud1, matrix ud2)
 {
-	return (1.0f/6.0f) * pow(x(0), 6) - 1.05 * pow(x(0), 4) + 2.0f * pow(x(0), 2) + pow(x(1), 2) + x(0) * x(1);
+	matrix y = { 0 };
+	//matrix x = matrix(2, 1, 0.0);//ostatecznie chyba Y0
+	ud1 = matrix(2, 1, -10.0);
+	ud2 = matrix(2, 1, 10.0);
+	matrix t0de = matrix(3, 1, 0.0);
+	t0de(0) = 0.0;//t0
+	t0de(1) = 0.1;//delta
+	t0de(2) = 7.0;//tend
+
+	//Raczej potrzebne tylko w df
+	//double masa = 0.6;//kg
+	//double promien = 0.12;//m
+	//double y0 = 100.0;//m
+	//double C = 0.47;
+	//double gestosc = 1.2;//kg/m^3
+	//double S = M_PI * pow(promien, 2.0);
+	//double g = 9.81;//m/s^2
+	//matrix v = matrix(2, 1, 0.0);
+
+	// Y0 zawiera warunki poczatkowe
+	matrix Y0 = matrix(2, 1, 0.0);
+	//matrix Yref = matrix(2, 1, 0.0);
+	matrix* Y = solve_ode(df3, t0de(0), t0de(1), t0de(2), Y0, ud1, ud2);
+
+	int n = get_len(Y[0]);
+	for (int i = 0; i < n; i++) {
+		//Trzeba policzyc wynik na podstawie idealnej wartosci funkcji celu - zanlezc zaleznosc w instrukcji
+		//Kopia z fr2
+		/*y = y +
+			10 * pow(Yref(0) - Y[1](i, 0), 2) +
+			pow(Yref(1) - Y[1](i, 1), 2) +
+			pow(
+				x(0) * (Yref(0) - Y[1](i, 0)) +
+				x(1) * (Yref(1) - Y[1](i, 1)), 2
+			);*/
+	}
+	//y = y * 0.1;
+	Y[0].~matrix();
+	Y[1].~matrix();
+	return y;
 }
