@@ -685,8 +685,29 @@ solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 	try
 	{
 		solution Xopt;
-		//Tu wpisz kod funkcji
+		
+		int i = 0;
+		matrix xi = x0;
 
+		matrix d;
+		double h = h0;//Metoda stałokrokowa
+
+		do {
+			Xopt.x = xi;
+			d = -Xopt.grad(gf);
+			xi = Xopt.x + h * d;
+			i++;
+
+		} while (Xopt.g_calls <= Nmax || norm(xi - Xopt.x) >= epsilon);
+		if (Xopt.g_calls > Nmax)
+		{
+			Xopt.flag = 0;
+		}
+		else
+		{
+			Xopt.flag = 1;
+		}
+		
 		return Xopt;
 	}
 	catch (string ex_info)
@@ -700,7 +721,37 @@ solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 	try
 	{
 		solution Xopt;
-		//Tu wpisz kod funkcji
+
+		int i = 0;
+		solution xi;
+		xi.x = x0;
+
+		matrix d;
+		double h = h0;
+
+		do {
+			Xopt.x = xi.x;
+			if (i == 0)
+			{
+				d = -Xopt.grad(gf);
+			}
+			else
+			{
+				d = -Xopt.grad(gf) + pow(norm(xi.grad(gf)), 2) / pow(norm(Xopt.grad(gf)), 2) * d;
+			}
+
+			xi.x = Xopt.x + h * d;
+			i++;
+
+		} while (Xopt.g_calls <= Nmax || norm(xi.x - Xopt.x) >= epsilon);
+		if (Xopt.g_calls > Nmax)
+		{
+			Xopt.flag = 0;
+		}
+		else
+		{
+			Xopt.flag = 1;
+		}
 
 		return Xopt;
 	}
@@ -716,7 +767,30 @@ solution Newton(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix,
 	try
 	{
 		solution Xopt;
-		//Tu wpisz kod funkcji
+
+		int i = 0;
+		solution xi;
+		xi.x = x0;
+
+		matrix d;
+		double h = h0;
+
+		do {
+			Xopt.x = xi.x;
+			d = -inv(Xopt.hess(Hf)) * Xopt.grad(gf);
+
+			xi.x = Xopt.x + h * d;
+			i++;
+
+		} while (Xopt.g_calls <= Nmax || norm(xi.x - Xopt.x) >= epsilon);
+		if (Xopt.g_calls > Nmax)
+		{
+			Xopt.flag = 0;
+		}
+		else
+		{
+			Xopt.flag = 1;
+		}
 
 		return Xopt;
 	}
@@ -726,12 +800,41 @@ solution Newton(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix,
 	}
 }
 
-solution golden(matrix(*ff)(matrix, matrix, matrix), double a, double b, double epsilon, int Nmax, matrix ud1, matrix ud2)
+solution golden(matrix(*ff)(matrix, matrix, matrix), double A, double B, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try
 	{
 		solution Xopt;
-		//Tu wpisz kod funkcji
+
+		int i = 0;
+		double alpha = 0.5 * (std::sqrt(5) / 2.0);
+		matrix a(A);
+		matrix b(B);
+		solution c = solution(b - alpha * (b - a));
+		solution d = solution(a + alpha * (b - a));
+
+		do {
+			c.fit_fun(ff); d.fit_fun(ff);
+			if (c.y < d.y) {
+				a = a;
+				b = d.x;
+				d.x = c.x;
+				c.x = b - alpha * (b - a);
+			}
+			else {
+				a = c.x;
+				b = b;
+				c.x = d.x;
+				d = a + alpha * (b - a);
+			}
+			++i;
+			if (solution::f_calls > Nmax) {
+				throw ("too many calls!!!!!!\n");
+			}
+		} while (b - a < epsilon);
+
+		Xopt.x = (a + b) * 0.5;
+		Xopt.fit_fun(ff);
 
 		return Xopt;
 	}
