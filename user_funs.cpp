@@ -271,3 +271,13 @@ matrix ff3R(matrix x, matrix ud1, matrix ud2)
 	Y[1].~matrix();
 	return y;
 }
+
+matrix ff5T1(matrix x, matrix a, matrix ud1, matrix ud2)
+{
+	return a(0) * (pow(x(0) - 3, 2) + pow(x(1) - 3, 2));
+}
+
+matrix ff5T2(matrix x, matrix a, matrix ud1, matrix ud2)
+{
+	return (1 / a(0)) * (pow(x(0) - 3, 2) + pow(x(1) - 3, 2));
+}

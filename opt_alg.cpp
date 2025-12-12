@@ -738,17 +738,52 @@ solution golden(matrix(*ff)(matrix, matrix, matrix), double a, double b, double 
 
 solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
+
+	solution Xopt;
+	
 	try
 	{
-		solution Xopt;
-		//Tu wpisz kod funkcji
 
-		return Xopt;
+		if (epsilon < TOL || epsilon - 1 > TOL) {
+			Xopt.flag = 0;
+			throw BadArguments("Dokladnosc nie jest zawarta w dopuszczanlym obszarze (0,1).");
+		}
+		int n = get_len(x0);
+		matrix d(n, n, 0.0);
+		d = ident_mat(n);
+		int i = 0;
+		double alfa = 1.0;//??
+		do {
+			matrix p = Xopt.x;
+			for (int j = 0; j < n; j++) {
+				p[j] = Xopt.x;
+			}
+			for (int j = 0; j < n; j++) {
+				solution H = Rosen(ff, (p + alfa * d), 0.5, 1.5, 0.5, epsilon, Nmax, ud1, ud2);
+				p(j) = p(j) + alfa * H.x(0);
+			}
+			//if()
+			
+
+			i = i + 1;
+
+		} while(solution::f_calls < Nmax);
+
+
+
+	}
+	catch (const std::exception& ex)
+	{
+		std::cerr << "PRZECHWYCONO WYJATEK - Powell: " << ex.what() << "\n";
 	}
 	catch (string ex_info)
 	{
-		throw ("solution Powell(...):\n" + ex_info);
+		throw ("WYJATEK - ROSEN:\n" + ex_info);
 	}
+
+	Xopt.fit_fun(ff, ud1, ud2);
+	return Xopt;
+
 }
 
 solution EA(matrix(*ff)(matrix, matrix, matrix), int N, matrix lb, matrix ub, int mi, int lambda, matrix sigma0, double epsilon, int Nmax, matrix ud1, matrix ud2)

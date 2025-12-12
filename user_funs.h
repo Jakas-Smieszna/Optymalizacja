@@ -16,3 +16,6 @@ matrix df2(double, matrix, matrix, matrix);
 matrix ff3T(matrix, matrix = 0, matrix = 0);
 matrix ff3R(matrix, matrix = 0, matrix = 0);
 matrix df3(matrix, matrix = 0, matrix = 0);
+
+matrix ff5T1(matrix, matrix, matrix, matrix);
+matrix ff5T2(matrix, matrix, matrix, matrix);
