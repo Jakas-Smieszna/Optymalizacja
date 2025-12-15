@@ -401,7 +401,7 @@ solution Rosen(matrix(*ff)(matrix, matrix, matrix), matrix x0, matrix s0, double
 				bool zawarty = true;
 				//Sprawdzzenie czy potencjalny x nalezy do dziedziny funkcji
 				for (int g = 0; zawarty && g < n; g++) {
-					if (xpom.x(g) - ud1(j) < TOL) zawarty = false;
+					//if (xpom.x(g) - ud1(j) < TOL) zawarty = false;
 					if (xpom.x(g) - ud2(j) > -TOL) zawarty = false;
 				}
 				if (zawarty && xpom.y - xb.y < -TOL)
@@ -680,7 +680,8 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 			}*/
 			matrix p0 = p;
 			for (int j = 0; j < n; j++) {
-				solution H = Rosen(ff, (p + alfa * d[j]), 0.5, 1.5, 0.5, epsilon, Nmax, ud1, ud2);
+				matrix h = (p + alfa * d[j]);
+				solution H = Rosen(ff, h, 0.5, 1.5, 0.5, epsilon, Nmax, ud1, ud2);
 				p = p + d[j] * H.x;
 			}
 			if (sqrt(pow(p(0) - Xopt.x(0), 2.0) - pow(p(1) - Xopt.x(1), 2.0)) < epsilon) {
@@ -691,7 +692,8 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 				d[j] = d[j + 1];
 			}
 			d[n - 1] = p - p0;
-			solution H = Rosen(ff, (p + alfa * d[n - 1]), 0.5, 1.5, 0.5, epsilon, Nmax, ud1, ud2);
+			matrix h = (p + alfa * d[n-1]);
+			solution H = Rosen(ff, h, 0.5, 1.5, 0.5, epsilon, Nmax, ud1, ud2);
 			p = p + d[n-1] * H.x;
 			Xopt.x = p;
 			i = i + 1;
