@@ -592,86 +592,6 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 		throw ("solution sym_NM(...):\n" + ex_info);
 	}
 
-	//solution Xopt;
-
-	//try
-	//{
-	//
-	//	if (abs(alpha - 1.0) > TOL) {
-	//		Xopt.flag = 0;
-	//		throw BadArguments("Wspolczynnik ekspansi rozny od 1.");
-	//	}
-	//	if (beta - 1.0 > -TOL || beta < TOL) {
-	//		Xopt.flag = 0;
-	//		throw BadArguments("Wspolczynnik beta poza przedzialem (0, 1).");
-	//	}
-	//	if (gamma - 1.0 < TOL) {
-	//		Xopt.flag = 0;
-	//		throw BadArguments("Wspolczynnik gamma mniejszy od 1.");
-	//	}
-	//	if (delta - 1.0 > -TOL || beta < TOL) {
-	//		Xopt.flag = 0;
-	//		throw BadArguments("Wspolczynnik delta poza przedzialem (0, 1).");
-	//	}
-
-	//
-	//	int n = get_len(x0);
-	//	matrix p(n, n + 1, 0.0);
-	//	matrix py(1, n + 1, 0.0);
-	//	//Przygotowanie pierwszego simpleksu
-	//	for (int i = 0; i < n; i++) {
-	//		p[i] = x0;
-	//	}
-	//	for (int i = 1; i < n + 1; i++) {
-	//		for (int j = 0; j < n; j++) {
-	//			p(j, i) = p(j, 0);
-	//			if (i - 1 == j) p(j, i) += s;
-	//		}
-	//	}
-	//	//
-	//	do {
-
-	//		solution::f_calls += 3;
-	//		for (int i = 0; i < n + 1; i++) {
-	//			py[i] = ff(p[i], ud1, ud2);
-	//		}
-	//		int p_min_n = 0;
-	//		int p_max_n = 0;
-	//		for (int i = 1; i < n + 1; i++) {
-	//			if (py[i] > py[p_max_n]) p_max_n = i;
-	//			if (py[i] < py[p_min_n]) p_min_n = i;
-	//		}
-	//		matrix p_(1, n, 0.0);
-	//		for (int i = 0; i < n + 1; i++) {
-	//			if (i != p_max_n) p_ += p[i];
-	//		}
-	//		p_ = p_ / double(n);
-	//		double podb = p_ + alpha * (p_ - py[p_max_n](0));
-
-	//		solution::f_calls += 2;
-	//		if(ff(matrix(1,1,podb), ud1, ud2);
-
-
-
-	//	} while ();
-
-
-
-
-	//
-	//}
-	//catch (const std::exception& ex)
-	//{
-	//	std::cerr << "PRZECHWYCONO WYJATEK - Rosen: " << ex.what() << "\n";
-	//}
-	//catch (string ex_info)
-	//{
-	//	throw ("WYJATEK - ROSEN:\n" + ex_info);
-	//}
-
-	//Xopt.fit_fun(ff, ud1, ud2);
-
-	//return Xopt;
 
 }
 
@@ -755,19 +675,30 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 		double alfa = 1.0;//??
 		do {
 			matrix p = Xopt.x;
-			for (int j = 0; j < n; j++) {
+			/*for (int j = 0; j < n; j++) {
 				p[j] = Xopt.x;
-			}
+			}*/
+			matrix p0 = p;
 			for (int j = 0; j < n; j++) {
-				solution H = Rosen(ff, (p + alfa * d), 0.5, 1.5, 0.5, epsilon, Nmax, ud1, ud2);
-				p(j) = p(j) + alfa * H.x(0);
+				solution H = Rosen(ff, (p + alfa * d[j]), 0.5, 1.5, 0.5, epsilon, Nmax, ud1, ud2);
+				p = p + d[j] * H.x;
 			}
-			//if()
-			
-
+			if (sqrt(pow(p(0) - Xopt.x(0), 2.0) - pow(p(1) - Xopt.x(1), 2.0)) < epsilon) {
+				Xopt.fit_fun(ff, ud1, ud2);
+				return Xopt;
+			}
+			for (int j = 0; j < n - 1; j++) {
+				d[j] = d[j + 1];
+			}
+			d[n - 1] = p - p0;
+			solution H = Rosen(ff, (p + alfa * d[n - 1]), 0.5, 1.5, 0.5, epsilon, Nmax, ud1, ud2);
+			p = p + d[n-1] * H.x;
+			Xopt.x = p;
 			i = i + 1;
 
-		} while(solution::f_calls < Nmax);
+		} while(solution::f_calls + i < Nmax);
+		Xopt.flag = 0;
+		throw ToManyCalls("Przekroczono limit obliczen.\nLiczba wywolan = " + to_string(solution::f_calls + i) + "\nLimit wywyolan = " + to_string(Nmax));
 
 
 

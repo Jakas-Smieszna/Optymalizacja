@@ -31,7 +31,7 @@ int main()
 {
 	try
 	{
-		lab3();
+		lab5();
 	}
 	catch (string EX_INFO)
 	{
@@ -450,6 +450,47 @@ void lab4()
 
 void lab5()
 {
+
+	srand(time(NULL));
+	//Funkcja testowa
+	double alfa = 0.0;										// wspolczynnik ekspansji (0.0 do 1.0 dla HJ i > 1 dla R - zmiana w petli, nie tutaj)
+	double krok_s = 1.5;									// krok
+	double beta = 0.5;										// wspolczynnik kontrakcji
+	double epsilon = 1e-8;									// dokladnosc
+	int Nmax = 10000;										// maksymalna liczba wywolan funkcji celu
+	matrix lb(2, 1, -1.0), ub(2, 1, 1.0),					// dolne oraz g�rne ograniczenie
+		ps(2, 1, double(rand() % 20001 - 10000) / 10000.0);	// punkt startowy
+	solution opt;											// rozwiazanie optymalne znalezione przez algorytm
+	solution::clear_calls();
+
+	//-----FUNKCJA TESTOWA-----------------------------------------------------------
+
+	char kont = '1';
+	fstream Sout;
+	Sout.open("testy_lab5.csv", std::ios::out);
+	while (kont == '1') {
+		for (int i = 0; i < 1; i++) {							//JG:mozna wybrac liczbe powtorzen
+
+			ps(0) = double(rand() % 20001 - 10000) / 10000.0;
+			ps(1) = double(rand() % 20001 - 10000) / 10000.0;
+			cout << "Punkt startowy = [" << ps(0) << ", " << ps(1) << "].\n";
+			cout << "Krok startowy = " << krok_s << ".\n\n";
+
+			alfa = 0.5;
+
+			cout << "POWELL:\n";
+			if (Sout.good() == true) Sout << ps(0) << "\t" << ps(1) << '\t';
+			opt = Powell(ff5T1, ps, epsilon, Nmax, lb, ub);
+			cout << opt << endl << endl;
+
+			solution::clear_calls();
+
+		}
+
+		cin >> kont;
+
+	}
+	Sout.close();
 
 }
 
