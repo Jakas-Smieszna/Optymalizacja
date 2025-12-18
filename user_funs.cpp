@@ -172,7 +172,7 @@ matrix ff2R(matrix x, matrix ud1, matrix ud2)
 	return y;
 }
 
-//LAB4
+//LAB3
 
 matrix ff3T(matrix x, matrix ud1, matrix ud2)
 {
@@ -187,93 +187,117 @@ matrix ff3T(matrix x, matrix ud1, matrix ud2)
 
 matrix df3(double t, matrix Y, matrix ud1, matrix ud2) {
 
-	//Dane
-	double masa = 0.6;//kg
-	double promien = 0.12;//m
-	double y0 = 100.0;//m
+	// Dane
+	double m = 0.6;    // kg
+	double r = 0.12;   // m
+	double y0 = 100.0; // m
 	double C = 0.47;
-	double gestosc = 1.2;//kg/m^3
-	double S = M_PI * pow(promien, 2.0);
-	double g = 9.81;//m/s^2
-	matrix v = matrix(2, 1, 0.0);
+	double rho = 1.2; // kg/m^3
+	double S = M_PI * pow(r, 2.0);
+	double g = 9.81; // m/s^2
+	double omega = ud1(1);
+	matrix v = matrix(2, new double[2] {Y(1), Y(3)});
+	matrix D(2, new double[2] {
+		0.5 * C * rho * S * v(0) * abs(v(0)),
+			0.5 * C * rho * S * v(1) * abs(v(1)),
+		});
+	matrix FM(
+		2, new double[2] {rho* v(1)* omega* S* r, rho* v(0)* omega* S* r});
 
-	//Kopia z df2 jako szablon. Trzeba zrobic liczenie pochodnej na podstawie wzrorow jak sadze
-	//auto alphaT = Y(0);
-	//auto omegaT = Y(1);
+	matrix dY(4, new double[4] {Y(1), (-D(0) - FM(0)) / m, Y(3),
+		(-m * g - D(1) - FM(1)) / m});
 
-	//auto k1 = ud2(0);
-	//auto k2 = ud2(1);
-
-	//auto alphaRef = ud1(0);
-	//auto omegaRef = ud1(1);
-
-
-	//double l = 2;   // m
-	//double m_r = 1; // kg
-	//double m_c = 5; // kg
-
-	//double b = 0.25; // Nms
-
-	//const double one_third = 1.0 / 3.0;
-
-	//double I = (one_third * m_r * pow(l, 2)) +
-	//	(m_c * pow(l, 2));
-
-	//double M_t = k1 * (alphaRef - alphaT) + k2 * (omegaRef - omegaT);
-
-	matrix dY(2, 1, 0.0);
-	//Uzupelnianie wyniku
-	//dY(0) = omega;
-	//dY(1) = (M_t - b * omegaT) / I;
 	return dY;
 }
 
-matrix ff3R(matrix x, matrix ud1, matrix ud2)
-{
+matrix ff3R(matrix x, matrix ud1, matrix ud2) {
 	matrix y = { 0 };
-	//matrix x = matrix(2, 1, 0.0);//ostatecznie chyba Y0
-	ud1 = matrix(2, 1, -10.0);
-	ud2 = matrix(2, 1, 10.0);
-	matrix t0de = matrix(3, 1, 0.0);
-	t0de(0) = 0.0;//t0
-	t0de(1) = 0.1;//delta
-	t0de(2) = 7.0;//tend
-
-	//Raczej potrzebne tylko w df
-	//double masa = 0.6;//kg
-	//double promien = 0.12;//m
-	//double y0 = 100.0;//m
-	//double C = 0.47;
-	//double gestosc = 1.2;//kg/m^3
-	//double S = M_PI * pow(promien, 2.0);
-	//double g = 9.81;//m/s^2
-	//matrix v = matrix(2, 1, 0.0);
 
 	// Y0 zawiera warunki poczatkowe
-	matrix Y0 = matrix(2, 1, 0.0);
-	//matrix Yref = matrix(2, 1, 0.0);
-	matrix* Y = solve_ode(df3, t0de(0), t0de(1), t0de(2), Y0, ud1, ud2);
+	matrix Y0 = matrix(4, new double[4] {0, x(0), 100, 0});
+
+	matrix* Y = solve_ode(df3, 0, 0.1, 7.0, Y0, x, ud2);
 
 	int n = get_len(Y[0]);
+	int i0 = 0, i50 = 0;
 	for (int i = 0; i < n; i++) {
-		//Trzeba policzyc wynik na podstawie idealnej wartosci funkcji celu - zanlezc zaleznosc w instrukcji
-		//Kopia z fr2
-		/*y = y +
-			10 * pow(Yref(0) - Y[1](i, 0), 2) +
-			pow(Yref(1) - Y[1](i, 1), 2) +
-			pow(
-				x(0) * (Yref(0) - Y[1](i, 0)) +
-				x(1) * (Yref(1) - Y[1](i, 1)), 2
-			);*/
+		if (fabs(Y[1](i, 2) - 50) < fabs(Y[1](i50, 2) - 50)) {
+			i50 = i;
+		}
+		if (fabs(Y[1](i, 2)) < fabs(Y[1](i0, 2))) {
+			i0 = i;
+			y = -Y[1](i0, 0);
+		}
+		if (fabs(x(0)) - 10 > 0) {
+			y = y + ud2(0) * pow(fabs(x(0)) - 10, 2);
+		}
+		if (fabs(x(1)) - 10 > 0) {
+			y = y + ud2(0) * pow(fabs(x(1)) - 10, 2);
+		}
+		if (fabs(Y[1](i50, 2) - 5) - 2 > 0) {
+			y = y + ud2(0) * pow(fabs(Y[1](i50, 0) - 5) - 2, 2);
+		}
 	}
-	//y = y * 0.1;
+	//std::cout << "x(i50): " << Y[1](i50, 0) << " y :" << Y[1](i50, 2) << '\n';
+	// y = y * 0.1;
 	Y[0].~matrix();
 	Y[1].~matrix();
 	return y;
 }
 
+double g3T1(matrix x, double a) {
+	return (-1 * x(0) + 1); //<= 0);
+}
+double g3T2(matrix x, double a) {
+	return (-1 * x(1) + 1); //<= 0);
+}
+double g3T3(matrix x, double a) {
+	return (std::sqrt(x(0) * x(0) + x(1) * x(1)) - a); //<= 0);
+}
 
-matrix ff4R(matrix x, matrix ud1, matrix ud2)
+matrix ff3T_zewn(matrix x, matrix ud1, matrix ud2) {
+	matrix y = ff3T(x, ud1, ud2);
+	if (g3T1(x, ud1(0)) > 0) {
+		y = y + ud2(0) * pow(abs(x(0)) - 10, 2);
+	}
+	if (g3T2(x, ud1(0)) > 0) {
+		y = y + ud2(0) * pow(abs(x(0)) - 10, 2);
+	}
+	if (g3T3(x, ud1(0)) > 0) {
+		y = y + ud2(0) * pow(abs(x(0)) - 10, 2);
+	}
+	return y;
+}
+matrix ff3T_wewn(matrix x, matrix ud1, matrix ud2) {
+	matrix y = ff3T(x, ud1, ud2);
+
+	double r = ud2(0);
+
+	double g1 = g3T1(x, ud1(0));
+	double g2 = g3T2(x, ud1(0));
+	double g3 = g3T3(x, ud1(0));
+
+	const double epsilon = 1e-10;
+
+	if (g1 >= -epsilon || g2 >= -epsilon || g3 >= -epsilon) {
+		matrix penalty = 1e10;
+
+		return penalty;
+	}
+
+	double barrier = 0.0;
+	barrier = 1.0 / (-g1) + 1.0 / (-g2) + 1.0 / (-g3);
+	// std::cout << "g1: " << 1.0/(-g1) << " g2: " << 1.0/(-g2) << " g3: " << 1.0/(-g3) << '\n' << "barrier: " << r * barrier <<  " x: " << norm(x) << '\n';
+
+	y = y + r * barrier;
+
+	return y;
+}
+
+
+//LAB 4
+
+matrix ff4T(matrix x, matrix ud1, matrix ud2)
 {
 	return (1.0f / 6.0f) * pow(x(0), 6) - 1.05 * pow(x(0), 4) + 2.0f * pow(x(0), 2) + pow(x(1), 2) + x(0) * x(1);
 }
