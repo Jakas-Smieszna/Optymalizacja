@@ -1,4 +1,5 @@
 #include"user_funs.h"
+#include <cstring>
 
 //LAB0
 
@@ -273,8 +274,119 @@ matrix ff3R(matrix x, matrix ud1, matrix ud2)
 }
 
 
-matrix ff4R(matrix x, matrix ud1, matrix ud2)
+matrix ff4T(matrix x, matrix ud1, matrix ud2)
 {
-	return (1.0f / 6.0f) * pow(x(0), 6) - 1.05 * pow(x(0), 4) + 2.0f * pow(x(0), 2) + pow(x(1), 2) + x(0) * x(1);
+return (1.0f/6.0f) * pow(x(0), 6) - 1.05 * pow(x(0), 4) + 2.0f * pow(x(0), 2) + pow(x(1), 2) + x(0) * x(1);
 }
 
+matrix gf4T(matrix x, matrix ud1, matrix ud2)
+{
+	double& x1 = x(0);
+	double& x2 = x(1);
+	return matrix(2, new double[2] {
+		pow(x1, 5) - (21.0/5.0) * pow(x1, 3) + 4*x1 + x2,
+		x1 + 2 * x2
+	});
+}
+
+matrix Hf4T(matrix x, matrix ud1, matrix ud2)
+{
+	double& x1 = x(0);
+	double& x2 = x(1);
+	matrix ret = matrix(2, 2);
+	ret(0, 0) = 5*pow(x1, 4) + (63.0/5.0) * pow(x1, 2) + 4;
+	ret(0, 1) = 1;
+	ret(1, 0) = 1;
+	ret(1, 1) = 2;
+	return ret;
+
+}
+#define TRAINING_DATA_AMOUNT 100
+void load_data_lab4(matrix*& xD, matrix*& yD) {
+    static bool initialized = false;
+    static matrix dataX[TRAINING_DATA_AMOUNT];
+    static matrix dataY[TRAINING_DATA_AMOUNT];
+
+    if(initialized) goto return_data;
+
+    { // Scope for goto
+        ifstream daneX("./dane/lab4/XData.txt");
+        ifstream daneY("./dane/lab4/YData.txt");
+
+        if(!daneX.is_open() || !daneY.is_open()) {
+            cerr << "Error opening data files" << endl;
+            return;
+        }
+
+        // First approach: Store all X values in a 2D array first
+        double xValues[3][TRAINING_DATA_AMOUNT];
+
+        // Read all 3 lines of X data
+        for(int line = 0; line < 3; line++) {
+            for(int i = 0; i < TRAINING_DATA_AMOUNT; i++) {
+                daneX >> xValues[line][i];
+                daneX.ignore(); // Skip semicolon and space
+            }
+        }
+
+        // Now create matrices
+        for(int i = 0; i < TRAINING_DATA_AMOUNT; i++) {
+            dataX[i] = matrix(3, 1);
+            for(int row = 0; row < 3; row++) {
+                dataX[i](row) = xValues[row][i];
+            }
+        }
+
+        daneX.close();
+
+        // Read Y data (single line)
+        for(int i = 0; i < TRAINING_DATA_AMOUNT; i++) {
+            dataY[i] = matrix(1, 1);
+            double yValue;
+            daneY >> yValue;
+            dataY[i](0) = yValue;
+            daneY.ignore(); // Skip semicolon and space
+        }
+
+        daneY.close();
+    }
+
+    initialized = true;
+
+return_data:
+    xD = dataX;
+    yD = dataY;
+}
+
+double h(matrix x, matrix theta, matrix ud2) {
+	return 1 / (1 + std::exp(m2d(-1 * trans(theta) * x)));
+}
+
+matrix ff4R(matrix theta, matrix ud1, matrix ud2) {
+	double sum = 0.0;
+	const int m = TRAINING_DATA_AMOUNT;
+	matrix *xData, *yData;
+	load_data_lab4(xData, yData);
+	for(int i = 0; i < m; i++) {
+		sum += (
+			m2d(yData[i]) * std::log(h(xData[i], theta, ud2)) +
+			(1 - m2d(yData[i])) * std::log(1 - h(xData[i], theta, ud2))
+		);
+	}
+	return -sum/m;
+}
+
+matrix gf4R(matrix theta, matrix ud1, matrix ud2) {
+	matrix ret = matrix(3, 1);
+	const int m = TRAINING_DATA_AMOUNT;
+	matrix *xData, *yData;
+	load_data_lab4(xData, yData);
+	for(int j = 0; j < 3; j++) {
+		double deriv = 0.0;
+		for(int i = 0; i < m; i++) {
+			deriv += (h(theta,xData[i], ud2) - m2d(yData[i]))*xData[i](j);
+		}
+		ret(j) = deriv/m;
+	}
+	return ret;
+}

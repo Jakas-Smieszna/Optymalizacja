@@ -680,34 +680,25 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 
 }
 
+
 solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try
 	{
 		solution Xopt;
-		
-		int i = 0;
-		matrix xi = x0;
-
 		matrix d;
-		double h = h0;//Metoda stałokrokowa
-
+		matrix last_x;
+		Xopt.x = x0;
 		do {
-			Xopt.x = xi;
-			d = -Xopt.grad(gf);
-			xi = Xopt.x + h * d;
-			i++;
-
-		} while (Xopt.g_calls <= Nmax || norm(xi - Xopt.x) >= epsilon);
-		if (Xopt.g_calls > Nmax)
-		{
-			Xopt.flag = 0;
-		}
-		else
-		{
-			Xopt.flag = 1;
-		}
-		
+			Xopt.grad(gf);
+			d = -Xopt.g;
+			last_x = Xopt.x;
+			Xopt.x = Xopt.x + h0 * d;
+			if(solution::f_calls > Nmax) {
+				throw("Too many calls!");
+			}
+		} while (norm(Xopt.x - last_x) >= epsilon);
+		Xopt.fit_fun(ff);
 		return Xopt;
 	}
 	catch (string ex_info)
@@ -721,38 +712,26 @@ solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 	try
 	{
 		solution Xopt;
-
-		int i = 0;
-		solution xi;
-		xi.x = x0;
-
 		matrix d;
-		double h = h0;
-
+		matrix last_d;
+		matrix last_x;
+		Xopt.x = x0;
+		bool firstPass = true;
 		do {
-			Xopt.x = xi.x;
-			if (i == 0)
-			{
-				d = -Xopt.grad(gf);
+			double Beta = pow(norm(Xopt.x), 2)/pow(norm(last_x), 2);
+			Xopt.grad(gf);
+			last_d = d;
+			if(firstPass) {d = -Xopt.g;}
+			else {d = -Xopt.g + Beta * last_d;}
+			last_x = Xopt.x;
+			Xopt.x = Xopt.x + h0 * d;
+			if(std::max(solution::f_calls, solution::g_calls) > Nmax) {
+				std::cout << "too many calls!\n";
+				throw("Too many calls!");
 			}
-			else
-			{
-				d = -Xopt.grad(gf) + pow(norm(xi.grad(gf)), 2) / pow(norm(Xopt.grad(gf)), 2) * d;
-			}
-
-			xi.x = Xopt.x + h * d;
-			i++;
-
-		} while (Xopt.g_calls <= Nmax || norm(xi.x - Xopt.x) >= epsilon);
-		if (Xopt.g_calls > Nmax)
-		{
-			Xopt.flag = 0;
-		}
-		else
-		{
-			Xopt.flag = 1;
-		}
-
+			if(firstPass) firstPass = false;
+		} while (norm(Xopt.x - last_x) >= epsilon);
+		Xopt.fit_fun(ff);
 		return Xopt;
 	}
 	catch (string ex_info)
@@ -767,31 +746,20 @@ solution Newton(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix,
 	try
 	{
 		solution Xopt;
-
-		int i = 0;
-		solution xi;
-		xi.x = x0;
-
 		matrix d;
-		double h = h0;
-
+		matrix last_x;
+		Xopt.x = x0;
 		do {
-			Xopt.x = xi.x;
-			d = -inv(Xopt.hess(Hf)) * Xopt.grad(gf);
-
-			xi.x = Xopt.x + h * d;
-			i++;
-
-		} while (Xopt.g_calls <= Nmax || norm(xi.x - Xopt.x) >= epsilon);
-		if (Xopt.g_calls > Nmax)
-		{
-			Xopt.flag = 0;
-		}
-		else
-		{
-			Xopt.flag = 1;
-		}
-
+			Xopt.grad(gf);
+			Xopt.hess(Hf);
+			d = -1 * inv(Xopt.H) * Xopt.g;
+			last_x = Xopt.x;
+			Xopt.x = Xopt.x + h0 * d;
+			if(solution::f_calls > Nmax) {
+				throw("Too many calls!");
+			}
+		} while (norm(Xopt.x - last_x) >= epsilon);
+		Xopt.fit_fun(ff);
 		return Xopt;
 	}
 	catch (string ex_info)
