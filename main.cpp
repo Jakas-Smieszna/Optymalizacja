@@ -431,16 +431,97 @@ void lab2()
 void lab3()
 {
 
-	// solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s,
-	//  double alpha, double beta, double gamma, double delta, double epsilon, int Nmax, matrix ud1, matrix ud2
+	auto zapiszSymulacje = [](matrix* Y, const string& nazwa_pliku) {
+		ofstream plik(nazwa_pliku);
+		if (plik.good()) {
+			plik << "Czas[s]\tx[m]\tv_x[m/s]\ty[m]\tv_y[m/s]\n";
+			int n = get_len(Y[0]);
+			for (int i = 0; i < n; i++) {
+				plik << Y[0](i) << "\t" << Y[1](i, 0) << "\t" << Y[1](i, 2) << "\n";
+			}
+			cout << "Zapisano symulacje: " << nazwa_pliku << " (" << n
+				<< " punktow czasowych)\n";
+		}
+		plik.close();
+		Y[0].~matrix();
+		Y[1].~matrix();
+		};
+
+	srand(time(NULL));
 	double s = 0.5;
-	double alpha = 1, beta = 0.3, gamma = 1.2, delta = 0.5;
-	double epsilon = 1e-8;
-	matrix x0 = matrix(2, 1, 1.0);
-	std::cout << x0(0) << ", " << x0(1) << '\n';
-	std::cout << sym_NM(ff3T, x0, s, alpha, beta, gamma, delta, epsilon, 10000) << std::endl;
+	double alpha = 1, beta = 0.5, gamma = 1.5, delta = 0.5;
+	double epsilon = 1e-5;
+	solution::clear_calls();
+	// std::cout << penSol << norm(penSol.x) << " g3:" << g3T3(x0, S_data(0)) << "
+	// | " << g3T2(penSol.x,0) << " | " << g3T1(penSol.x,0);
+	char kont = '1';
+	fstream Sout;
+	Sout.open("testy_lab3.csv", std::ios::out);
+	matrix const_data = matrix(5, new double[5] {alpha, beta, gamma, delta, s});
+	matrix ps(2, new double[2] {1.2, 1.2});
 
+	matrix x0(2, new double[2] {2, 5});
+	for (int i = 0; i < 1; i++) {
+		ps(0) = double(rand() % 20001 - 10000) / 1000.0;
+		ps(1) = double(rand() % 20001 - 10000) / 1000.0;
+		std::cout << "p0: " << ps << '\n';
 
+		solution solvedReal =
+			pen(ff3R, ps, 1, 1.5, epsilon, 1e5, const_data, const_data);
+		std::cout << solvedReal;
+		std::cout << ff3R(ps, ps, 0);
+		matrix Y0 = matrix(4, new double[4] {0, solvedReal.x(0), 100, 0});
+		matrix ud2(0);
+		matrix* Y = solve_ode(df3, 0, 0.01, 7.0, Y0, solvedReal.x, ud2);
+		zapiszSymulacje(Y, "pls_work_solved.csv");
+		int n = get_len(Y[0]);
+		int i0 = 0, i50 = 0;
+		for (int i = 0; i < n; i++) {
+			if (fabs(Y[1](i, 2) - 50) < fabs(Y[1](i50, 2) - 50)) {
+				i50 = i;
+			}
+			if (fabs(Y[1](i, 2)) < fabs(Y[1](i0, 2))) {
+				i0 = i;
+			}
+		}
+		std::cout << "x(i50): " << Y[1](i50, 0) << " y :" << Y[1](i50, 2) << '\n';
+	}
+
+	while (kont != '1') {
+		for (auto a : { 4.0, 4.4934, 5.0 }) {
+			matrix S_data = matrix(2, new double[2] {a, 0});
+			for (int i = 0; i < 100; i++) {
+				ps(0) = double(rand() % 10001 + 13000) / 10000.0;
+				ps(1) = double(rand() % 10001 + 13000) / 10000.0;
+
+				S_data(1) = 0; // ustawianie na zewn. testową kare
+				std::cout << "x0: \n" << ps << '\n';
+				std::cout << "\nFUNKCJA TESTOWA METODA SYN_NM Z KARĄ - TESTOWA ZEWN.\n";
+				if (Sout.good() == true)
+					Sout << ps(0) << "\t" << ps(1) << '\t';
+				solution penSol =
+					pen(ff3T_zewn, ps, 1, 1.5, epsilon, 1000000, S_data, const_data);
+				std::cout << penSol << norm(penSol.x) << '\n';
+				if (Sout.good() == true) {
+					Sout << penSol.x(0) << "\t" << penSol.x(1) << '\t' << norm(penSol.x)
+						<< '\t' << penSol.y(0) << '\t' << solution::f_calls << '\t';
+				}
+				solution::clear_calls();
+				std::cout << "\nFUNKCJA TESTOWA METODA SYN_NM Z KARĄ - TESTOWA WEWN.\n";
+				S_data(1) = 1; // ustawianie na wewn. testową kare
+				penSol =
+					pen(ff3T_wewn, ps, 1000, 0.1, epsilon, 1000000, S_data, const_data);
+				std::cout << penSol << norm(penSol.x) << '\n';
+				if (Sout.good() == true) {
+					Sout << penSol.x(0) << "\t" << penSol.x(1) << '\t' << norm(penSol.x)
+						<< '\t' << penSol.y(0) << '\t' << solution::f_calls << '\n';
+				}
+			}
+		}
+		Sout.close();
+
+		cin >> kont;
+	}
 
 }
 
