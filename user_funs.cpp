@@ -278,3 +278,25 @@ matrix ff4R(matrix x, matrix ud1, matrix ud2)
 	return (1.0f / 6.0f) * pow(x(0), 6) - 1.05 * pow(x(0), 4) + 2.0f * pow(x(0), 2) + pow(x(1), 2) + x(0) * x(1);
 }
 
+matrix gf4T(matrix x, matrix ud1, matrix ud2)
+{
+	double& x1 = x(0);
+	double& x2 = x(1);
+	return matrix(2, new double[2] {
+		pow(x1, 5) - (21.0 / 5.0) * pow(x1, 3) + 4 * x1 + x2,
+			x1 + 2 * x2
+		});
+}
+
+matrix Hf4T(matrix x, matrix ud1, matrix ud2)
+{
+	double& x1 = x(0);
+	double& x2 = x(1);
+	matrix ret = matrix(2, 2);
+	ret(0, 0) = 5 * pow(x1, 4) + (63.0 / 5.0) * pow(x1, 2) + 4;
+	ret(0, 1) = 1;
+	ret(1, 0) = 1;
+	ret(1, 1) = 2;
+	return ret;
+
+}
