@@ -83,10 +83,12 @@ double* expansion(matrix(*ff)(matrix, matrix, matrix), double x0, double d, doub
 				return p;
 			}
 		}
-		if (ud1 < x2i) p[0] = x2i;
+		/*if (ud1 < x2i) p[0] = x2i;
 		else p[0] = ud1(0);
 		if (x0i < ud2(0)) p[1] = x0i;
-		else p[1] = ud2(0);
+		else p[1] = ud2(0);*/
+		p[0] = x2i;
+		p[1] = x0i;
 		return p;
 
 	}
@@ -681,7 +683,7 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 }
 
 
-solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
+solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix), matrix(*zlotf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try
 	{
@@ -692,6 +694,18 @@ solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 		do {
 			Xopt.grad(gf);
 			d = -Xopt.g;
+
+			//ZMIENNOKRKOWE LICZENIE ZMIAN H0 - ZAKMENTUJ LUB ODKOMENTUJ BLOK
+			{
+
+				double* obszar = expansion(zlotf, h0, 0.2, 1.5, Nmax, d, Xopt.x);
+				//cout << "" << obszar[0] << "," << obszar[1] << "\n";
+				h0 = golden(zlotf, obszar[0], obszar[1], epsilon, Nmax, d, Xopt.x).x(0);
+				//cout << h0;
+				delete[] obszar;
+
+			}
+
 			last_x = Xopt.x;
 			Xopt.x = Xopt.x + h0 * d;
 			if(solution::f_calls > Nmax) {
@@ -783,7 +797,7 @@ solution golden(matrix(*ff)(matrix, matrix, matrix), double A, double B, double 
 
 		do {
 			c.fit_fun(ff, ud1, ud2); d.fit_fun(ff, ud1, ud2);
-			if (c.y < d.y) {
+			if (c.y(0) < d.y(0)) {
 				a = a;
 				b = d.x;
 				d.x = c.x;

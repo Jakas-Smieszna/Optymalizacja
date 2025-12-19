@@ -27,3 +27,5 @@ matrix Hf4T(matrix, matrix = 0, matrix = 0);
 void load_data_lab4(matrix*& xD, matrix*& yD);
 matrix ff4R(matrix, matrix = 0, matrix = 0);
 matrix gf4R(matrix, matrix = 0, matrix = 0);
+matrix zlotf4T(matrix a, matrix d, matrix x);
+matrix zlotf4R(matrix a, matrix d, matrix x);
