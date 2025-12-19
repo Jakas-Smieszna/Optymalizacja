@@ -799,7 +799,7 @@ solution golden(matrix(*ff)(matrix, matrix, matrix), double A, double B, double 
 			if (solution::f_calls > Nmax) {
 				throw ("too many calls!!!!!!\n");
 			}
-		} while (b - a < epsilon);
+		} while (b - a > epsilon);
 
 		Xopt.x = (a + b) * 0.5;
 		Xopt.fit_fun(ff, ud1, ud2);
