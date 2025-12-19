@@ -542,10 +542,10 @@ void lab4()
 
   ps = matrix(2, new double[2]{-0.544, -1.7704});
 
-  opt = SD(ff4T, gf4T, zlotf4T, ps, h0, epsilon, limit, 0, 0);
-  CG(ff4T, gf4T, ps, h0, epsilon, limit, 0, 0);
-  Newton(ff4T, gf4T, Hf4T, ps, h0, epsilon, limit, 0, 0);
-  goto real;
+  //opt = SD(ff4T, gf4T, zlotf4T, ps, h0, epsilon, limit, 0, 0);
+  //CG(ff4T, gf4T, ps, h0, epsilon, limit, 0, 0);
+  //Newton(ff4T, gf4T, Hf4T, ps, h0, epsilon, limit, 0, 0);
+  goto test;
   return;
 test:
   while (kont == '1') {
@@ -608,7 +608,7 @@ test:
 	std::cout << "koniec petli\n";
   	cin >> kont;
   }
-
+  return;
 real:
 	Sout.close();
     Sout.open("real_lab4.csv", std::ios::out);

@@ -698,13 +698,13 @@ solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 			d = -Xopt.g;
 
 			//ZMIENNOKRKOWE LICZENIE ZMIAN H0 - ZAKMENTUJ LUB ODKOMENTUJ BLOK
-			// {
-			// 	double* obszar = expansion(zlotf, h0, 0.2, 1.5, Nmax, d, Xopt.x);
-			// 	//cout << "" << obszar[0] << "," << obszar[1] << "\n";
-			// 	h0 = golden(zlotf, obszar[0], obszar[1], epsilon, Nmax, d, Xopt.x).x(0);
-			// 	//cout << h0;
-			// 	delete[] obszar;
-			// }
+			{
+				double* obszar = expansion(zlotf, h0, 0.2, 1.5, Nmax, d, Xopt.x);
+				//cout << "" << obszar[0] << "," << obszar[1] << "\n";
+				h0 = golden(zlotf, obszar[0], obszar[1], epsilon, Nmax, d, Xopt.x).x(0);
+				//cout << h0;
+				delete[] obszar;
+			}
 
 			last_x = Xopt.x;
 			// Sout << Xopt.x(0) << '\t' << Xopt.x(1) << '\n';
@@ -759,8 +759,7 @@ solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 			last_x = Xopt.x;
 			Sout << Xopt.x(0) << '\t' << Xopt.x(1) << '\n';
 			Xopt.x = Xopt.x + h0 * d;
-			// std::cout << Xopt.x << " diff: " << norm(Xopt.x - last_x) << " | lastx^2: " << pow(norm(last_x), 2) << "\nBeta: " << Beta << " | d: " << d << '\n';
-			// if(isnan(Xopt.x(0))) throw "mamy problem";
+
 			if(std::max(solution::f_calls, solution::g_calls) > Nmax) {
 				std::cout << "too many calls!\n";
 				throw("Too many calls!");
