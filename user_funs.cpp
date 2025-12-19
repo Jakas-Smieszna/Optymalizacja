@@ -375,5 +375,29 @@ matrix gf4R(matrix theta, matrix ud1, matrix ud2) {
 	return ret;
 }
 
+matrix zlotf4T(matrix a, matrix d, matrix x)
+{
+	
+	matrix arg = x;
+	for (int i = 0; i < get_len(x); i++) 
+	{
+		arg(i) = x(i) + d(i) * a(i);
+	}
+	return ff4T(arg);
+
+}
+
+matrix zlotf4R(matrix a, matrix d, matrix x)
+{
+
+	matrix arg = x;
+	for (int i = 0; i < get_len(x); i++)
+	{
+		arg(i) = x(i) + d(i) * a(i);
+	}
+	return ff4R(arg);
+
+}
+
 
 //LAB 5

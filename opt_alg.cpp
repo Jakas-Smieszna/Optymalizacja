@@ -681,7 +681,7 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 }
 
 
-solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
+solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix), matrix(*zlotf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try
 	{
@@ -692,6 +692,17 @@ solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 		do {
 			Xopt.grad(gf);
 			d = -Xopt.g;
+
+			//ZMIENNOKRKOWE LICZENIE ZMIAN H0 - ZAKMENTUJ LUB ODKOMENTUJ BLOK
+			{
+
+				double* obszar = expansion(zlotf, h0, h0, 1.5, 1000, d, Xopt.x);
+				cout << "n\n" << obszar[0] << "," << obszar[1] << "\n\n";
+				//h0 = golden(zlotf, obszar[0], obszar[1], epsilon, Nmax, d, Xopt.x).x(0);
+				delete[] obszar;
+
+			}
+
 			last_x = Xopt.x;
 			Xopt.x = Xopt.x + h0 * d;
 			if(solution::f_calls > Nmax) {

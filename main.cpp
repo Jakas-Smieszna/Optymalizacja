@@ -539,7 +539,7 @@ void lab4()
   double epsilon = 1e-4;
   int limit = 1e7;
   double h0 = 0.05; // start step
-  cout << golden(ff4T, -1.0, 1.0, epsilon, limit, -2.0, 2.0);
+  //cout << golden(ff4T, -1.0, 1.0, epsilon, limit, -2.0, 2.0);
   while (kont == '1') {
 	  for (int i = 0; i < 100; i++) {							//JG:mozna wybrac liczbe powtorzen
 
@@ -550,7 +550,7 @@ void lab4()
 
 	  	cout << "SD:\n";
 		if (Sout.good() == true) Sout << ps(0) << "\t" << ps(1) << '\t';
-	  	opt = SD(ff4T, gf4T, ps, h0, epsilon, limit, 0, 0);
+	  	opt = SD(ff4T, gf4T, zlotf4T, ps, h0, epsilon, limit, 0, 0);
 	  	cout << opt << endl << endl;
 
 	  	if (Sout.good() == true) {
