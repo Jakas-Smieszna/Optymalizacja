@@ -696,9 +696,9 @@ solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 			//ZMIENNOKRKOWE LICZENIE ZMIAN H0 - ZAKMENTUJ LUB ODKOMENTUJ BLOK
 			{
 
-				double* obszar = expansion(zlotf, h0, h0, 1.5, 1000, d, Xopt.x);
-				cout << "n\n" << obszar[0] << "," << obszar[1] << "\n\n";
-				//h0 = golden(zlotf, obszar[0], obszar[1], epsilon, Nmax, d, Xopt.x).x(0);
+				double* obszar = expansion(zlotf, h0, 0.2, 1.5, Nmax, d, Xopt.x);
+				cout << "" << obszar[0] << "," << obszar[1] << "\n";
+				h0 = golden(zlotf, obszar[0], obszar[1], epsilon, Nmax, d, Xopt.x).x(0);
 				delete[] obszar;
 
 			}
