@@ -775,14 +775,14 @@ solution golden(matrix(*ff)(matrix, matrix, matrix), double A, double B, double 
 		solution Xopt;
 
 		int i = 0;
-		double alpha = 0.5 * (std::sqrt(5) / 2.0);
+		double alpha = 0.5 * (std::sqrt(5.0) - 1.0);
 		matrix a(A);
 		matrix b(B);
 		solution c = solution(b - alpha * (b - a));
 		solution d = solution(a + alpha * (b - a));
 
 		do {
-			c.fit_fun(ff); d.fit_fun(ff);
+			c.fit_fun(ff, ud1, ud2); d.fit_fun(ff, ud1, ud2);
 			if (c.y < d.y) {
 				a = a;
 				b = d.x;
@@ -793,7 +793,7 @@ solution golden(matrix(*ff)(matrix, matrix, matrix), double A, double B, double 
 				a = c.x;
 				b = b;
 				c.x = d.x;
-				d = a + alpha * (b - a);
+				d.x = a + alpha * (b - a);
 			}
 			++i;
 			if (solution::f_calls > Nmax) {
@@ -802,7 +802,7 @@ solution golden(matrix(*ff)(matrix, matrix, matrix), double A, double B, double 
 		} while (b - a < epsilon);
 
 		Xopt.x = (a + b) * 0.5;
-		Xopt.fit_fun(ff);
+		Xopt.fit_fun(ff, ud1, ud2);
 
 		return Xopt;
 	}

@@ -527,8 +527,8 @@ void lab3()
 
 void lab4()
 {
-	std::cout << ff4R(matrix(3, new double[3]{0.1, 0.1, 0.1})) << '\n';
-	std::cout << gf4R(matrix(3, new double[3]{0.1, 0.1, 0.1})) << '\n';
+	//std::cout << ff4R(matrix(3, new double[3]{0.1, 0.1, 0.1})) << '\n';
+	//std::cout << gf4R(matrix(3, new double[3]{0.1, 0.1, 0.1})) << '\n';
 	//-----FUNKCJA TESTOWA-----------------------------------------------------------
 
   char kont = '1';
@@ -536,9 +536,10 @@ void lab4()
   matrix ps(2, 1);
   Sout.open("testy_lab4.csv", std::ios::out);
   solution opt;
-  double h0 = 0.05; // start step
   double epsilon = 1e-4;
   int limit = 1e7;
+  double h0 = 0.05; // start step
+  cout << golden(ff4T, -1.0, 1.0, epsilon, limit, -2.0, 2.0);
   while (kont == '1') {
 	  for (int i = 0; i < 100; i++) {							//JG:mozna wybrac liczbe powtorzen
 
@@ -585,7 +586,7 @@ void lab4()
 			Sout << "\tTAK\n";
 			} else Sout << "\tNIE\n";
 		}
-	  	solution::clear_calls();
+		solution::clear_calls();
 
 
   	}
