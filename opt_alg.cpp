@@ -687,6 +687,8 @@ solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 {
 	try
 	{
+	    fstream Sout;
+	    Sout.open("sym_lab4_SD_ff4t.csv", std::ios::out);
 		solution Xopt;
 		matrix d;
 		matrix last_x;
@@ -696,23 +698,29 @@ solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 			d = -Xopt.g;
 
 			//ZMIENNOKRKOWE LICZENIE ZMIAN H0 - ZAKMENTUJ LUB ODKOMENTUJ BLOK
-			{
-
-				double* obszar = expansion(zlotf, h0, 0.2, 1.5, Nmax, d, Xopt.x);
-				//cout << "" << obszar[0] << "," << obszar[1] << "\n";
-				h0 = golden(zlotf, obszar[0], obszar[1], epsilon, Nmax, d, Xopt.x).x(0);
-				//cout << h0;
-				delete[] obszar;
-
-			}
+			// {
+			// 	double* obszar = expansion(zlotf, h0, 0.2, 1.5, Nmax, d, Xopt.x);
+			// 	//cout << "" << obszar[0] << "," << obszar[1] << "\n";
+			// 	h0 = golden(zlotf, obszar[0], obszar[1], epsilon, Nmax, d, Xopt.x).x(0);
+			// 	//cout << h0;
+			// 	delete[] obszar;
+			// }
 
 			last_x = Xopt.x;
+			// Sout << Xopt.x(0) << '\t' << Xopt.x(1) << '\n';
 			Xopt.x = Xopt.x + h0 * d;
-			if(solution::f_calls > Nmax) {
-				throw("Too many calls!");
+			if(std::max(solution::f_calls, solution::g_calls) > Nmax) {
+			    goto ret;
+			}
+			// std::cout << "eeee\n";
+			if(solution::g_calls % (int)1e5 == 0) {
+
+		 std::cout << norm(Xopt.x - last_x) << '\n';
 			}
 		} while (norm(Xopt.x - last_x) >= epsilon);
+		ret:
 		Xopt.fit_fun(ff);
+		Sout.close();
 		return Xopt;
 	}
 	catch (string ex_info)
@@ -725,20 +733,34 @@ solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 {
 	try
 	{
+        fstream Sout;
+        Sout.open("sym_lab4_CG_ff4t.csv", std::ios::out);
 		solution Xopt;
 		matrix d;
 		matrix last_d;
 		matrix last_x;
 		Xopt.x = x0;
 		bool firstPass = true;
+		std::cout << "ENTRY: " << x0 << " | " << h0 << " | " << epsilon << "\n\n";
 		do {
 			double Beta = pow(norm(Xopt.x), 2)/pow(norm(last_x), 2);
 			Xopt.grad(gf);
 			last_d = d;
 			if(firstPass) {d = -Xopt.g;}
 			else {d = -Xopt.g + Beta * last_d;}
+			//ZMIENNOKRKOWE LICZENIE ZMIAN H0 - ZAKMENTUJ LUB ODKOMENTUJ BLOK
+			{
+			double* obszar = expansion(zlotf4T, h0, 0.2, 1.5, Nmax, d, Xopt.x);
+				//cout << "" << obszar[0] << "," << obszar[1] << "\n";
+				h0 = golden(zlotf4T, obszar[0], obszar[1], epsilon, Nmax, d, Xopt.x).x(0);
+				//cout << h0;
+				delete[] obszar;
+			}
 			last_x = Xopt.x;
+			Sout << Xopt.x(0) << '\t' << Xopt.x(1) << '\n';
 			Xopt.x = Xopt.x + h0 * d;
+			// std::cout << Xopt.x << " diff: " << norm(Xopt.x - last_x) << " | lastx^2: " << pow(norm(last_x), 2) << "\nBeta: " << Beta << " | d: " << d << '\n';
+			// if(isnan(Xopt.x(0))) throw "mamy problem";
 			if(std::max(solution::f_calls, solution::g_calls) > Nmax) {
 				std::cout << "too many calls!\n";
 				throw("Too many calls!");
@@ -746,6 +768,7 @@ solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 			if(firstPass) firstPass = false;
 		} while (norm(Xopt.x - last_x) >= epsilon);
 		Xopt.fit_fun(ff);
+		Sout.close();
 		return Xopt;
 	}
 	catch (string ex_info)
@@ -759,6 +782,8 @@ solution Newton(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix,
 {
 	try
 	{
+	fstream Sout;
+        Sout.open("sym_lab4_Newton_ff4t.csv", std::ios::out);
 		solution Xopt;
 		matrix d;
 		matrix last_x;
@@ -768,12 +793,22 @@ solution Newton(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix,
 			Xopt.hess(Hf);
 			d = -1 * inv(Xopt.H) * Xopt.g;
 			last_x = Xopt.x;
+			//ZMIENNOKRKOWE LICZENIE ZMIAN H0 - ZAKMENTUJ LUB ODKOMENTUJ BLOK
+			{
+				double* obszar = expansion(zlotf4T, h0, 0.2, 1.5, Nmax, d, Xopt.x);
+				//cout << "" << obszar[0] << "," << obszar[1] << "\n";
+				h0 = golden(zlotf4T, obszar[0], obszar[1], epsilon, Nmax, d, Xopt.x).x(0);
+				//cout << h0;
+				delete[] obszar;
+			}
+			Sout << Xopt.x(0) << '\t' << Xopt.x(1) << '\n';
 			Xopt.x = Xopt.x + h0 * d;
 			if(solution::f_calls > Nmax) {
 				throw("Too many calls!");
 			}
 		} while (norm(Xopt.x - last_x) >= epsilon);
 		Xopt.fit_fun(ff);
+		Sout.close();
 		return Xopt;
 	}
 	catch (string ex_info)

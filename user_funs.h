@@ -29,3 +29,4 @@ matrix ff4R(matrix, matrix = 0, matrix = 0);
 matrix gf4R(matrix, matrix = 0, matrix = 0);
 matrix zlotf4T(matrix a, matrix d, matrix x);
 matrix zlotf4R(matrix a, matrix d, matrix x);
+double poprawne4R(matrix theta);

@@ -349,8 +349,11 @@ double h(matrix x, matrix theta, matrix ud2) {
 matrix ff4R(matrix theta, matrix ud1, matrix ud2) {
 	double sum = 0.0;
 	const int m = TRAINING_DATA_AMOUNT;
-	matrix *xData, *yData;
+	static matrix *xData, *yData;
+	static bool loaded;
+	if(loaded) goto postLoad;
 	load_data_lab4(xData, yData);
+	postLoad:
 	for(int i = 0; i < m; i++) {
 		sum += (
 			m2d(yData[i]) * std::log(h(xData[i], theta, ud2)) +
@@ -363,8 +366,11 @@ matrix ff4R(matrix theta, matrix ud1, matrix ud2) {
 matrix gf4R(matrix theta, matrix ud1, matrix ud2) {
 	matrix ret = matrix(3, 1);
 	const int m = TRAINING_DATA_AMOUNT;
-	matrix *xData, *yData;
+	static matrix *xData, *yData;
+	static bool loaded;
+	if(loaded) goto postLoad;
 	load_data_lab4(xData, yData);
+	postLoad:
 	for(int j = 0; j < 3; j++) {
 		double deriv = 0.0;
 		for(int i = 0; i < m; i++) {
@@ -375,11 +381,22 @@ matrix gf4R(matrix theta, matrix ud1, matrix ud2) {
 	return ret;
 }
 
+double poprawne4R(matrix theta) {
+    const int m = TRAINING_DATA_AMOUNT;
+	matrix *xData, *yData;
+	double sum = 0.0;
+	load_data_lab4(xData, yData);
+	for(int i = 0; i < m; i++) {
+	    if(h(xData[i], theta, 0) > 0.5 && yData[i](0) == 1) sum++;
+	}
+	return sum/m;
+}
+
 matrix zlotf4T(matrix a, matrix d, matrix x)
 {
-	
+
 	matrix arg = x;
-	for (int i = 0; i < get_len(x); i++) 
+	for (int i = 0; i < get_len(x); i++)
 	{
 		arg(i) = x(i) + d(i) * a(0);
 	}
