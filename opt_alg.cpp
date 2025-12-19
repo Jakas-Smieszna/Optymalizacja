@@ -599,87 +599,6 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 		throw ("solution sym_NM(...):\n" + ex_info);
 	}
 
-	//solution Xopt;
-
-	//try
-	//{
-	//
-	//	if (abs(alpha - 1.0) > TOL) {
-	//		Xopt.flag = 0;
-	//		throw BadArguments("Wspolczynnik ekspansi rozny od 1.");
-	//	}
-	//	if (beta - 1.0 > -TOL || beta < TOL) {
-	//		Xopt.flag = 0;
-	//		throw BadArguments("Wspolczynnik beta poza przedzialem (0, 1).");
-	//	}
-	//	if (gamma - 1.0 < TOL) {
-	//		Xopt.flag = 0;
-	//		throw BadArguments("Wspolczynnik gamma mniejszy od 1.");
-	//	}
-	//	if (delta - 1.0 > -TOL || beta < TOL) {
-	//		Xopt.flag = 0;
-	//		throw BadArguments("Wspolczynnik delta poza przedzialem (0, 1).");
-	//	}
-
-	//
-	//	int n = get_len(x0);
-	//	matrix p(n, n + 1, 0.0);
-	//	matrix py(1, n + 1, 0.0);
-	//	//Przygotowanie pierwszego simpleksu
-	//	for (int i = 0; i < n; i++) {
-	//		p[i] = x0;
-	//	}
-	//	for (int i = 1; i < n + 1; i++) {
-	//		for (int j = 0; j < n; j++) {
-	//			p(j, i) = p(j, 0);
-	//			if (i - 1 == j) p(j, i) += s;
-	//		}
-	//	}
-	//	//
-	//	do {
-
-	//		solution::f_calls += 3;
-	//		for (int i = 0; i < n + 1; i++) {
-	//			py[i] = ff(p[i], ud1, ud2);
-	//		}
-	//		int p_min_n = 0;
-	//		int p_max_n = 0;
-	//		for (int i = 1; i < n + 1; i++) {
-	//			if (py[i] > py[p_max_n]) p_max_n = i;
-	//			if (py[i] < py[p_min_n]) p_min_n = i;
-	//		}
-	//		matrix p_(1, n, 0.0);
-	//		for (int i = 0; i < n + 1; i++) {
-	//			if (i != p_max_n) p_ += p[i];
-	//		}
-	//		p_ = p_ / double(n);
-	//		double podb = p_ + alpha * (p_ - py[p_max_n](0));
-
-	//		solution::f_calls += 2;
-	//		if(ff(matrix(1,1,podb), ud1, ud2);
-
-
-
-	//	} while ();
-
-
-
-
-	//
-	//}
-	//catch (const std::exception& ex)
-	//{
-	//	std::cerr << "PRZECHWYCONO WYJATEK - Rosen: " << ex.what() << "\n";
-	//}
-	//catch (string ex_info)
-	//{
-	//	throw ("WYJATEK - ROSEN:\n" + ex_info);
-	//}
-
-	//Xopt.fit_fun(ff, ud1, ud2);
-
-	//return Xopt;
-
 }
 
 
@@ -721,7 +640,7 @@ solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 	}
 }
 
-solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
+solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix), matrix(*zlotf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try
 	{
@@ -735,8 +654,24 @@ solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 			double Beta = pow(norm(Xopt.x), 2)/pow(norm(last_x), 2);
 			Xopt.grad(gf);
 			last_d = d;
-			if(firstPass) {d = -Xopt.g;}
-			else {d = -Xopt.g + Beta * last_d;}
+			if(firstPass) {
+				d = -Xopt.g;
+			}
+			else {
+				d = -Xopt.g + Beta * last_d;
+			}
+			
+			//ZMIENNOKRKOWE LICZENIE ZMIAN H0 - ZAKMENTUJ LUB ODKOMENTUJ BLOK
+			{
+
+				double* obszar = expansion(zlotf, h0, 0.2, 1.5, Nmax, d, Xopt.x);
+				//cout << "" << obszar[0] << "," << obszar[1] << "\n";
+				h0 = golden(zlotf, obszar[0], obszar[1], epsilon, Nmax, d, Xopt.x).x(0);
+				//cout << h0;
+				delete[] obszar;
+
+			}
+
 			last_x = Xopt.x;
 			Xopt.x = Xopt.x + h0 * d;
 			if(std::max(solution::f_calls, solution::g_calls) > Nmax) {
@@ -755,7 +690,8 @@ solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 }
 
 solution Newton(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix),
-	matrix(*Hf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
+	matrix(*Hf)(matrix, matrix, matrix), matrix(*zlotf)(matrix, matrix, matrix),
+	matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try
 	{
@@ -767,6 +703,18 @@ solution Newton(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix,
 			Xopt.grad(gf);
 			Xopt.hess(Hf);
 			d = -1 * inv(Xopt.H) * Xopt.g;
+
+			//ZMIENNOKRKOWE LICZENIE ZMIAN H0 - ZAKMENTUJ LUB ODKOMENTUJ BLOK
+			{
+
+				double* obszar = expansion(zlotf, h0, 0.2, 1.5, Nmax, d, Xopt.x);
+				//cout << "" << obszar[0] << "," << obszar[1] << "\n";
+				h0 = golden(zlotf, obszar[0], obszar[1], epsilon, Nmax, d, Xopt.x).x(0);
+				//cout << h0;
+				delete[] obszar;
+
+			}
+
 			last_x = Xopt.x;
 			Xopt.x = Xopt.x + h0 * d;
 			if(solution::f_calls > Nmax) {

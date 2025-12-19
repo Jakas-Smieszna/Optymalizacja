@@ -539,7 +539,7 @@ void lab4()
   double epsilon = 1e-4;
   int limit = 1e7;
   double h0 = 0.05; // start step
-  //cout << golden(ff4T, -1.0, 1.0, epsilon, limit, -2.0, 2.0);
+
   while (kont == '1') {
 	  for (int i = 0; i < 1; i++) {							//JG:mozna wybrac liczbe powtorzen
 
@@ -563,7 +563,7 @@ void lab4()
 	  	solution::clear_calls();
 
 	  	cout << "CG:\n";
-	  	opt = CG(ff4T, gf4T, ps, h0, epsilon, limit, 0, 0);
+	  	opt = CG(ff4T, gf4T, zlotf4T, ps, h0, epsilon, limit, 0, 0);
 	  	cout << opt << endl << endl;
 
 	  	if (Sout.good() == true) {
@@ -576,7 +576,7 @@ void lab4()
 	  	solution::clear_calls();
 
 	  	cout << "Newton:\n";
-	  	opt = Newton(ff4T, gf4T, Hf4T, ps, h0, epsilon, limit, 0, 0);
+	  	opt = Newton(ff4T, gf4T, Hf4T, zlotf4T, ps, h0, epsilon, limit, 0, 0);
 	  	cout << opt << endl << endl;
 
 	  	if (Sout.good() == true) {
