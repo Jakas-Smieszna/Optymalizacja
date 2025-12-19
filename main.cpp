@@ -540,6 +540,9 @@ void lab4()
   int limit = 1e6;
   double h0 = 0.05; // start step
 
+  while (kont == '1') {
+	  for (int i = 0; i < 1; i++) {							//JG:mozna wybrac liczbe powtorzen
+
   ps = matrix(2, new double[2]{-0.544, -1.7704});
 
   //opt = SD(ff4T, gf4T, zlotf4T, ps, h0, epsilon, limit, 0, 0);
@@ -576,7 +579,7 @@ test:
 	  	solution::clear_calls();
 	cg:
 	  	cout << "CG:\n";
-	  	opt = CG(ff4T, gf4T, ps, h0, epsilon, limit, 0, 0);
+	  	opt = CG(ff4T, gf4T, zlotf4T, ps, h0, epsilon, limit, 0, 0);
 	  	cout << opt << endl << endl;
 
 	  	if (Sout.good() == true) {
@@ -589,7 +592,7 @@ test:
 	  	solution::clear_calls();
 
 	  	cout << "Newton:\n";
-	  	opt = Newton(ff4T, gf4T, Hf4T, ps, h0, epsilon, limit, 0, 0);
+	  	opt = Newton(ff4T, gf4T, Hf4T, zlotf4T, ps, h0, epsilon, limit, 0, 0);
 	  	cout << opt << endl << endl;
 
 	  	if (Sout.good() == true) {
