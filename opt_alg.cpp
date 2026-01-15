@@ -812,16 +812,14 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 			Xopt.flag = 0;
 			throw BadArguments("Dokladnosc nie jest zawarta w dopuszczanlym obszarze (0,1).");
 		}
+		Xopt.x = x0;
 		int n = get_len(x0);
 		matrix d(n, n, 0.0);
 		d = ident_mat(n);
 		int i = 0;
 		matrix p(n, n, 0.0);
 		do {
-			
-			/*for (int j = 0; j < n; j++) {
-				p[j] = Xopt.x;
-			}*/
+
 			p[0] = Xopt.x;
 			for (int j = 1; j < n; j++) {
 
@@ -840,11 +838,11 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 				p[j] = p[j-1] + d[j] * alfa;
 
 			}
-			if (sqrt(pow(p[n-1](0) - Xopt.x(0), 2.0) + pow(p[n-1](1) - Xopt.x(1), 2.0)) < epsilon) {
-				Xopt.fit_fun(ff, ud1, ud2);
+			if (sqrt(pow(p(0, n - 1) - Xopt.x(0,0), 2.0) + pow(p(1, n - 1) - Xopt.x(1,0), 2.0)) < epsilon) {
+				Xopt.fit_fun(ff, A5, ud2);
 				return Xopt;
 			}
-			for (int j = 1; j < n - 1; j++) {//j=0?
+			for (int j = 1; j < n - 1; j++) {
 				d[j] = d[j + 1];
 			}
 			d[n - 1] = p[n-1] - p[0];
@@ -881,7 +879,7 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 		throw ("WYJATEK - golden/expansion:\n" + ex_info);
 	}
 
-	Xopt.fit_fun(ff, ud1, ud2);
+	Xopt.fit_fun(ff, A5, ud2);
 	return Xopt;
 
 }

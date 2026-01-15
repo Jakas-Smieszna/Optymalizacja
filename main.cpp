@@ -677,16 +677,23 @@ void lab5()
 	while (kont == '1') {
 		for (int i = 0; i < 1; i++) {							//JG:mozna wybrac liczbe powtorzen
 
-			ps(0) = double(rand() % 20001 - 10000) / 10000.0;
-			ps(1) = double(rand() % 20001 - 10000) / 10000.0;
+			ps(0) = double(rand() % 200001 - 100000) / 10000.0;
+			ps(1) = double(rand() % 200001 - 100000) / 10000.0;
 			cout << "Punkt startowy = [" << ps(0) << ", " << ps(1) << "].\n";
 			cout << "Krok startowy = " << krok_s << ".\n\n";
 
 			alfa = 0.5;
 
-			cout << "POWELL:\n";
+			cout << "POWELL - FT1:\n";
 			if (Sout.good() == true) Sout << ps(0) << "\t" << ps(1) << '\t';
 			opt = Powell(ff5T1, ps, epsilon, Nmax, lb, ub);
+			cout << opt << endl << endl;
+
+			solution::clear_calls();
+
+			cout << "POWELL - FT2:\n";
+			if (Sout.good() == true) Sout << ps(0) << "\t" << ps(1) << '\t';
+			opt = Powell(ff5T2, ps, epsilon, Nmax, lb, ub);
 			cout << opt << endl << endl;
 
 			solution::clear_calls();
