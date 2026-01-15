@@ -820,10 +820,12 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 		matrix p(n, n, 0.0);
 		do {
 
-			p[0] = Xopt.x;
-			for (int j = 1; j < n; j++) {
+			for (int i = 0; i < n; i++) {
+				p(i, 0) = Xopt.x(i);
+			}
+			for (int j = 0; j < n-1; j++) {
 
-				double alfa = 0.0;
+				double alfa = double(rand() % 200001 - 100000) / 10000.0;
 				if (ff == ff5T1) {
 					double* obszar = expansion(gg5T1, alfa, 0.2, 1.5, Nmax, d[j], p[j]);
 					alfa = golden(gg5T1, obszar[0], obszar[1], epsilon, Nmax, d[j], p[j]).x(0);
@@ -835,19 +837,28 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 					delete[] obszar;
 				}
 
-				p[j] = p[j-1] + d[j] * alfa;
+				matrix pom = p[j] + d[j] * alfa;
+				for (int i = 0; i < n; i++) {
+					p(i, j + 1) = pom(i,0);
+				}
 
 			}
-			if (sqrt(pow(p(0, n - 1) - Xopt.x(0,0), 2.0) + pow(p(1, n - 1) - Xopt.x(1,0), 2.0)) < epsilon) {
+			if (sqrt(pow(p(0, n - 1) - Xopt.x(0), 2.0) + pow(p(1, n - 1) - Xopt.x(1), 2.0)) < epsilon) {
 				Xopt.fit_fun(ff, A5, ud2);
 				return Xopt;
 			}
-			for (int j = 1; j < n - 1; j++) {
-				d[j] = d[j + 1];
+			for (int j = 0; j < n - 1; j++) {
+				matrix pom = d[j + 1];
+				for (int i = 0; i < n; i++) {
+					d(i, j) = pom(i, 0);
+				}
 			}
-			d[n - 1] = p[n-1] - p[0];
+			matrix pom = p[n-1] - p[0];
+			for (int i = 0; i < n; i++) {
+				d(i, n-1) = pom(i, 0);
+			}
 
-			double alfa = 0.0;
+			double alfa = double(rand() % 200001 - 100000) / 10000.0;
 			if (ff == ff5T1) {
 				double* obszar = expansion(gg5T1, alfa, 0.2, 1.5, Nmax, d[n - 1], p[n - 1]);
 				alfa = golden(gg5T1, obszar[0], obszar[1], epsilon, Nmax, d[n - 1], p[n - 1]).x(0);
@@ -858,8 +869,10 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 				alfa = golden(gg5T2, obszar[0], obszar[1], epsilon, Nmax, d[n - 1], p[n - 1]).x(0);
 				delete[] obszar;
 			}
-
-			p[n - 1] = p[n - 1] + d[n - 1] * alfa;
+			matrix pom2 = p[n - 1] + d[n - 1] * alfa;
+			for (int i = 0; i < n; i++) {
+				p(i, n - 1) = pom2(i, 0);
+			}
 			Xopt.x = p[n - 1];
 			i = i + 1;
 
@@ -876,7 +889,7 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 	}
 	catch (string ex_info)
 	{
-		throw ("WYJATEK - golden/expansion:\n" + ex_info);
+		throw ("WYJATEK - golden/expansion/zapis danych:\n" + ex_info);
 	}
 
 	Xopt.fit_fun(ff, A5, ud2);

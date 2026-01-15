@@ -421,12 +421,12 @@ matrix zlotf4R(matrix a, matrix d, matrix x)
 
 matrix ff5T1(matrix x, matrix a, matrix ud1)
 {
-	return a(0) * (pow(x(0) - 3, 2) + pow(x(1) - 3, 2));
+	return a(0) * (pow(x(0) - 3.0, 2.0) + pow(x(1) - 3.0, 2.0));
 }
 
 matrix ff5T2(matrix x, matrix a, matrix ud1)
 {
-	return (1 / a(0)) * (pow(x(0) - 3, 2) + pow(x(1) - 3, 2));
+	return (1.0 / a(0)) * (pow(x(0) + 3.0, 2) + pow(x(1) + 3.0, 2.0));
 }
 
 matrix gg5T1(matrix a, matrix d, matrix p)
