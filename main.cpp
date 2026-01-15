@@ -531,117 +531,126 @@ void lab4()
 	//std::cout << gf4R(matrix(3, new double[3]{0.1, 0.1, 0.1})) << '\n';
 	//-----FUNKCJA TESTOWA-----------------------------------------------------------
 	srand(time(NULL));
-  char kont = '1';
-  fstream Sout;
-  matrix ps(2, 1);
-  Sout.open("testy_lab4.csv", std::ios::out);
-  solution opt;
-  double epsilon = 1e-4;
-  int limit = 1e6;
-  double h0 = 0.05; // start step
+	char kont = '1';
+	fstream Sout;
+	matrix ps(2, 1);
+	Sout.open("testy_lab4.csv", std::ios::out);
+	solution opt;
+	double epsilon = 1e-4;
+	int limit = 1e6;
+	double h0 = 0.05; // start step
 
-  while (kont == '1') {
-	  for (int i = 0; i < 1; i++) {							//JG:mozna wybrac liczbe powtorzen
+	while (kont == '1') {
+		for (int i = 0; i < 1; i++) {							//JG:mozna wybrac liczbe powtorzen
 
-  ps = matrix(2, new double[2]{-0.544, -1.7704});
+			ps = matrix(2, new double[2] {-0.544, -1.7704});
 
-  //opt = SD(ff4T, gf4T, zlotf4T, ps, h0, epsilon, limit, 0, 0);
-  //CG(ff4T, gf4T, ps, h0, epsilon, limit, 0, 0);
-  //Newton(ff4T, gf4T, Hf4T, ps, h0, epsilon, limit, 0, 0);
-  goto test;
-  return;
-test:
-  while (kont == '1') {
-	  for (int i = 0; i < 100; i++) {							//JG:mozna wybrac liczbe powtorzen
+			//opt = SD(ff4T, gf4T, zlotf4T, ps, h0, epsilon, limit, 0, 0);
+			//CG(ff4T, gf4T, ps, h0, epsilon, limit, 0, 0);
+			//Newton(ff4T, gf4T, Hf4T, ps, h0, epsilon, limit, 0, 0);
+			goto test;
+			return;
+		test:
+			while (kont == '1') {
+				for (int i = 0; i < 100; i++) {							//JG:mozna wybrac liczbe powtorzen
 
-  		ps(0) = double(rand() % 10001 - 20000) / 10000.0;
-  		ps(1) = double(rand() % 40001 - 20000) / 10000.0;
-  		cout << "Punkt startowy = [" << ps(0) << ", " << ps(1) << "].\n";
-  		cout << "Krok startowy = " << h0 << ".\n\n";
+					ps(0) = double(rand() % 10001 - 20000) / 10000.0;
+					ps(1) = double(rand() % 40001 - 20000) / 10000.0;
+					cout << "Punkt startowy = [" << ps(0) << ", " << ps(1) << "].\n";
+					cout << "Krok startowy = " << h0 << ".\n\n";
 
-	  	cout << "SD:\n";
-		if (Sout.good() == true) Sout << ps(0) << "\t" << ps(1) << '\t';
-		try {
-	  	    opt = SD(ff4T, gf4T, zlotf4T, ps, h0, epsilon, limit, 0, 0);
-		} catch (...) {
-		    Sout << "nan\tnan\tnan\t" << solution::f_calls << '\t' << solution::g_calls;
-			Sout << "\tNIE\t"; solution::clear_calls(); goto cg;
+					cout << "SD:\n";
+					if (Sout.good() == true) Sout << ps(0) << "\t" << ps(1) << '\t';
+					try {
+						opt = SD(ff4T, gf4T, zlotf4T, ps, h0, epsilon, limit, 0, 0);
+					}
+					catch (...) {
+						Sout << "nan\tnan\tnan\t" << solution::f_calls << '\t' << solution::g_calls;
+						Sout << "\tNIE\t"; solution::clear_calls(); goto cg;
+					}
+					cout << opt << endl << endl;
+
+					if (Sout.good() == true) {
+						Sout << opt.x(0) << "\t" << opt.x(1) << '\t' << opt.y(0)
+							<< "\t" << solution::f_calls << "\t" << solution::g_calls;
+						if (fabs(opt.y(0)) < 10 * epsilon) {
+							Sout << "\tTAK\t";
+						}
+						else Sout << "\tNIE\t";
+					}
+					solution::clear_calls();
+				cg:
+					cout << "CG:\n";
+					opt = CG(ff4T, gf4T, zlotf4T, ps, h0, epsilon, limit, 0, 0);
+					cout << opt << endl << endl;
+
+					if (Sout.good() == true) {
+						Sout << opt.x(0) << "\t" << opt.x(1) << '\t' << opt.y(0)
+							<< "\t" << solution::f_calls << "\t" << solution::g_calls;
+						if (fabs(opt.y(0)) < 10 * epsilon) {
+							Sout << "\tTAK\t";
+						}
+						else Sout << "\tNIE\t";
+					}
+					else throw "aaaa";
+					solution::clear_calls();
+
+					cout << "Newton:\n";
+					opt = Newton(ff4T, gf4T, Hf4T, zlotf4T, ps, h0, epsilon, limit, 0, 0);
+					cout << opt << endl << endl;
+
+					if (Sout.good() == true) {
+						Sout << opt.x(0) << "\t" << opt.x(1) << '\t' << opt.y(0)
+							<< "\t" << solution::f_calls << "\t" << solution::g_calls << "\t" << solution::H_calls;
+						if (fabs(opt.y(0)) < 10 * epsilon) {
+							Sout << "\tTAK\n";
+						}
+						else Sout << "\tNIE\n";
+					}
+					else throw "aaaa";
+					solution::clear_calls();
+
+					std::cout << "loop: " << i << '\n';
+
+				}
+
+				std::cout << "koniec petli\n";
+				cin >> kont;
+			}
+			return;
+		real:
+			Sout.close();
+			Sout.open("real_lab4.csv", std::ios::out);
+			while (kont == '1') {
+				limit = 100000; // bo to powolne jest idk why
+				for (auto h : { 0.01, 0.001, 0.0001 }) {
+					solution::clear_calls();
+					ps = matrix(3, new double[3] {
+						double(rand() % 100001) / 10000.0,
+							double(rand() % 100001) / 10000.0,
+							double(rand() % 100001) / 10000.0
+						});
+					cout << "Punkt startowy = [" << ps(0) << ", " << ps(1) << ", " << ps(2) << "].\n";
+					cout << "Krok startowy = " << h << ".\n\n";
+					try {
+						opt = SD(ff4R, gf4R, zlotf4R, ps, h, epsilon, limit, 0, 0);
+						std::cout << opt;
+						Sout << opt.x(0) << '\t'
+							<< opt.x(1) << '\t'
+							<< opt.x(2) << '\t'
+							<< opt.y(0) << '\t'
+							<< poprawne4R(opt.x) << '\t'
+							<< solution::g_calls << '\n';
+					}
+					catch (...) {
+						std::cout << "Blad dla kroku: " << h << '\n';
+					}
+				}
+				std::cin >> kont;
+			}
+			Sout.close();
 		}
-	  	cout << opt << endl << endl;
-
-	  	if (Sout.good() == true) {
-			Sout << opt.x(0) << "\t" << opt.x(1) << '\t' << opt.y(0)
-			<< "\t" << solution::f_calls << "\t" << solution::g_calls;
-			if(fabs(opt.y(0)) < 10*epsilon) {
-			Sout << "\tTAK\t";
-			} else Sout << "\tNIE\t";
-		}
-	  	solution::clear_calls();
-	cg:
-	  	cout << "CG:\n";
-	  	opt = CG(ff4T, gf4T, zlotf4T, ps, h0, epsilon, limit, 0, 0);
-	  	cout << opt << endl << endl;
-
-	  	if (Sout.good() == true) {
-			Sout << opt.x(0) << "\t" << opt.x(1) << '\t' << opt.y(0)
-			<< "\t" << solution::f_calls << "\t" << solution::g_calls;
-			if(fabs(opt.y(0)) < 10*epsilon) {
-			Sout << "\tTAK\t";
-			} else Sout << "\tNIE\t";
-		} else throw "aaaa";
-	  	solution::clear_calls();
-
-	  	cout << "Newton:\n";
-	  	opt = Newton(ff4T, gf4T, Hf4T, zlotf4T, ps, h0, epsilon, limit, 0, 0);
-	  	cout << opt << endl << endl;
-
-	  	if (Sout.good() == true) {
-			Sout << opt.x(0) << "\t" << opt.x(1) << '\t' << opt.y(0)
-			<< "\t" << solution::f_calls << "\t" << solution::g_calls << "\t" << solution::H_calls;
-			if(fabs(opt.y(0)) < 10*epsilon) {
-			Sout << "\tTAK\n";
-			} else Sout << "\tNIE\n";
-		} else throw "aaaa";
-		solution::clear_calls();
-
-		std::cout << "loop: " << i << '\n';
-
-  	}
-
-	std::cout << "koniec petli\n";
-  	cin >> kont;
-  }
-  return;
-real:
-	Sout.close();
-    Sout.open("real_lab4.csv", std::ios::out);
-    while(kont == '1') {
-        limit = 100000; // bo to powolne jest idk why
-        for(auto h : {0.01, 0.001, 0.0001}) {
-            solution::clear_calls();
-            ps = matrix(3, new double[3] {
-                double(rand() % 100001) / 10000.0,
-                double(rand() % 100001) / 10000.0,
-                double(rand() % 100001) / 10000.0
-            });
-          	cout << "Punkt startowy = [" << ps(0) << ", " << ps(1) << ", " << ps(2) << "].\n";
-        cout << "Krok startowy = " << h << ".\n\n";
-        try{
-            opt = SD(ff4R, gf4R, zlotf4R, ps, h, epsilon, limit, 0, 0);
-            std::cout << opt;
-            Sout << opt.x(0) << '\t'
-                << opt.x(1) << '\t'
-                << opt.x(2) << '\t'
-                << opt.y(0) << '\t'
-                << poprawne4R(opt.x) << '\t'
-                << solution::g_calls << '\n';
-        } catch (...) {
-            std::cout << "Blad dla kroku: " << h << '\n';
-        }
-        }
-        std::cin >> kont;
-    }
-    Sout.close();
+	}
 }
 
 void lab5()
