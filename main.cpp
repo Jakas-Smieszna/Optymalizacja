@@ -14,6 +14,7 @@ Data ostatniej modyfikacji: 30.09.2025
 //Wykonanie zadania: MF, JG, MG, AG
 
 
+#include "matrix.h"
 #include "user_funs.h"
 #include <cstdlib>
 #include <ctime>
@@ -34,7 +35,7 @@ int main()
 {
 	try
 	{
-		lab4();
+		lab5();
 	}
 	catch (string EX_INFO)
 	{
@@ -677,38 +678,40 @@ void lab5()
 	fstream Sout;
 	Sout.open("testy_lab5.csv", std::ios::out);
 	while (kont == '1') {
-		for (int i = 0; i < 1; i++) {							//JG:mozna wybrac liczbe powtorzen
-
+		for(double w = 0.00; w <= 1.01; w += 0.01) {
 			ps(0) = double(rand() % 200001 - 100000) / 10000.0;
 			ps(1) = double(rand() % 200001 - 100000) / 10000.0;
+			matrix a = (matrix)(1.0);
+			matrix wm = (matrix)(w);
 			cout << "Punkt startowy = [" << ps(0) << ", " << ps(1) << "].\n";
-			cout << "Krok startowy = " << krok_s << ".\n\n";
-
-			alfa = 0.5;
-
-			cout << "POWELL - FT1:\n";
-			if (Sout.good() == true) Sout << ps(0) << "\t" << ps(1) << '\t';
-			opt = Powell(ff5T1, ps, epsilon, Nmax, lb, ub);
-			cout << opt << endl << endl;
-
-			solution::clear_calls();
-
-			cout << "POWELL - FT2:\n";
-			if (Sout.good() == true) Sout << ps(0) << "\t" << ps(1) << '\t';
-			opt = Powell(ff5T2, ps, epsilon, Nmax, lb, ub);
-			cout << opt << endl << endl;
-
-			solution::clear_calls();
-
-			cout << "POWELL - FTX - wagi 0,5 i 0,5 - szukanie minimum w sensie Pareto dla pary funkcji:\n";
-			if (Sout.good() == true) Sout << ps(0) << "\t" << ps(1) << '\t';
-			opt = Powell(ff5TX, ps, epsilon, Nmax, lb, ub);
-			cout << opt << endl << endl;
-
-			solution::clear_calls();
-
+			// ps(0) = -3; ps(1) = -3;
+			// printf("ff5T1(%lf, %lf) = %lf\nff5T2(%lf, %lf) = %lf\n",
+			// 	ps(0), ps(1), ff5T1(ps, a, w)(0),
+			// 	ps(0), ps(1), ff5T2(ps, a, w)(0)
+			// );
+			// printf("ff5TX(%lf, %lf, w=%lf) = %lf\n",
+			// 	ps(0), ps(1), wm(0), ff5TX(ps, a, wm)(0)
+			// );
+			// printf("a(0): %lf\n1.0/a(0): %lf", (a(0)), (1.0/a(0)));
+			// continue;
+			if (Sout.good() == true) {
+				Sout << ps(0) << "\t" << ps(1) << '\t';
+			}
+			for(double a : {1.0, 10.0, 100.0}) {
+				cout << "Dla współczynnika a = " << a << ":\n";
+				matrix ud1(1, 2, 0.0);
+				ud1(0) = a; ud1(0,1) = w;
+				opt = Powell(ff5TX, ps, epsilon, Nmax, ud1, 0.0);
+				cout << opt << endl << endl;
+				if (Sout.good() == true) {
+					Sout << opt.x(0) << '\t' << opt.x(1) << '\t'
+					<< ff5T1(opt.x, ud1, 0) << '\t' << ff5T2(opt.x, ud1, 0) << '\t'
+					<< solution::f_calls << '\t';
+				}
+				solution::clear_calls();
+			}
+			if(Sout.good()) Sout << '\n';
 		}
-
 		cin >> kont;
 
 	}

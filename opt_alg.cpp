@@ -1,5 +1,6 @@
 #include "opt_alg.h"
 #include "exceptions.h"
+#include "solution.h"
 
 solution MC(matrix(*ff)(matrix, matrix, matrix), int N, matrix lb, matrix ub, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
@@ -671,7 +672,7 @@ solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 			else {
 				d = -Xopt.g + Beta * last_d;
 			}
-			
+
 			//ZMIENNOKRKOWE LICZENIE ZMIAN H0 - ZAKMENTUJ LUB ODKOMENTUJ BLOK
 			{
 
@@ -818,6 +819,12 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 		d = ident_mat(n);
 		int i = 0;
 		matrix p(n, n, 0.0);
+		matrix (*gFunc)(matrix, matrix, matrix);
+		// Lepiej byłoby np. jakiś hashmap tu strzelić
+		// ... ale to ma tylko działać więc
+		if(ff == ff5T1) {gFunc = gg5T1;}
+		if(ff == ff5T2) {gFunc = gg5T2;}
+		if(ff == ff5TX) {gFunc = gg5TX;}
 		do {
 
 			for (int i = 0; i < n; i++) {
@@ -826,21 +833,12 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 			for (int j = 0; j < n-1; j++) {
 
 				double alfa = double(rand() % 200001 - 100000) / 10000.0;
-				if (ff == ff5T1) {
-					double* obszar = expansion(gg5T1, alfa, 0.2, 1.5, Nmax, d[j], p[j]);
-					alfa = golden(gg5T1, obszar[0], obszar[1], epsilon, Nmax, d[j], p[j]).x(0);
-					delete[] obszar;
-				}
-				else if (ff == ff5T2)  {
-					double* obszar = expansion(gg5T2, alfa, 0.2, 1.5, Nmax, d[j], p[j]);
-					alfa = golden(gg5T2, obszar[0], obszar[1], epsilon, Nmax, d[j], p[j]).x(0);
-					delete[] obszar;
-				}
-				else {
-					double* obszar = expansion(gg5TX, alfa, 0.2, 1.5, Nmax, d[j], p[j]);
-					alfa = golden(gg5TX, obszar[0], obszar[1], epsilon, Nmax, d[j], p[j]).x(0);
-					delete[] obszar;
-				}
+				matrix gfunc_ud2(2, n, 0.0);
+				gfunc_ud2.set_col(d[j], 0);
+				gfunc_ud2.set_col(p[j], 1);
+				double* obszar = expansion(gFunc, alfa, 0.2, 1.5, Nmax, ud1, gfunc_ud2);
+				alfa = golden(gFunc, obszar[0], obszar[1], epsilon, Nmax, ud1, gfunc_ud2).x(0);
+				delete[] obszar;
 
 				matrix pom = p[j] + d[j] * alfa;
 				for (int i = 0; i < n; i++) {
@@ -849,7 +847,7 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 
 			}
 			if (sqrt(pow(p(0, n - 1) - Xopt.x(0), 2.0) + pow(p(1, n - 1) - Xopt.x(1), 2.0)) < epsilon) {
-				Xopt.fit_fun(ff, A5, ud2);
+				Xopt.fit_fun(ff, ud1, ud2);
 				return Xopt;
 			}
 			for (int j = 0; j < n - 1; j++) {
@@ -864,21 +862,14 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 			}
 
 			double alfa = double(rand() % 200001 - 100000) / 10000.0;
-			if (ff == ff5T1) {
-				double* obszar = expansion(gg5T1, alfa, 0.2, 1.5, Nmax, d[n - 1], p[n - 1]);
-				alfa = golden(gg5T1, obszar[0], obszar[1], epsilon, Nmax, d[n - 1], p[n - 1]).x(0);
-				delete[] obszar;
-			}
-			else if (ff == ff5T2) {
-				double* obszar = expansion(gg5T2, alfa, 0.2, 1.5, Nmax, d[n - 1], p[n - 1]);
-				alfa = golden(gg5T2, obszar[0], obszar[1], epsilon, Nmax, d[n - 1], p[n - 1]).x(0);
-				delete[] obszar;
-			}
-			else {
-				double* obszar = expansion(gg5TX, alfa, 0.2, 1.5, Nmax, d[n-1], p[n-1]);
-				alfa = golden(gg5TX, obszar[0], obszar[1], epsilon, Nmax, d[n-1], p[n-1]).x(0);
-				delete[] obszar;
-			}
+			matrix gfunc_ud2(2, n, 0.0);
+			gfunc_ud2.set_col(d[n-1], 0);
+			gfunc_ud2.set_col(p[n-1], 1);
+
+			double* obszar = expansion(gFunc, alfa, 0.2, 1.5, Nmax, ud1, gfunc_ud2);
+			alfa = golden(gFunc, obszar[0], obszar[1], epsilon, Nmax, ud1, gfunc_ud2).x(0);
+			delete[] obszar;
+
 			matrix pom2 = p[n - 1] + d[n - 1] * alfa;
 			for (int i = 0; i < n; i++) {
 				p(i, n - 1) = pom2(i, 0);
@@ -901,7 +892,6 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 	{
 		throw ("WYJATEK - golden/expansion/zapis danych:\n" + ex_info);
 	}
-
 	Xopt.fit_fun(ff, A5, ud2);
 	return Xopt;
 

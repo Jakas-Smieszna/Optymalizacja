@@ -1,4 +1,6 @@
 #include"user_funs.h"
+#include "matrix.h"
+#include <cmath>
 #include <cstring>
 
 //LAB0
@@ -419,41 +421,80 @@ matrix zlotf4R(matrix a, matrix d, matrix x)
 
 //LAB 5
 
-matrix ff5T1(matrix x, matrix a, matrix ud1)
+matrix ff5T1(matrix x, matrix ud1, matrix ud2)
 {
-	return a(0) * (pow(x(0) - 3.0, 2.0) + pow(x(1) - 3.0, 2.0));
+	const matrix a = ud1[0];
+	const matrix w = ud1[1];
+	return a(0) * (
+		pow(x(0) - 3.0, 2.0) +
+		pow(x(1) - 3.0, 2.0)
+	);
 }
 
-matrix ff5T2(matrix x, matrix a, matrix ud1)
+matrix ff5T2(matrix x, matrix ud1, matrix ud2)
 {
-	return (1.0 / a(0)) * (pow(x(0) + 3.0, 2) + pow(x(1) + 3.0, 2.0));
+	const matrix a = ud1[0];
+	const matrix w = ud1[1];
+	return (1.0 / a(0)) * (
+		pow(x(0) + 3.0, 2.0) +
+		pow(x(1) + 3.0, 2.0)
+	);
+}
+matrix ff5TX(matrix x, matrix ud1, matrix ud2)
+{
+	const matrix a = ud1[0];
+	const matrix w = ud1[1];
+	return (w * ff5T1(x,ud1, ud2)) + ((1-w) * ff5T2(x, ud1, ud2));
 }
 
-matrix gg5T1(matrix a, matrix d, matrix p)
+matrix gg5T1(matrix a, matrix ud1, matrix ud2)
 {
-
-	return ff5T1(p + a * d, A5, matrix());
-
+	const matrix d = ud2[0];
+	const matrix p = ud2[1];
+	return ff5T1(p + a * d, ud1, ud2);
 }
 
-matrix gg5T2(matrix a, matrix d, matrix p)
+matrix gg5T2(matrix a, matrix ud1, matrix ud2)
 {
-
-	return ff5T2(p + a * d, A5, matrix());
-
+	const matrix d = ud2[0];
+	const matrix p = ud2[1];
+	return ff5T2(p + a * d, ud1, ud2);
 }
 
-matrix ff5TX(matrix x, matrix a, matrix ud1)
+matrix gg5TX(matrix a, matrix ud1, matrix ud2)
 {
-
-	return 0.5 * ff5T1(x, a, ud1) + 0.5 * ff5T2(x, a, ud1);
-
+	const matrix d = ud2[0];
+	const matrix p = ud2[1];
+	return ff5TX(p + a * d, ud1, ud2);
 }
 
-matrix gg5TX(matrix a, matrix d, matrix p)
-{
+// Obliczanie masy.
+matrix ff5R1(matrix x, matrix ud1, matrix ud2) {
+	const double l = x(0);
+	const double d = x(1);
+	const double Volume = M_PI * 0.25 * d * d * l; // m^3
+	const double Density = 8920; // kg / m^3
+	return Volume * Density;
+}
 
-	return ff5TX(p + a * d, A5, matrix());
+// Obliczanie ugięcia
+matrix ff5R2(matrix x, matrix ud1, matrix ud2) {
+	const double l = x(0);
+	const double d = x(1);
+	const double P = 2000; // Niutonów
+	const double E = 120e9; // paskali
+	return (64 * P * l * l * l) / (3 * E * M_PI * d*d*d*d);
+}
+
+// Obliczanie naprężenia
+matrix ff5R3(matrix x, matrix ud1, matrix ud2) {
+	const double l = x(0);
+	const double d = x(1);
+	const double P = 2000; // Niutonów
+	return (32 * P * l) / (M_PI * d * d * d);
+}
+
+matrix ff5RX(matrix x, matrix ud1, matrix ud2) {
 
 }
 

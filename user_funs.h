@@ -4,7 +4,7 @@
 #include <cmath>
 #include"ode_solver.h"
 
-#define A5 1// 1 lub 10 lub 100. Nie mam jak daæ 4. argumentu do gg5T by da³o siê tego u¿ywaæ goldenem.
+#define A5 1// 1 lub 10 lub 100. Nie mam jak dac 4. argumentu do gg5T by dalo sie tego uzywac goldenem.
 
 matrix ff0T(matrix, matrix = NAN, matrix = NAN);
 matrix ff0R(matrix, matrix = NAN, matrix = NAN);
