@@ -529,76 +529,191 @@ void lab3()
 
 void lab4()
 {
+	//std::cout << ff4R(matrix(3, new double[3]{0.1, 0.1, 0.1})) << '\n';
+	//std::cout << gf4R(matrix(3, new double[3]{0.1, 0.1, 0.1})) << '\n';
 	//-----FUNKCJA TESTOWA-----------------------------------------------------------
 	srand(time(NULL));
-  char kont = '1';
-  fstream Sout;
-  matrix ps(2, 1);
-  Sout.open("testy_lab4.csv", std::ios::out);
-  solution opt;
-  double h0 = 0.05; // start step
-  double epsilon = 1e-4;
-  int limit = 1e7;
-  while (kont == '1') {
-  int i = 0;
-	  for (i = 0; i < 100; i++) {							//JG:mozna wybrac liczbe powtorzen
+	char kont = '1';
+	fstream Sout;
+	matrix ps(2, 1);
+	Sout.open("testy_lab4.csv", std::ios::out);
+	solution opt;
+	double epsilon = 1e-4;
+	int limit = 1e6;
+	double h0 = 0.05; // start step
 
-  		ps(0) = double(rand() % 40001 - 20000) / 10000.0;
-  		ps(1) = double(rand() % 40001 - 20000) / 10000.0;
-  		cout << "Punkt startowy = [" << ps(0) << ", " << ps(1) << "].\n";
-  		cout << "Krok startowy = " << h0 << ".\n\n";
+	while (kont == '1') {
+		for (int i = 0; i < 1; i++) {							//JG:mozna wybrac liczbe powtorzen
 
-	  	cout << "SD:\n";
-		if (Sout.good() == true) Sout << ps(0) << "\t" << ps(1) << '\t';
-	  	opt = SD(ff4T, gf4T, ps, h0, epsilon, limit, 0, 0);
-	  	cout << opt << endl << endl;
+			ps = matrix(2, new double[2] {-0.544, -1.7704});
 
-	  	if (Sout.good() == true) {
-			Sout << opt.x(0) << "\t" << opt.x(1) << '\t' << opt.y(0)
-			<< "\t" << solution::f_calls << "\t" << solution::g_calls;
-			if(fabs(opt.y(0)) < 10*epsilon) {
-			Sout << "\tTAK\t";
-			} else Sout << "\tNIE\t";
+			//opt = SD(ff4T, gf4T, zlotf4T, ps, h0, epsilon, limit, 0, 0);
+			//CG(ff4T, gf4T, ps, h0, epsilon, limit, 0, 0);
+			//Newton(ff4T, gf4T, Hf4T, ps, h0, epsilon, limit, 0, 0);
+			goto test;
+			return;
+		test:
+			while (kont == '1') {
+				for (int i = 0; i < 100; i++) {							//JG:mozna wybrac liczbe powtorzen
+
+					ps(0) = double(rand() % 10001 - 20000) / 10000.0;
+					ps(1) = double(rand() % 40001 - 20000) / 10000.0;
+					cout << "Punkt startowy = [" << ps(0) << ", " << ps(1) << "].\n";
+					cout << "Krok startowy = " << h0 << ".\n\n";
+
+					cout << "SD:\n";
+					if (Sout.good() == true) Sout << ps(0) << "\t" << ps(1) << '\t';
+					try {
+						opt = SD(ff4T, gf4T, zlotf4T, ps, h0, epsilon, limit, 0, 0);
+					}
+					catch (...) {
+						Sout << "nan\tnan\tnan\t" << solution::f_calls << '\t' << solution::g_calls;
+						Sout << "\tNIE\t"; solution::clear_calls(); goto cg;
+					}
+					cout << opt << endl << endl;
+
+					if (Sout.good() == true) {
+						Sout << opt.x(0) << "\t" << opt.x(1) << '\t' << opt.y(0)
+							<< "\t" << solution::f_calls << "\t" << solution::g_calls;
+						if (fabs(opt.y(0)) < 10 * epsilon) {
+							Sout << "\tTAK\t";
+						}
+						else Sout << "\tNIE\t";
+					}
+					solution::clear_calls();
+				cg:
+					cout << "CG:\n";
+					opt = CG(ff4T, gf4T, zlotf4T, ps, h0, epsilon, limit, 0, 0);
+					cout << opt << endl << endl;
+
+					if (Sout.good() == true) {
+						Sout << opt.x(0) << "\t" << opt.x(1) << '\t' << opt.y(0)
+							<< "\t" << solution::f_calls << "\t" << solution::g_calls;
+						if (fabs(opt.y(0)) < 10 * epsilon) {
+							Sout << "\tTAK\t";
+						}
+						else Sout << "\tNIE\t";
+					}
+					else throw "aaaa";
+					solution::clear_calls();
+
+					cout << "Newton:\n";
+					opt = Newton(ff4T, gf4T, Hf4T, zlotf4T, ps, h0, epsilon, limit, 0, 0);
+					cout << opt << endl << endl;
+
+					if (Sout.good() == true) {
+						Sout << opt.x(0) << "\t" << opt.x(1) << '\t' << opt.y(0)
+							<< "\t" << solution::f_calls << "\t" << solution::g_calls << "\t" << solution::H_calls;
+						if (fabs(opt.y(0)) < 10 * epsilon) {
+							Sout << "\tTAK\n";
+						}
+						else Sout << "\tNIE\n";
+					}
+					else throw "aaaa";
+					solution::clear_calls();
+
+					std::cout << "loop: " << i << '\n';
+
+				}
+
+				std::cout << "koniec petli\n";
+				cin >> kont;
+			}
+			return;
+		real:
+			Sout.close();
+			Sout.open("real_lab4.csv", std::ios::out);
+			while (kont == '1') {
+				limit = 100000; // bo to powolne jest idk why
+				for (auto h : { 0.01, 0.001, 0.0001 }) {
+					solution::clear_calls();
+					ps = matrix(3, new double[3] {
+						double(rand() % 100001) / 10000.0,
+							double(rand() % 100001) / 10000.0,
+							double(rand() % 100001) / 10000.0
+						});
+					cout << "Punkt startowy = [" << ps(0) << ", " << ps(1) << ", " << ps(2) << "].\n";
+					cout << "Krok startowy = " << h << ".\n\n";
+					try {
+						opt = SD(ff4R, gf4R, zlotf4R, ps, h, epsilon, limit, 0, 0);
+						std::cout << opt;
+						Sout << opt.x(0) << '\t'
+							<< opt.x(1) << '\t'
+							<< opt.x(2) << '\t'
+							<< opt.y(0) << '\t'
+							<< poprawne4R(opt.x) << '\t'
+							<< solution::g_calls << '\n';
+					}
+					catch (...) {
+						std::cout << "Blad dla kroku: " << h << '\n';
+					}
+				}
+				std::cin >> kont;
+			}
+			Sout.close();
 		}
-	  	solution::clear_calls();
-
-	  	cout << "CG:\n";
-	  	opt = CG(ff4T, gf4T, ps, h0, epsilon, limit, 0, 0);
-	  	cout << opt << endl << endl;
-
-	  	if (Sout.good() == true) {
-			Sout << opt.x(0) << "\t" << opt.x(1) << '\t' << opt.y(0)
-			<< "\t" << solution::f_calls << "\t" << solution::g_calls;
-			if(fabs(opt.y(0)) < 10*epsilon) {
-			Sout << "\tTAK\t";
-			} else Sout << "\tNIE\t";
-		}
-	  	solution::clear_calls();
-
-	  	cout << "Newton:\n";
-	  	opt = Newton(ff4T, gf4T, Hf4T, ps, h0, epsilon, limit, 0, 0);
-	  	cout << opt << endl << endl;
-
-	  	if (Sout.good() == true) {
-			Sout << opt.x(0) << "\t" << opt.x(1) << '\t' << opt.y(0)
-			<< "\t" << solution::f_calls << "\t" << solution::g_calls << "\t" << solution::H_calls;
-			if(fabs(opt.y(0)) < 10*epsilon) {
-			Sout << "\tTAK\n";
-			} else Sout << "\tNIE\n";
-		}
-	  	solution::clear_calls();
-				std::cout << "petla: " << i << "\n\n\n";
-  	}
-
-	std::cout << "koniec petli: " << i << '\n';
-  	cin >> kont;
-
-  }
-  Sout.close();
+	}
 }
 
 void lab5()
 {
+
+
+	srand(time(NULL));
+	//Funkcja testowa
+	double alfa = 0.0;										// wspolczynnik ekspansji (0.0 do 1.0 dla HJ i > 1 dla R - zmiana w petli, nie tutaj)
+	double krok_s = 1.5;									// krok
+	double beta = 0.5;										// wspolczynnik kontrakcji
+	double epsilon = 1e-8;									// dokladnosc
+	int Nmax = 10000;										// maksymalna liczba wywolan funkcji celu
+	matrix lb(2, 1, -1.0), ub(2, 1, 1.0),					// dolne oraz g�rne ograniczenie
+		ps(2, 1, double(rand() % 20001 - 10000) / 10000.0);	// punkt startowy
+	solution opt;											// rozwiazanie optymalne znalezione przez algorytm
+	solution::clear_calls();
+
+	//-----FUNKCJA TESTOWA-----------------------------------------------------------
+
+	char kont = '1';
+	fstream Sout;
+	Sout.open("testy_lab5.csv", std::ios::out);
+	while (kont == '1') {
+		for (int i = 0; i < 1; i++) {							//JG:mozna wybrac liczbe powtorzen
+
+			ps(0) = double(rand() % 200001 - 100000) / 10000.0;
+			ps(1) = double(rand() % 200001 - 100000) / 10000.0;
+			cout << "Punkt startowy = [" << ps(0) << ", " << ps(1) << "].\n";
+			cout << "Krok startowy = " << krok_s << ".\n\n";
+
+			alfa = 0.5;
+
+			cout << "POWELL - FT1:\n";
+			if (Sout.good() == true) Sout << ps(0) << "\t" << ps(1) << '\t';
+			opt = Powell(ff5T1, ps, epsilon, Nmax, lb, ub);
+			cout << opt << endl << endl;
+
+			solution::clear_calls();
+
+			cout << "POWELL - FT2:\n";
+			if (Sout.good() == true) Sout << ps(0) << "\t" << ps(1) << '\t';
+			opt = Powell(ff5T2, ps, epsilon, Nmax, lb, ub);
+			cout << opt << endl << endl;
+
+			solution::clear_calls();
+
+			cout << "POWELL - FTX - wagi 0,5 i 0,5 - szukanie minimum w sensie Pareto dla pary funkcji:\n";
+			if (Sout.good() == true) Sout << ps(0) << "\t" << ps(1) << '\t';
+			opt = Powell(ff5TX, ps, epsilon, Nmax, lb, ub);
+			cout << opt << endl << endl;
+
+			solution::clear_calls();
+
+		}
+
+		cin >> kont;
+
+	}
+	Sout.close();
+
 
 }
 

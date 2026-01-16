@@ -83,10 +83,12 @@ double* expansion(matrix(*ff)(matrix, matrix, matrix), double x0, double d, doub
 				return p;
 			}
 		}
-		if (ud1 < x2i) p[0] = x2i;
+		/*if (ud1 < x2i) p[0] = x2i;
 		else p[0] = ud1(0);
 		if (x0i < ud2(0)) p[1] = x0i;
-		else p[1] = ud2(0);
+		else p[1] = ud2(0);*/
+		p[0] = x2i;
+		p[1] = x0i;
 		return p;
 
 	}
@@ -597,94 +599,15 @@ solution sym_NM(matrix(*ff)(matrix, matrix, matrix), matrix x0, double s, double
 		throw ("solution sym_NM(...):\n" + ex_info);
 	}
 
-	//solution Xopt;
-
-	//try
-	//{
-	//
-	//	if (abs(alpha - 1.0) > TOL) {
-	//		Xopt.flag = 0;
-	//		throw BadArguments("Wspolczynnik ekspansi rozny od 1.");
-	//	}
-	//	if (beta - 1.0 > -TOL || beta < TOL) {
-	//		Xopt.flag = 0;
-	//		throw BadArguments("Wspolczynnik beta poza przedzialem (0, 1).");
-	//	}
-	//	if (gamma - 1.0 < TOL) {
-	//		Xopt.flag = 0;
-	//		throw BadArguments("Wspolczynnik gamma mniejszy od 1.");
-	//	}
-	//	if (delta - 1.0 > -TOL || beta < TOL) {
-	//		Xopt.flag = 0;
-	//		throw BadArguments("Wspolczynnik delta poza przedzialem (0, 1).");
-	//	}
-
-	//
-	//	int n = get_len(x0);
-	//	matrix p(n, n + 1, 0.0);
-	//	matrix py(1, n + 1, 0.0);
-	//	//Przygotowanie pierwszego simpleksu
-	//	for (int i = 0; i < n; i++) {
-	//		p[i] = x0;
-	//	}
-	//	for (int i = 1; i < n + 1; i++) {
-	//		for (int j = 0; j < n; j++) {
-	//			p(j, i) = p(j, 0);
-	//			if (i - 1 == j) p(j, i) += s;
-	//		}
-	//	}
-	//	//
-	//	do {
-
-	//		solution::f_calls += 3;
-	//		for (int i = 0; i < n + 1; i++) {
-	//			py[i] = ff(p[i], ud1, ud2);
-	//		}
-	//		int p_min_n = 0;
-	//		int p_max_n = 0;
-	//		for (int i = 1; i < n + 1; i++) {
-	//			if (py[i] > py[p_max_n]) p_max_n = i;
-	//			if (py[i] < py[p_min_n]) p_min_n = i;
-	//		}
-	//		matrix p_(1, n, 0.0);
-	//		for (int i = 0; i < n + 1; i++) {
-	//			if (i != p_max_n) p_ += p[i];
-	//		}
-	//		p_ = p_ / double(n);
-	//		double podb = p_ + alpha * (p_ - py[p_max_n](0));
-
-	//		solution::f_calls += 2;
-	//		if(ff(matrix(1,1,podb), ud1, ud2);
-
-
-
-	//	} while ();
-
-
-
-
-	//
-	//}
-	//catch (const std::exception& ex)
-	//{
-	//	std::cerr << "PRZECHWYCONO WYJATEK - Rosen: " << ex.what() << "\n";
-	//}
-	//catch (string ex_info)
-	//{
-	//	throw ("WYJATEK - ROSEN:\n" + ex_info);
-	//}
-
-	//Xopt.fit_fun(ff, ud1, ud2);
-
-	//return Xopt;
-
 }
 
 
-solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
+solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix), matrix(*zlotf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try
 	{
+	    fstream Sout;
+	    Sout.open("sym_lab4_SD_ff4t.csv", std::ios::out);
 		solution Xopt;
 		matrix d;
 		matrix last_x;
@@ -692,13 +615,31 @@ solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 		do {
 			Xopt.grad(gf);
 			d = -Xopt.g;
+
+			//ZMIENNOKRKOWE LICZENIE ZMIAN H0 - ZAKMENTUJ LUB ODKOMENTUJ BLOK
+			{
+				double* obszar = expansion(zlotf, h0, 0.2, 1.5, Nmax, d, Xopt.x);
+				//cout << "" << obszar[0] << "," << obszar[1] << "\n";
+				h0 = golden(zlotf, obszar[0], obszar[1], epsilon, Nmax, d, Xopt.x).x(0);
+				//cout << h0;
+				delete[] obszar;
+			}
+
 			last_x = Xopt.x;
+			// Sout << Xopt.x(0) << '\t' << Xopt.x(1) << '\n';
 			Xopt.x = Xopt.x + h0 * d;
-			if(solution::f_calls > Nmax) {
-				throw("Too many calls!");
+			if(std::max(solution::f_calls, solution::g_calls) > Nmax) {
+			    goto ret;
+			}
+			// std::cout << "eeee\n";
+			if(solution::g_calls % (int)1e5 == 0) {
+
+		 std::cout << norm(Xopt.x - last_x) << '\n';
 			}
 		} while (norm(Xopt.x - last_x) >= epsilon);
+		ret:
 		Xopt.fit_fun(ff);
+		Sout.close();
 		return Xopt;
 	}
 	catch (string ex_info)
@@ -707,24 +648,45 @@ solution SD(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 	}
 }
 
-solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
+solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix), matrix(*zlotf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try
 	{
+        fstream Sout;
+        Sout.open("sym_lab4_CG_ff4t.csv", std::ios::out);
 		solution Xopt;
 		matrix d;
 		matrix last_d;
 		matrix last_x;
 		Xopt.x = x0;
 		bool firstPass = true;
+		std::cout << "ENTRY: " << x0 << " | " << h0 << " | " << epsilon << "\n\n";
 		do {
 			double Beta = pow(norm(Xopt.x), 2)/pow(norm(last_x), 2);
 			Xopt.grad(gf);
 			last_d = d;
-			if(firstPass) {d = -Xopt.g;}
-			else {d = -Xopt.g + Beta * last_d;}
+			if(firstPass) {
+				d = -Xopt.g;
+			}
+			else {
+				d = -Xopt.g + Beta * last_d;
+			}
+			
+			//ZMIENNOKRKOWE LICZENIE ZMIAN H0 - ZAKMENTUJ LUB ODKOMENTUJ BLOK
+			{
+
+				double* obszar = expansion(zlotf, h0, 0.2, 1.5, Nmax, d, Xopt.x);
+				//cout << "" << obszar[0] << "," << obszar[1] << "\n";
+				h0 = golden(zlotf, obszar[0], obszar[1], epsilon, Nmax, d, Xopt.x).x(0);
+				//cout << h0;
+				delete[] obszar;
+
+			}
+
 			last_x = Xopt.x;
+			Sout << Xopt.x(0) << '\t' << Xopt.x(1) << '\n';
 			Xopt.x = Xopt.x + h0 * d;
+
 			if(std::max(solution::f_calls, solution::g_calls) > Nmax) {
 				std::cout << "too many calls!\n";
 				throw("Too many calls!");
@@ -732,6 +694,7 @@ solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 			if(firstPass) firstPass = false;
 		} while (norm(Xopt.x - last_x) >= epsilon);
 		Xopt.fit_fun(ff);
+		Sout.close();
 		return Xopt;
 	}
 	catch (string ex_info)
@@ -741,10 +704,13 @@ solution CG(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, mat
 }
 
 solution Newton(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix, matrix),
-	matrix(*Hf)(matrix, matrix, matrix), matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
+	matrix(*Hf)(matrix, matrix, matrix), matrix(*zlotf)(matrix, matrix, matrix),
+	matrix x0, double h0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
 	try
 	{
+	fstream Sout;
+        Sout.open("sym_lab4_Newton_ff4t.csv", std::ios::out);
 		solution Xopt;
 		matrix d;
 		matrix last_x;
@@ -753,13 +719,35 @@ solution Newton(matrix(*ff)(matrix, matrix, matrix), matrix(*gf)(matrix, matrix,
 			Xopt.grad(gf);
 			Xopt.hess(Hf);
 			d = -1 * inv(Xopt.H) * Xopt.g;
+
+			//ZMIENNOKRKOWE LICZENIE ZMIAN H0 - ZAKMENTUJ LUB ODKOMENTUJ BLOK
+			{
+
+				double* obszar = expansion(zlotf, h0, 0.2, 1.5, Nmax, d, Xopt.x);
+				//cout << "" << obszar[0] << "," << obszar[1] << "\n";
+				h0 = golden(zlotf, obszar[0], obszar[1], epsilon, Nmax, d, Xopt.x).x(0);
+				//cout << h0;
+				delete[] obszar;
+
+			}
+
 			last_x = Xopt.x;
+			//ZMIENNOKRKOWE LICZENIE ZMIAN H0 - ZAKMENTUJ LUB ODKOMENTUJ BLOK
+			{
+				double* obszar = expansion(zlotf4T, h0, 0.2, 1.5, Nmax, d, Xopt.x);
+				//cout << "" << obszar[0] << "," << obszar[1] << "\n";
+				h0 = golden(zlotf4T, obszar[0], obszar[1], epsilon, Nmax, d, Xopt.x).x(0);
+				//cout << h0;
+				delete[] obszar;
+			}
+			Sout << Xopt.x(0) << '\t' << Xopt.x(1) << '\n';
 			Xopt.x = Xopt.x + h0 * d;
 			if(solution::f_calls > Nmax) {
 				throw("Too many calls!");
 			}
 		} while (norm(Xopt.x - last_x) >= epsilon);
 		Xopt.fit_fun(ff);
+		Sout.close();
 		return Xopt;
 	}
 	catch (string ex_info)
@@ -775,15 +763,15 @@ solution golden(matrix(*ff)(matrix, matrix, matrix), double A, double B, double 
 		solution Xopt;
 
 		int i = 0;
-		double alpha = 0.5 * (std::sqrt(5) / 2.0);
+		double alpha = 0.5 * (std::sqrt(5.0) - 1.0);
 		matrix a(A);
 		matrix b(B);
 		solution c = solution(b - alpha * (b - a));
 		solution d = solution(a + alpha * (b - a));
 
 		do {
-			c.fit_fun(ff); d.fit_fun(ff);
-			if (c.y < d.y) {
+			c.fit_fun(ff, ud1, ud2); d.fit_fun(ff, ud1, ud2);
+			if (c.y(0) < d.y(0)) {
 				a = a;
 				b = d.x;
 				d.x = c.x;
@@ -793,16 +781,16 @@ solution golden(matrix(*ff)(matrix, matrix, matrix), double A, double B, double 
 				a = c.x;
 				b = b;
 				c.x = d.x;
-				d = a + alpha * (b - a);
+				d.x = a + alpha * (b - a);
 			}
 			++i;
 			if (solution::f_calls > Nmax) {
 				throw ("too many calls!!!!!!\n");
 			}
-		} while (b - a < epsilon);
+		} while (b - a > epsilon);
 
 		Xopt.x = (a + b) * 0.5;
-		Xopt.fit_fun(ff);
+		Xopt.fit_fun(ff, ud1, ud2);
 
 		return Xopt;
 	}
@@ -814,17 +802,109 @@ solution golden(matrix(*ff)(matrix, matrix, matrix), double A, double B, double 
 
 solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
+
+	solution Xopt;
+
 	try
 	{
-		solution Xopt;
-		//Tu wpisz kod funkcji
 
-		return Xopt;
+		if (epsilon < TOL || epsilon - 1 > TOL) {
+			Xopt.flag = 0;
+			throw BadArguments("Dokladnosc nie jest zawarta w dopuszczanlym obszarze (0,1).");
+		}
+		Xopt.x = x0;
+		int n = get_len(x0);
+		matrix d(n, n, 0.0);
+		d = ident_mat(n);
+		int i = 0;
+		matrix p(n, n, 0.0);
+		do {
+
+			for (int i = 0; i < n; i++) {
+				p(i, 0) = Xopt.x(i);
+			}
+			for (int j = 0; j < n-1; j++) {
+
+				double alfa = double(rand() % 200001 - 100000) / 10000.0;
+				if (ff == ff5T1) {
+					double* obszar = expansion(gg5T1, alfa, 0.2, 1.5, Nmax, d[j], p[j]);
+					alfa = golden(gg5T1, obszar[0], obszar[1], epsilon, Nmax, d[j], p[j]).x(0);
+					delete[] obszar;
+				}
+				else if (ff == ff5T2)  {
+					double* obszar = expansion(gg5T2, alfa, 0.2, 1.5, Nmax, d[j], p[j]);
+					alfa = golden(gg5T2, obszar[0], obszar[1], epsilon, Nmax, d[j], p[j]).x(0);
+					delete[] obszar;
+				}
+				else {
+					double* obszar = expansion(gg5TX, alfa, 0.2, 1.5, Nmax, d[j], p[j]);
+					alfa = golden(gg5TX, obszar[0], obszar[1], epsilon, Nmax, d[j], p[j]).x(0);
+					delete[] obszar;
+				}
+
+				matrix pom = p[j] + d[j] * alfa;
+				for (int i = 0; i < n; i++) {
+					p(i, j + 1) = pom(i,0);
+				}
+
+			}
+			if (sqrt(pow(p(0, n - 1) - Xopt.x(0), 2.0) + pow(p(1, n - 1) - Xopt.x(1), 2.0)) < epsilon) {
+				Xopt.fit_fun(ff, A5, ud2);
+				return Xopt;
+			}
+			for (int j = 0; j < n - 1; j++) {
+				matrix pom = d[j + 1];
+				for (int i = 0; i < n; i++) {
+					d(i, j) = pom(i, 0);
+				}
+			}
+			matrix pom = p[n-1] - p[0];
+			for (int i = 0; i < n; i++) {
+				d(i, n-1) = pom(i, 0);
+			}
+
+			double alfa = double(rand() % 200001 - 100000) / 10000.0;
+			if (ff == ff5T1) {
+				double* obszar = expansion(gg5T1, alfa, 0.2, 1.5, Nmax, d[n - 1], p[n - 1]);
+				alfa = golden(gg5T1, obszar[0], obszar[1], epsilon, Nmax, d[n - 1], p[n - 1]).x(0);
+				delete[] obszar;
+			}
+			else if (ff == ff5T2) {
+				double* obszar = expansion(gg5T2, alfa, 0.2, 1.5, Nmax, d[n - 1], p[n - 1]);
+				alfa = golden(gg5T2, obszar[0], obszar[1], epsilon, Nmax, d[n - 1], p[n - 1]).x(0);
+				delete[] obszar;
+			}
+			else {
+				double* obszar = expansion(gg5TX, alfa, 0.2, 1.5, Nmax, d[n-1], p[n-1]);
+				alfa = golden(gg5TX, obszar[0], obszar[1], epsilon, Nmax, d[n-1], p[n-1]).x(0);
+				delete[] obszar;
+			}
+			matrix pom2 = p[n - 1] + d[n - 1] * alfa;
+			for (int i = 0; i < n; i++) {
+				p(i, n - 1) = pom2(i, 0);
+			}
+			Xopt.x = p[n - 1];
+			i = i + 1;
+
+		} while (solution::f_calls + i < Nmax);
+		Xopt.flag = 0;
+		throw ToManyCalls("Przekroczono limit obliczen.\nLiczba wywolan = " + to_string(solution::f_calls + i) + "\nLimit wywyolan = " + to_string(Nmax));
+
+
+
+	}
+	catch (const std::exception& ex)
+	{
+		std::cerr << "PRZECHWYCONO WYJATEK - Powell: " << ex.what() << "\n";
 	}
 	catch (string ex_info)
 	{
-		throw ("solution Powell(...):\n" + ex_info);
+		throw ("WYJATEK - golden/expansion/zapis danych:\n" + ex_info);
 	}
+
+	Xopt.fit_fun(ff, A5, ud2);
+	return Xopt;
+
 }
 
 solution EA(matrix(*ff)(matrix, matrix, matrix), int N, matrix lb, matrix ub, int mi, int lambda, matrix sigma0, double epsilon, int Nmax, matrix ud1, matrix ud2)

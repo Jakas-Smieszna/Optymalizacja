@@ -256,6 +256,8 @@ double g3T3(matrix x, double a) {
 	return (std::sqrt(x(0) * x(0) + x(1) * x(1)) - a); //<= 0);
 }
 
+//LAB 4
+
 matrix ff4T(matrix x, matrix ud1, matrix ud2)
 {
 return (1.0f/6.0f) * pow(x(0), 6) - 1.05 * pow(x(0), 4) + 2.0f * pow(x(0), 2) + pow(x(1), 2) + x(0) * x(1);
@@ -347,8 +349,11 @@ double h(matrix x, matrix theta, matrix ud2) {
 matrix ff4R(matrix theta, matrix ud1, matrix ud2) {
 	double sum = 0.0;
 	const int m = TRAINING_DATA_AMOUNT;
-	matrix *xData, *yData;
+	static matrix *xData, *yData;
+	static bool loaded;
+	if(loaded) goto postLoad;
 	load_data_lab4(xData, yData);
+	postLoad:
 	for(int i = 0; i < m; i++) {
 		sum += (
 			m2d(yData[i]) * std::log(h(xData[i], theta, ud2)) +
@@ -361,8 +366,11 @@ matrix ff4R(matrix theta, matrix ud1, matrix ud2) {
 matrix gf4R(matrix theta, matrix ud1, matrix ud2) {
 	matrix ret = matrix(3, 1);
 	const int m = TRAINING_DATA_AMOUNT;
-	matrix *xData, *yData;
+	static matrix *xData, *yData;
+	static bool loaded;
+	if(loaded) goto postLoad;
 	load_data_lab4(xData, yData);
+	postLoad:
 	for(int j = 0; j < 3; j++) {
 		double deriv = 0.0;
 		for(int i = 0; i < m; i++) {
@@ -371,4 +379,87 @@ matrix gf4R(matrix theta, matrix ud1, matrix ud2) {
 		ret(j) = deriv/m;
 	}
 	return ret;
+}
+
+double poprawne4R(matrix theta) {
+    const int m = TRAINING_DATA_AMOUNT;
+	matrix *xData, *yData;
+	double sum = 0.0;
+	load_data_lab4(xData, yData);
+	for(int i = 0; i < m; i++) {
+	    if(h(xData[i], theta, 0) > 0.5 && yData[i](0) == 1) sum++;
+	}
+	return sum/m;
+}
+
+matrix zlotf4T(matrix a, matrix d, matrix x)
+{
+
+	matrix arg = x;
+	for (int i = 0; i < get_len(x); i++)
+	{
+		arg(i) = x(i) + d(i) * a(0);
+	}
+	return ff4T(arg);
+
+}
+
+matrix zlotf4R(matrix a, matrix d, matrix x)
+{
+
+	matrix arg = x;
+	for (int i = 0; i < get_len(x); i++)
+	{
+		arg(i) = x(i) + d(i) * a(0);
+	}
+	return ff4R(arg);
+
+}
+
+
+//LAB 5
+
+matrix ff5T1(matrix x, matrix a, matrix ud1)
+{
+	return a(0) * (pow(x(0) - 3.0, 2.0) + pow(x(1) - 3.0, 2.0));
+}
+
+matrix ff5T2(matrix x, matrix a, matrix ud1)
+{
+	return (1.0 / a(0)) * (pow(x(0) + 3.0, 2) + pow(x(1) + 3.0, 2.0));
+}
+
+matrix gg5T1(matrix a, matrix d, matrix p)
+{
+
+	return ff5T1(p + a * d, A5, matrix());
+
+}
+
+matrix gg5T2(matrix a, matrix d, matrix p)
+{
+
+	return ff5T2(p + a * d, A5, matrix());
+
+}
+
+matrix ff5TX(matrix x, matrix a, matrix ud1)
+{
+
+	return 0.5 * ff5T1(x, a, ud1) + 0.5 * ff5T2(x, a, ud1);
+
+}
+
+matrix gg5TX(matrix a, matrix d, matrix p)
+{
+
+	return ff5TX(p + a * d, A5, matrix());
+
+}
+
+//LAB 6
+
+matrix ff6T(matrix x, matrix ud1, matrix ud2)
+{
+	return x(0) + x(1) - cos(2.5 * M_PI * x(0)) - cos(2.5 * M_PI * x(1)) + 2;
 }

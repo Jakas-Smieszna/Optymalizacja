@@ -4,6 +4,8 @@
 #include <cmath>
 #include"ode_solver.h"
 
+#define A5 1// 1 lub 10 lub 100. Nie mam jak daæ 4. argumentu do gg5T by da³o siê tego u¿ywaæ goldenem.
+
 matrix ff0T(matrix, matrix = NAN, matrix = NAN);
 matrix ff0R(matrix, matrix = NAN, matrix = NAN);
 matrix df0(double, matrix, matrix = NAN, matrix = NAN);
@@ -27,3 +29,13 @@ matrix Hf4T(matrix, matrix = 0, matrix = 0);
 void load_data_lab4(matrix*& xD, matrix*& yD);
 matrix ff4R(matrix, matrix = 0, matrix = 0);
 matrix gf4R(matrix, matrix = 0, matrix = 0);
+matrix zlotf4T(matrix a, matrix d, matrix x);
+matrix zlotf4R(matrix a, matrix d, matrix x);
+double poprawne4R(matrix theta);
+matrix ff5T1(matrix, matrix, matrix);
+matrix ff5T2(matrix, matrix, matrix);
+matrix gg5T1(matrix, matrix, matrix);
+matrix gg5T2(matrix, matrix, matrix);
+matrix ff5TX(matrix, matrix, matrix);
+matrix gg5TX(matrix, matrix, matrix);
+matrix ff6T(matrix, matrix, matrix);
