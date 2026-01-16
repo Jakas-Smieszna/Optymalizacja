@@ -847,7 +847,7 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 				gfunc_ud2.set_col(d[j], 0);
 				gfunc_ud2.set_col(p[j], 1);
 				std::cout << "expansion x0: " << alfa << " | d: " << expansion_d << '\n';
-				double* obszar = expansion(gFunc, alfa, expansion_d, 2, Nmax, ud1, gfunc_ud2);
+				double* obszar = expansion(gFunc, alfa, expansion_d, 1.2, Nmax, ud1, gfunc_ud2);
 				std::cout << "Obszar: " << obszar[0] << " | " << obszar[1] << "\n";
 				alfa = golden(gFunc, obszar[0], obszar[1], epsilon, Nmax, ud1, gfunc_ud2).x(0);
 				// delete[] obszar;

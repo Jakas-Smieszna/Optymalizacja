@@ -677,7 +677,9 @@ void lab5()
 	char kont = '1';
 	fstream Sout;
 	Sout.open("testy_lab5.csv", std::ios::out);
-	goto real5;
+
+	goto real5; // POMIJA TESTOWE; IDZIE DO RZECZYWISTEJ
+
 	while (kont == '1') {
 		for(double w = 0.00; w <= 1.01; w += 0.01) {
 			ps(0) = double(rand() % 200001 - 100000) / 10000.0;
