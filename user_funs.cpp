@@ -456,3 +456,10 @@ matrix gg5TX(matrix a, matrix d, matrix p)
 	return ff5TX(p + a * d, A5, matrix());
 
 }
+
+//LAB 6
+
+matrix ff6T(matrix x, matrix ud1, matrix ud2)
+{
+	return x(0) + x(1) - cos(2.5 * M_PI * x(0)) - cos(2.5 * M_PI * x(1)) + 2;
+}
