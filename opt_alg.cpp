@@ -909,15 +909,123 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 
 solution EA(matrix(*ff)(matrix, matrix, matrix), int N, matrix lb, matrix ub, int mi, int lambda, matrix sigma0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
+
+	solution Xopt;
+
 	try
 	{
-		solution Xopt;
-		//Tu wpisz kod funkcji
+		
+		int i = 0;
+		double alfa = pow(double(N), -0.5);
+		double beta = pow(2.0 * double(N), -0.25);
+		int n = get_len(lb);
+
+		//Generowanie populacji poczatkowej
+
+		matrix P = matrix(2, n, 0.0);
+		for (int i = 0; i < n; i++) {
+			
+			P[i](0) = double(rand() % int(ub(i)*1000.0) - int(lb(i)*1000.0)) / 1000.0;
+			P[i](1) = sigma0(i);
+
+		}
+
+		do {
+
+			double* dziwak1 = new double[mi];
+			//Tworzenie koła ruletki
+			for (int j = 0; j < mi - 1; j++) {
+
+				dziwak1 = 1.0 / ff(xj);
+
+			}
+
+			double dziwak0 = 0.0;
+			for (int i = 0; i < mi; i++) {
+
+				dziwak0 += dziwak1[i];
+
+			}
+
+			matrix q(n, 1, 0.0);
+			for (int j = 1; j < mi; j++) {
+				q(j) = q(j - 1) + dziwak1[j] / dziwak0;
+			}
+
+			delete[] dziwak1;
+
+			"Losowanie a rozkładem normalnym";
+
+			matrix T = matrix(n, lambda, 0.0);
+
+			for (int j = 0; j < lambda; j++) {
+
+				//Losowanie pierwszego osobnika rodzicielskiego.
+				double r = double(rand() % 2001 - 1000) / 1000.0;
+				int k = 1;
+				while (!(q(k - 1) < r && q(k) >= r) {
+					k++;
+					if (k > n) {
+						throw ("Nie ma k, ktore spelnialoby warunek q(k-) < r <= q(k).\n");
+					}
+				}
+				matrix A = P[k];
+
+				//Losowanie drugiego osobnika rodzicielskiego
+				r = double(rand() % 2001 - 1000) / 1000.0;
+				k = 1;
+				while (!(q(k - 1) < r && q(k) >= r) {
+					k++;
+					if (k > n) {
+						throw ("Nie ma k, ktore spelnialoby warunek q(k-) < r <= q(k).\n");
+					}
+				}
+				matrix B = P[k];
+
+				//Krzyżowanie
+				r = double(rand() % 2001 - 1000) / 1000.0;
+				for (int i = 0; i < n; i++) {
+					T(i, j) = r * A(i) + (1 - r) * B(i);
+				}
+
+				//Mutacja
+				"Losowanie b rozkładem normalnym";
+				for (int i = 0; i < n; i++) {
+					T(i, j) = r * A + (1 - r) * B;
+				}
+				//Trzeba zrobić by T było jak P chyba.
+				"Losowanie b rozkładem normalnym";
+				for (int i = 0; i < n; i++) {
+					T(i, j) = r * A + (1 - r) * B;
+				}
+
+			}
+			//P = najlepsze z (P) U (T)??
+			Xopt = "najlepszy osobnik nowego P";
+			i++;
+
+			if(solution::f_calls > Nmax){
+			
+				throw ToManyCalls("Przekroczono limit obliczen.\nLiczba wywolan = " + to_string(solution::f_calls + i) + "\nLimit wywyolan = " + to_string(Nmax));
+			
+			}
+
+			Xopt.fit_fun(ff, lb, ub);
+
+		} while (!(Xopt.y(0) < epsilon));
 
 		return Xopt;
+
+	}
+	catch (const std::exception& ex)
+	{
+		std::cerr << "PRZECHWYCONO WYJATEK - Ekspansja: " << ex.what() << "\n";
 	}
 	catch (string ex_info)
 	{
-		throw ("solution EA(...):\n" + ex_info);
+		throw ("WYJATEK - Ekspansja:\n" + ex_info);
 	}
+
+	Xopt.fit_fun(ff, A5, ud2);
+	return Xopt;
 }
