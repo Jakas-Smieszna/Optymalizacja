@@ -418,3 +418,41 @@ matrix zlotf4R(matrix a, matrix d, matrix x)
 
 
 //LAB 5
+
+matrix ff5T1(matrix x, matrix a, matrix ud1)
+{
+	return a(0) * (pow(x(0) - 3.0, 2.0) + pow(x(1) - 3.0, 2.0));
+}
+
+matrix ff5T2(matrix x, matrix a, matrix ud1)
+{
+	return (1.0 / a(0)) * (pow(x(0) + 3.0, 2) + pow(x(1) + 3.0, 2.0));
+}
+
+matrix gg5T1(matrix a, matrix d, matrix p)
+{
+
+	return ff5T1(p + a * d, A5, matrix());
+
+}
+
+matrix gg5T2(matrix a, matrix d, matrix p)
+{
+
+	return ff5T2(p + a * d, A5, matrix());
+
+}
+
+matrix ff5TX(matrix x, matrix a, matrix ud1)
+{
+
+	return 0.5 * ff5T1(x, a, ud1) + 0.5 * ff5T2(x, a, ud1);
+
+}
+
+matrix gg5TX(matrix a, matrix d, matrix p)
+{
+
+	return ff5TX(p + a * d, A5, matrix());
+
+}

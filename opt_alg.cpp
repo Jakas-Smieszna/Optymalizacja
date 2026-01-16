@@ -802,17 +802,109 @@ solution golden(matrix(*ff)(matrix, matrix, matrix), double A, double B, double 
 
 solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, int Nmax, matrix ud1, matrix ud2)
 {
+
+	solution Xopt;
+
 	try
 	{
-		solution Xopt;
-		//Tu wpisz kod funkcji
 
-		return Xopt;
+		if (epsilon < TOL || epsilon - 1 > TOL) {
+			Xopt.flag = 0;
+			throw BadArguments("Dokladnosc nie jest zawarta w dopuszczanlym obszarze (0,1).");
+		}
+		Xopt.x = x0;
+		int n = get_len(x0);
+		matrix d(n, n, 0.0);
+		d = ident_mat(n);
+		int i = 0;
+		matrix p(n, n, 0.0);
+		do {
+
+			for (int i = 0; i < n; i++) {
+				p(i, 0) = Xopt.x(i);
+			}
+			for (int j = 0; j < n-1; j++) {
+
+				double alfa = double(rand() % 200001 - 100000) / 10000.0;
+				if (ff == ff5T1) {
+					double* obszar = expansion(gg5T1, alfa, 0.2, 1.5, Nmax, d[j], p[j]);
+					alfa = golden(gg5T1, obszar[0], obszar[1], epsilon, Nmax, d[j], p[j]).x(0);
+					delete[] obszar;
+				}
+				else if (ff == ff5T2)  {
+					double* obszar = expansion(gg5T2, alfa, 0.2, 1.5, Nmax, d[j], p[j]);
+					alfa = golden(gg5T2, obszar[0], obszar[1], epsilon, Nmax, d[j], p[j]).x(0);
+					delete[] obszar;
+				}
+				else {
+					double* obszar = expansion(gg5TX, alfa, 0.2, 1.5, Nmax, d[j], p[j]);
+					alfa = golden(gg5TX, obszar[0], obszar[1], epsilon, Nmax, d[j], p[j]).x(0);
+					delete[] obszar;
+				}
+
+				matrix pom = p[j] + d[j] * alfa;
+				for (int i = 0; i < n; i++) {
+					p(i, j + 1) = pom(i,0);
+				}
+
+			}
+			if (sqrt(pow(p(0, n - 1) - Xopt.x(0), 2.0) + pow(p(1, n - 1) - Xopt.x(1), 2.0)) < epsilon) {
+				Xopt.fit_fun(ff, A5, ud2);
+				return Xopt;
+			}
+			for (int j = 0; j < n - 1; j++) {
+				matrix pom = d[j + 1];
+				for (int i = 0; i < n; i++) {
+					d(i, j) = pom(i, 0);
+				}
+			}
+			matrix pom = p[n-1] - p[0];
+			for (int i = 0; i < n; i++) {
+				d(i, n-1) = pom(i, 0);
+			}
+
+			double alfa = double(rand() % 200001 - 100000) / 10000.0;
+			if (ff == ff5T1) {
+				double* obszar = expansion(gg5T1, alfa, 0.2, 1.5, Nmax, d[n - 1], p[n - 1]);
+				alfa = golden(gg5T1, obszar[0], obszar[1], epsilon, Nmax, d[n - 1], p[n - 1]).x(0);
+				delete[] obszar;
+			}
+			else if (ff == ff5T2) {
+				double* obszar = expansion(gg5T2, alfa, 0.2, 1.5, Nmax, d[n - 1], p[n - 1]);
+				alfa = golden(gg5T2, obszar[0], obszar[1], epsilon, Nmax, d[n - 1], p[n - 1]).x(0);
+				delete[] obszar;
+			}
+			else {
+				double* obszar = expansion(gg5TX, alfa, 0.2, 1.5, Nmax, d[n-1], p[n-1]);
+				alfa = golden(gg5TX, obszar[0], obszar[1], epsilon, Nmax, d[n-1], p[n-1]).x(0);
+				delete[] obszar;
+			}
+			matrix pom2 = p[n - 1] + d[n - 1] * alfa;
+			for (int i = 0; i < n; i++) {
+				p(i, n - 1) = pom2(i, 0);
+			}
+			Xopt.x = p[n - 1];
+			i = i + 1;
+
+		} while (solution::f_calls + i < Nmax);
+		Xopt.flag = 0;
+		throw ToManyCalls("Przekroczono limit obliczen.\nLiczba wywolan = " + to_string(solution::f_calls + i) + "\nLimit wywyolan = " + to_string(Nmax));
+
+
+
+	}
+	catch (const std::exception& ex)
+	{
+		std::cerr << "PRZECHWYCONO WYJATEK - Powell: " << ex.what() << "\n";
 	}
 	catch (string ex_info)
 	{
-		throw ("solution Powell(...):\n" + ex_info);
+		throw ("WYJATEK - golden/expansion/zapis danych:\n" + ex_info);
 	}
+
+	Xopt.fit_fun(ff, A5, ud2);
+	return Xopt;
+
 }
 
 solution EA(matrix(*ff)(matrix, matrix, matrix), int N, matrix lb, matrix ub, int mi, int lambda, matrix sigma0, double epsilon, int Nmax, matrix ud1, matrix ud2)
