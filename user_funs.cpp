@@ -443,3 +443,16 @@ matrix gg5T2(matrix a, matrix d, matrix p)
 
 }
 
+matrix ff5TX(matrix x, matrix a, matrix ud1)
+{
+
+	return 0.5 * ff5T1(x, a, ud1) + 0.5 * ff5T2(x, a, ud1);
+
+}
+
+matrix gg5TX(matrix a, matrix d, matrix p)
+{
+
+	return ff5TX(p + a * d, A5, matrix());
+
+}

@@ -698,6 +698,13 @@ void lab5()
 
 			solution::clear_calls();
 
+			cout << "POWELL - FTX - wagi 0,5 i 0,5 - szukanie minimum w sensie Pareto dla pary funkcji:\n";
+			if (Sout.good() == true) Sout << ps(0) << "\t" << ps(1) << '\t';
+			opt = Powell(ff5TX, ps, epsilon, Nmax, lb, ub);
+			cout << opt << endl << endl;
+
+			solution::clear_calls();
+
 		}
 
 		cin >> kont;

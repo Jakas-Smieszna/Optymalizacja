@@ -831,9 +831,14 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 					alfa = golden(gg5T1, obszar[0], obszar[1], epsilon, Nmax, d[j], p[j]).x(0);
 					delete[] obszar;
 				}
-				else {
+				else if (ff == ff5T2)  {
 					double* obszar = expansion(gg5T2, alfa, 0.2, 1.5, Nmax, d[j], p[j]);
 					alfa = golden(gg5T2, obszar[0], obszar[1], epsilon, Nmax, d[j], p[j]).x(0);
+					delete[] obszar;
+				}
+				else {
+					double* obszar = expansion(gg5TX, alfa, 0.2, 1.5, Nmax, d[j], p[j]);
+					alfa = golden(gg5TX, obszar[0], obszar[1], epsilon, Nmax, d[j], p[j]).x(0);
 					delete[] obszar;
 				}
 
@@ -864,9 +869,14 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 				alfa = golden(gg5T1, obszar[0], obszar[1], epsilon, Nmax, d[n - 1], p[n - 1]).x(0);
 				delete[] obszar;
 			}
-			else {
+			else if (ff == ff5T2) {
 				double* obszar = expansion(gg5T2, alfa, 0.2, 1.5, Nmax, d[n - 1], p[n - 1]);
 				alfa = golden(gg5T2, obszar[0], obszar[1], epsilon, Nmax, d[n - 1], p[n - 1]).x(0);
+				delete[] obszar;
+			}
+			else {
+				double* obszar = expansion(gg5TX, alfa, 0.2, 1.5, Nmax, d[n-1], p[n-1]);
+				alfa = golden(gg5TX, obszar[0], obszar[1], epsilon, Nmax, d[n-1], p[n-1]).x(0);
 				delete[] obszar;
 			}
 			matrix pom2 = p[n - 1] + d[n - 1] * alfa;

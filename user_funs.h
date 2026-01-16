@@ -36,3 +36,5 @@ matrix ff5T1(matrix, matrix, matrix);
 matrix ff5T2(matrix, matrix, matrix);
 matrix gg5T1(matrix, matrix, matrix);
 matrix gg5T2(matrix, matrix, matrix);
+matrix ff5TX(matrix, matrix, matrix);
+matrix gg5TX(matrix, matrix, matrix);
