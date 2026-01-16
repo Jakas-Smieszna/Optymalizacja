@@ -77,7 +77,8 @@ double* expansion(matrix(*ff)(matrix, matrix, matrix), double x0, double d, doub
 				x1i = x2i;
 				x2i = x0 + pow(alpha, i) * d;
 				solution::f_calls += 2;
-			} while (!(ff(matrix(x1i), ud1, ud2) <= ff(matrix(x2i), ud1, ud2)));
+				std::cout << x0i << " | " << x2i << '\n';
+			} while (!(ff(x1i, ud1, ud2) <= ff(x2i, ud1, ud2)));
 			if (d > 0) {
 				p[0] = x0i;
 				p[1] = x2i;
@@ -822,9 +823,11 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 		matrix (*gFunc)(matrix, matrix, matrix);
 		// Lepiej byłoby np. jakiś hashmap tu strzelić
 		// ... ale to ma tylko działać więc
+		double expansion_d = 0.2;
 		if(ff == ff5T1) {gFunc = gg5T1;}
 		if(ff == ff5T2) {gFunc = gg5T2;}
 		if(ff == ff5TX) {gFunc = gg5TX;}
+		if(ff == ff5RX) {gFunc = gg5RX;}
 		do {
 
 			for (int i = 0; i < n; i++) {
@@ -833,12 +836,21 @@ solution Powell(matrix(*ff)(matrix, matrix, matrix), matrix x0, double epsilon, 
 			for (int j = 0; j < n-1; j++) {
 
 				double alfa = double(rand() % 200001 - 100000) / 10000.0;
+				if(gFunc == gg5RX) {
+					if(j == 0) {
+						alfa = double(rand() % 8000 + 2000) / 10000.0; expansion_d/=100;
+					} else {
+						alfa = double(rand() % 400 + 100) / 10000.0;
+					}
+				}
 				matrix gfunc_ud2(2, n, 0.0);
 				gfunc_ud2.set_col(d[j], 0);
 				gfunc_ud2.set_col(p[j], 1);
-				double* obszar = expansion(gFunc, alfa, 0.2, 1.5, Nmax, ud1, gfunc_ud2);
+				std::cout << "expansion x0: " << alfa << " | d: " << expansion_d << '\n';
+				double* obszar = expansion(gFunc, alfa, expansion_d, 2, Nmax, ud1, gfunc_ud2);
+				std::cout << "Obszar: " << obszar[0] << " | " << obszar[1] << "\n";
 				alfa = golden(gFunc, obszar[0], obszar[1], epsilon, Nmax, ud1, gfunc_ud2).x(0);
-				delete[] obszar;
+				// delete[] obszar;
 
 				matrix pom = p[j] + d[j] * alfa;
 				for (int i = 0; i < n; i++) {

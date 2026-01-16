@@ -495,7 +495,33 @@ matrix ff5R3(matrix x, matrix ud1, matrix ud2) {
 }
 
 matrix ff5RX(matrix x, matrix ud1, matrix ud2) {
+	const double l = x(0);
+	const double d = x(1);
+	const matrix a = ud1[0];
+	const matrix w = ud1[1];
 
+	const double masa = m2d(ff5R1(x, ud1, ud2));
+	const double ugiecie = m2d(ff5R2(x, ud1, ud2));
+	const double naprezenie = m2d(ff5R3(x, ud1, ud2));
+
+	matrix result = w * masa + (1-w)*ugiecie;
+	// if(ugiecie > 2.5e-3) { // 2.5 mm
+	// 	result = result * result * 9001; // masywna kara, chyba.
+	// }
+	// if(naprezenie > 300e6) { // 300 MPa
+	// 	result = result * result * 9001;
+	// }
+
+	return result;
+
+}
+
+
+matrix gg5RX(matrix a, matrix ud1, matrix ud2)
+{
+	const matrix d = ud2[0];
+	const matrix p = ud2[1];
+	return ff5RX(p + a * d, ud1, ud2);
 }
 
 //LAB 6

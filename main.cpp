@@ -677,6 +677,7 @@ void lab5()
 	char kont = '1';
 	fstream Sout;
 	Sout.open("testy_lab5.csv", std::ios::out);
+	goto real5;
 	while (kont == '1') {
 		for(double w = 0.00; w <= 1.01; w += 0.01) {
 			ps(0) = double(rand() % 200001 - 100000) / 10000.0;
@@ -684,16 +685,6 @@ void lab5()
 			matrix a = (matrix)(1.0);
 			matrix wm = (matrix)(w);
 			cout << "Punkt startowy = [" << ps(0) << ", " << ps(1) << "].\n";
-			// ps(0) = -3; ps(1) = -3;
-			// printf("ff5T1(%lf, %lf) = %lf\nff5T2(%lf, %lf) = %lf\n",
-			// 	ps(0), ps(1), ff5T1(ps, a, w)(0),
-			// 	ps(0), ps(1), ff5T2(ps, a, w)(0)
-			// );
-			// printf("ff5TX(%lf, %lf, w=%lf) = %lf\n",
-			// 	ps(0), ps(1), wm(0), ff5TX(ps, a, wm)(0)
-			// );
-			// printf("a(0): %lf\n1.0/a(0): %lf", (a(0)), (1.0/a(0)));
-			// continue;
 			if (Sout.good() == true) {
 				Sout << ps(0) << "\t" << ps(1) << '\t';
 			}
@@ -713,7 +704,34 @@ void lab5()
 			if(Sout.good()) Sout << '\n';
 		}
 		cin >> kont;
-
+	}
+	Sout.close();
+real5:
+	while (kont == '1') {
+		for(double w = 0.00; w <= 1.01; w += 0.01) {
+			ps(0) = double(rand() % 8000 + 2000) / 10000.0;
+			ps(1) = double(rand() % 400 + 100) / 10000.0;
+			cout << "Punkt startowy = [" << ps(0) << ", " << ps(1) << "].\n";
+			if (Sout.good() == true) {
+				Sout << ps(0) << "\t" << ps(1) << '\t';
+			}
+			for(double a : {1.0}) {
+				cout << "Dla współczynnika a = " << a << ":\n";
+				matrix ud1(1, 2, 0.0);
+				ud1(0) = a; ud1(0,1) = w;
+				opt = Powell(ff5RX, ps, epsilon, Nmax, ud1, 0.0);
+				cout << opt << endl << endl;
+				return;
+				if (Sout.good() == true) {
+					Sout << opt.x(0) << '\t' << opt.x(1) << '\t'
+					<< ff5T1(opt.x, ud1, 0) << '\t' << ff5T2(opt.x, ud1, 0) << '\t'
+					<< solution::f_calls << '\t';
+				}
+				solution::clear_calls();
+			}
+			if(Sout.good()) Sout << '\n';
+		}
+		cin >> kont;
 	}
 	Sout.close();
 
