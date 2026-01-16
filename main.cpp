@@ -15,6 +15,8 @@ Data ostatniej modyfikacji: 30.09.2025
 
 
 #include "user_funs.h"
+#include <cstdlib>
+#include <ctime>
 #define _USE_MATH_DEFINES
 #include"opt_alg.h"
 #include <cmath>
@@ -527,10 +529,8 @@ void lab3()
 
 void lab4()
 {
-	std::cout << ff4R(matrix(3, new double[3]{0.1, 0.1, 0.1})) << '\n';
-	std::cout << gf4R(matrix(3, new double[3]{0.1, 0.1, 0.1})) << '\n';
 	//-----FUNKCJA TESTOWA-----------------------------------------------------------
-
+	srand(time(NULL));
   char kont = '1';
   fstream Sout;
   matrix ps(2, 1);
@@ -540,7 +540,8 @@ void lab4()
   double epsilon = 1e-4;
   int limit = 1e7;
   while (kont == '1') {
-	  for (int i = 0; i < 100; i++) {							//JG:mozna wybrac liczbe powtorzen
+  int i = 0;
+	  for (i = 0; i < 100; i++) {							//JG:mozna wybrac liczbe powtorzen
 
   		ps(0) = double(rand() % 40001 - 20000) / 10000.0;
   		ps(1) = double(rand() % 40001 - 20000) / 10000.0;
@@ -555,7 +556,7 @@ void lab4()
 	  	if (Sout.good() == true) {
 			Sout << opt.x(0) << "\t" << opt.x(1) << '\t' << opt.y(0)
 			<< "\t" << solution::f_calls << "\t" << solution::g_calls;
-			if(fabs(opt.x(0)) < 10*epsilon && fabs(opt.x(1)) < 10*epsilon) {
+			if(fabs(opt.y(0)) < 10*epsilon) {
 			Sout << "\tTAK\t";
 			} else Sout << "\tNIE\t";
 		}
@@ -568,7 +569,7 @@ void lab4()
 	  	if (Sout.good() == true) {
 			Sout << opt.x(0) << "\t" << opt.x(1) << '\t' << opt.y(0)
 			<< "\t" << solution::f_calls << "\t" << solution::g_calls;
-			if(fabs(opt.x(0)) < 10*epsilon && fabs(opt.x(1)) < 10*epsilon) {
+			if(fabs(opt.y(0)) < 10*epsilon) {
 			Sout << "\tTAK\t";
 			} else Sout << "\tNIE\t";
 		}
@@ -581,16 +582,15 @@ void lab4()
 	  	if (Sout.good() == true) {
 			Sout << opt.x(0) << "\t" << opt.x(1) << '\t' << opt.y(0)
 			<< "\t" << solution::f_calls << "\t" << solution::g_calls << "\t" << solution::H_calls;
-			if(fabs(opt.x(0)) < 10*epsilon && fabs(opt.x(1)) < 10*epsilon) {
+			if(fabs(opt.y(0)) < 10*epsilon) {
 			Sout << "\tTAK\n";
 			} else Sout << "\tNIE\n";
 		}
 	  	solution::clear_calls();
-
-
+				std::cout << "petla: " << i << "\n\n\n";
   	}
 
-	std::cout << "koniec petli\n";
+	std::cout << "koniec petli: " << i << '\n';
   	cin >> kont;
 
   }
