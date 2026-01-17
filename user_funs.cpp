@@ -504,13 +504,15 @@ matrix ff5RX(matrix x, matrix ud1, matrix ud2) {
 	const double ugiecie = m2d(ff5R2(x, ud1, ud2));
 	const double naprezenie = m2d(ff5R3(x, ud1, ud2));
 
-	matrix result = w * masa + (1-w)*ugiecie;
-	// if(ugiecie > 2.5e-3) { // 2.5 mm
-	// 	result = result * result * 9001; // masywna kara, chyba.
-	// }
-	// if(naprezenie > 300e6) { // 300 MPa
-	// 	result = result * result * 9001;
-	// }
+	double result = m2d(w * masa + (1-w)*ugiecie);
+	double penalty = 2.137e10;
+	if(l < 0.2) result += penalty * pow(0.2 - l, 2.0);
+	if(l > 1) result += penalty * pow(l - 1, 2.0);
+	if(d < 0.01) result += penalty * pow(0.01 - d, 2.0);
+	if(d > 0.05) result += penalty * pow(d - 0.05, 2.0);
+
+	if(ugiecie > 2.5e-3) result += penalty * pow(ugiecie - 2.5e-3, 2.0);
+	if(naprezenie > 300e6) result += penalty * pow(naprezenie - 300e6, 2.0);
 
 	return result;
 

@@ -666,7 +666,7 @@ void lab5()
 	double krok_s = 1.5;									// krok
 	double beta = 0.5;										// wspolczynnik kontrakcji
 	double epsilon = 1e-8;									// dokladnosc
-	int Nmax = 10000;										// maksymalna liczba wywolan funkcji celu
+	int Nmax = 100000;										// maksymalna liczba wywolan funkcji celu
 	matrix lb(2, 1, -1.0), ub(2, 1, 1.0),					// dolne oraz g�rne ograniczenie
 		ps(2, 1, double(rand() % 20001 - 10000) / 10000.0);	// punkt startowy
 	solution opt;											// rozwiazanie optymalne znalezione przez algorytm
@@ -677,7 +677,6 @@ void lab5()
 	char kont = '1';
 	fstream Sout;
 	Sout.open("testy_lab5.csv", std::ios::out);
-
 	goto real5; // POMIJA TESTOWE; IDZIE DO RZECZYWISTEJ
 
 	while (kont == '1') {
@@ -694,8 +693,10 @@ void lab5()
 				cout << "Dla współczynnika a = " << a << ":\n";
 				matrix ud1(1, 2, 0.0);
 				ud1(0) = a; ud1(0,1) = w;
-				opt = Powell(ff5TX, ps, epsilon, Nmax, ud1, 0.0);
+				opt = Powell(gg5TX, ps, epsilon, Nmax, ud1, 0.0);
+				opt.fit_fun(ff5TX, ud1, 0.0);
 				cout << opt << endl << endl;
+				exit(0);
 				if (Sout.good() == true) {
 					Sout << opt.x(0) << '\t' << opt.x(1) << '\t'
 					<< ff5T1(opt.x, ud1, 0) << '\t' << ff5T2(opt.x, ud1, 0) << '\t'
@@ -707,26 +708,28 @@ void lab5()
 		}
 		cin >> kont;
 	}
-	Sout.close();
 real5:
+	Sout.close();
+	Sout.open("rzeczywista_lab5.csv", std::ios::out);
 	while (kont == '1') {
 		for(double w = 0.00; w <= 1.01; w += 0.01) {
-			ps(0) = double(rand() % 8000 + 2000) / 10000.0;
-			ps(1) = double(rand() % 400 + 100) / 10000.0;
+			ps(0) = double(rand() % 8000 + 2000) / 10000.0; // l
+			ps(1) = double(rand() % 400 + 100) / 10000.0; // d
 			cout << "Punkt startowy = [" << ps(0) << ", " << ps(1) << "].\n";
 			if (Sout.good() == true) {
-				Sout << ps(0) << "\t" << ps(1) << '\t';
+				Sout << 1000 * ps(0) << "\t" << 1000 * ps(1) << '\t';
 			}
-			for(double a : {1.0}) {
-				cout << "Dla współczynnika a = " << a << ":\n";
+			for(double a : {1.0}) { // Nie chciało mi sie usuwać for-a.
 				matrix ud1(1, 2, 0.0);
 				ud1(0) = a; ud1(0,1) = w;
-				opt = Powell(ff5RX, ps, epsilon, Nmax, ud1, 0.0);
+				opt = Powell(gg5RX, ps, epsilon, Nmax, ud1, 0.0);
+				opt.fit_fun(ff5RX, ud1, 0.0);
 				cout << opt << endl << endl;
-				return;
 				if (Sout.good() == true) {
-					Sout << opt.x(0) << '\t' << opt.x(1) << '\t'
-					<< ff5T1(opt.x, ud1, 0) << '\t' << ff5T2(opt.x, ud1, 0) << '\t'
+					Sout << 1000 * opt.x(0) << '\t' << 1000 * opt.x(1) << '\t'
+					<< ff5R1(opt.x, ud1, 0) << '\t' // masa
+					<< 1000 * ff5R2(opt.x, ud1, 0) << '\t' // ugięcie
+					<< 1e-6 * ff5R3(opt.x, ud1, 0) << '\t' // naprężenie
 					<< solution::f_calls << '\t';
 				}
 				solution::clear_calls();
