@@ -518,7 +518,7 @@ matrix ff5RX(matrix x, matrix ud1, matrix ud2) {
 
 }
 
-
+// Funkcja minimalizowana:
 matrix gg5RX(matrix a, matrix ud1, matrix ud2)
 {
 	const matrix d = ud2[0];

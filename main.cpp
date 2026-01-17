@@ -677,7 +677,6 @@ void lab5()
 	char kont = '1';
 	fstream Sout;
 	Sout.open("testy_lab5.csv", std::ios::out);
-	goto real5; // POMIJA TESTOWE; IDZIE DO RZECZYWISTEJ
 
 	while (kont == '1') {
 		for(double w = 0.00; w <= 1.01; w += 0.01) {
@@ -696,7 +695,6 @@ void lab5()
 				opt = Powell(gg5TX, ps, epsilon, Nmax, ud1, 0.0);
 				opt.fit_fun(ff5TX, ud1, 0.0);
 				cout << opt << endl << endl;
-				exit(0);
 				if (Sout.good() == true) {
 					Sout << opt.x(0) << '\t' << opt.x(1) << '\t'
 					<< ff5T1(opt.x, ud1, 0) << '\t' << ff5T2(opt.x, ud1, 0) << '\t'
@@ -708,7 +706,7 @@ void lab5()
 		}
 		cin >> kont;
 	}
-real5:
+	
 	Sout.close();
 	Sout.open("rzeczywista_lab5.csv", std::ios::out);
 	while (kont == '1') {
@@ -727,9 +725,9 @@ real5:
 				cout << opt << endl << endl;
 				if (Sout.good() == true) {
 					Sout << 1000 * opt.x(0) << '\t' << 1000 * opt.x(1) << '\t'
-					<< ff5R1(opt.x, ud1, 0) << '\t' // masa
-					<< 1000 * ff5R2(opt.x, ud1, 0) << '\t' // ugięcie
-					<< 1e-6 * ff5R3(opt.x, ud1, 0) << '\t' // naprężenie
+					<< m2d(ff5R1(opt.x, ud1, 0)) << '\t' // masa
+					<< 1000 * m2d(ff5R2(opt.x, ud1, 0)) << '\t' // ugięcie
+					<< 1e-6 * m2d(ff5R3(opt.x, ud1, 0)) << '\t' // naprężenie
 					<< solution::f_calls << '\t';
 				}
 				solution::clear_calls();
@@ -739,8 +737,6 @@ real5:
 		cin >> kont;
 	}
 	Sout.close();
-
-
 }
 
 void lab6()
